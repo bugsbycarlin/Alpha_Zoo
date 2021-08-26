@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Alpha Zoo</title>
+    <style type="text/css">
+      canvas { 
+        border: 0px; 
+      }
+      body {
+        margin:0;
+        padding:0;
+        height:100%;
+        overflow: hidden;
+      }
+      #mainDiv {
+        position: absolute;
+        background-color: #FFFFFF;
+        width: 1280px;
+        left:50%;
+        margin-left:-640px;
+        height: 960px;
+        top:50%;
+        margin-top:-480px;
+        /*cursor: none;*/
+      }
+    </style>
+  </head>
+  <body bgcolor = #D9D9D9 onload="initialize();">
+    <audio preload="auto" id="victory" >
+      <source src="Sound/victory.wav" type="audio/wav">
+    </audio>
+
+    <audio preload="auto" id="swipe" >
+      <source src="Sound/swipe.wav" type="audio/wav">
+    </audio>
+
+    <audio preload="auto" id="background_music" >
+      <source src="Sound/Chris Haugen - Campfire Song.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="mainDiv">
+    </div>
+    <script type="text/javascript" charset="utf-8">
+      var device = null;
+    </script>
+    <script type="text/javascript" src="Source/Libraries/webfont.js"></script>
+    <script type="text/javascript" src="Source/Libraries/firebase-app.js"></script>
+    <script type="text/javascript" src="Source/Libraries/firebase-analytics.js"></script>
+    <script type="text/javascript" src="Source/Libraries/firebase-auth.js"></script>
+    <script type="text/javascript" src="Source/Libraries/firebase-database.js"></script>
+    <script type="text/javascript" src="Source/Libraries/gunzip.min.js"></script>
+    <script type="text/javascript" src="Source/Libraries/pixi.min.js"></script>
+    <script type="text/javascript" src="Source/Libraries/pixi-spine.js"></script>
+    <script type="text/javascript" src="Source/Libraries/pixi-filters.js"></script>
+    <script type="text/javascript" src="Source/Libraries/tween.umd.min.js"></script>
+    <script type="text/javascript" src="Source/Libraries/d3-delaunay-6.0.2.js"></script>
+
+    <script type="text/javascript" src="Source/utilities.js"></script>
+    <script type="text/javascript" src="Source/game.js"></script>
+    <script type="text/javascript" src="Source/animals.js"></script>
+    <script type="text/javascript" src="Source/character.js"></script>
+    <script type="text/javascript" src="Source/screen_zoo.js"></script>
+    <script type="text/javascript" src="Source/user_interface.js"></script>
+  </body>
+</html>

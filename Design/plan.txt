@@ -1,0 +1,31 @@
+Step 1: voronoi diagram
+Step 2: Lloyd's algorithm to make it roughly centroidal
+
+Matthew Carlin, Tue 12:32 AM
+Step 3: given desired number of animal pens, choose a roughly elliptical chunk of the voronoi diagram. literally, choose an ellipse which crosses the desired number of cells (throwing away the furthest cells if there isn't an exact match).
+Step 4: set aside the outer perimeter of cells to form one unit. these will be the outer perimeter of the zoo, and except for the zoo entrance cell, their inner perimeter will form a contiguous inner wall.
+Step 5: (somehow) partition the remaining cells into clusters of 3 or 4 each, possibly leaving a straggler here or there. We now have roughly A Zoo, where there's an outer wall of animal pens, and several inner clusters of animal pens.
+Step 6: compute the boundary polygon of each cluster, including the inner ring of the outer one. shrink this polygon to create walking space.
+Step 7 (optional): bezier interpolation instead of polygon to define a smoother pen.
+
+Matthew Carlin, Tue 12:39 AM
+Step 8: dark brown thick lines on all polygons, as well as on inner lines dividing pens from each other. then drop a slightly darker brown shadow below (and drawn behind) to make all the pens look like they're tall and shaded.
+Path color for the rest of the voronoi diagram space
+green background
+Step 9: loosely fill all green space with stamp cartoon trees and bushes
+Step 10: fill animal pens with appropriate background, sand for camels, green for most animals, blue ponds for crocodiles and flamingoes and such.
+Step 11: sign on the bottom of each voronoi cell naming the animal
+Step 12: each animal, running a short scuttling loop animation, is placed on a tight random walk (1d or 2d) at the center of the voronoi cell.
+It only took me 13 minutes to type out my plan. How hard can it be? 😛
+
+
+
+https://github.com/d3/d3-delaunay
+
+
+
+
+Each animal:
+
+Land
+Decorations
