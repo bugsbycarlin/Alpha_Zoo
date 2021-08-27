@@ -13,10 +13,10 @@ animals = {
     land: "watergrass",
     decorations: ["rock", "grass"],
   },
-  // "OTTER": {
-  //   land: "water",
-  //   decorations: ["rock", "grass"],
-  // },
+  "OTTER": {
+    land: "water",
+    decorations: ["rock", "grass"],
+  },
   // "CHEETAH": {},
   // "TIGER": {},
   // "GORILLA": {},
@@ -44,18 +44,26 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal_sprite.scale.set(scale_value, scale_value);
   animal_sprite.anchor.set(0.5,0.75);
 
+  animal.addChild(animal_sprite);
+
   animal.pen = pen;
 
-  animal.direction = 1;
-  animal.last_bounce = this.markTime();
+  if (pen.land == "water") {
+    animal.water_fill = PIXI.Sprite.from(PIXI.Texture.WHITE);
+    animal.water_fill.width = 256 * scale_value;
+    animal.water_fill.height = 100 * scale_value;
+    animal.water_fill.tint = water_color;
+    // animal.water_fill.scale.set(scale_value, scale_value);
+    animal.water_fill.anchor.set(0.5,1);
+    animal.water_fill.position.set(0,90*scale_value);
+    animal.addChild(animal.water_fill);
+  }
 
   animal.delay = 0;
   animal.delay_time = null;
 
   animal.vx = 0.4;
   animal.vy = 0;
-  
-  animal.addChild(animal_sprite);
 
   animal.update = function() {
 
@@ -86,6 +94,10 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       } else if (animal.vx < 0 && animal_sprite.x <= -20) {
         animal.vx *= -1;
         animal_sprite.scale.set(scale_value, scale_value);
+      }
+
+      if (animal.water_fill != null) {
+        animal.water_fill.x = animal_sprite.x;
       }
     }
 
