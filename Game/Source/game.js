@@ -24,11 +24,7 @@ function initialize() {
   game = new Game();
 }
 
-WebFont.load({
-  google: {
-    families: ['Bebas Neue', 'Press Start 2P', 'Bangers']
-  }
-});
+
 
 // var words = [
 //   "no",
@@ -198,10 +194,17 @@ class Game {
 
     PIXI.Loader.shared
       .add("Art/bear.json")
+      .add("Art/smoke.json")
       .load(function() {
-
-        self.initializeZoo();
-        self.current_screen = "zoo";
+        WebFont.load({
+          google: {
+            families: ['Bebas Neue']
+          },
+          active:e=>{
+            self.initializeZoo();
+            self.current_screen = "zoo";
+          }
+        });
     });
   }
 

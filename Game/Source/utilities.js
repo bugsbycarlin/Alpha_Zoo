@@ -80,7 +80,6 @@ lloydRelaxation = function (points, width, height) {
     if (v[2] != 0) {
       points[i][0] = v[0] / v[2];
       points[i][1] = v[1] / v[2];
-      console.log("adjusting");
     }
   }
 }
@@ -196,7 +195,7 @@ function addDedupeSort(some_list, other_list) {
 }
 
 
-function flickerText(item, duration, color_1, color_2) {
+function flicker(item, duration, color_1, color_2) {
   item.flicker_junker = 0
   let color_counter = 0;
   var tween = new TWEEN.Tween(item)
@@ -204,14 +203,14 @@ function flickerText(item, duration, color_1, color_2) {
     .duration(duration)
     .onUpdate(function() {
       if (color_counter % 2 == 0) {
-        item.style.fill = color_1;
+        item.tint = color_1;
       } else {
-        item.style.fill = color_2;
+        item.tint = color_2;
       }
       color_counter += 1;
     })
     .onComplete(function() {
-      item.style.fill = color_1;
+      item.tint = color_1;
     })
     .start();
 }

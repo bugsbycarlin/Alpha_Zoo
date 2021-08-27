@@ -13,13 +13,13 @@ animals = {
     land: "watergrass",
     decorations: ["rock", "grass"],
   },
-  "OTTER": {
-    land: "water",
-    decorations: ["rock", "grass"],
-  },
-  "CHEETAH": {},
-  "TIGER": {},
-  "GORILLA": {},
+  // "OTTER": {
+  //   land: "water",
+  //   decorations: ["rock", "grass"],
+  // },
+  // "CHEETAH": {},
+  // "TIGER": {},
+  // "GORILLA": {},
 
 
 
@@ -40,40 +40,55 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   let animal = new PIXI.Container();
 
   let animal_sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + animal_type.toLowerCase() + ".png"));
-  animal_sprite.scale.set(0.12, 0.12);
-  animal_sprite.anchor.set(0.5,0.67);
+  let scale_value = 0.11;
+  animal_sprite.scale.set(scale_value, scale_value);
+  animal_sprite.anchor.set(0.5,0.75);
 
   animal.pen = pen;
 
   animal.direction = 1;
   animal.last_bounce = this.markTime();
 
-  animal.update_delay = 175 + 75 * Math.random();
+  animal.delay = 0;
+  animal.delay_time = null;
+
+  animal.vx = 0.4;
+  animal.vy = 0;
   
   animal.addChild(animal_sprite);
 
   animal.update = function() {
-    if (self.timeSince(animal.last_bounce) > animal.update_delay) {
-      if (animal_sprite.angle <= 0) {
-        animal_sprite.angle = 2 + Math.random() * 5;
-      } else {
-        animal_sprite.angle = -2 - Math.random() * 5;
-      }
 
-      if (animal.direction == 1 && animal_sprite.x < 20) {
-        animal_sprite.x += 2;
-      } else if (animal.direction == 1 && animal_sprite.x >= 20) {
-        animal_sprite.scale.set(-0.12, 0.12);
-        animal.direction = -1;
-      } else if (animal.direction == -1 && animal_sprite.x > -20) {
-        animal_sprite.x -= 2;
-      } else if (animal.direction == -1 && animal_sprite.x <= 20) {
-        animal_sprite.scale.set(0.12, 0.12);
-        animal.direction = 1;
-      }
-
-      animal.last_bounce = self.markTime();
+    if (animal.delay > 0 && self.timeSince(animal.delay_time) > animal.delay) {
+      animal.delay = 0;
+      animal.delay_time = null;
     }
+
+    if (animal.delay == 0) {
+      animal_sprite.x += animal.vx;
+      animal_sprite.y += animal.vy;
+
+      if (animal_sprite.y >= 0) {
+        animal.vy = -0.6;
+        animal_sprite.y = 0;
+
+        if(Math.random() < 0.03) {
+          animal.delay = 500 + 2000 * Math.random();
+          animal.delay_time = self.markTime();
+        }
+      } else {
+        animal.vy += 0.1;
+      }
+
+      if (animal.vx > 0 && animal_sprite.x >= 20) {
+        animal.vx *= -1;
+        animal_sprite.scale.set(-scale_value, scale_value);
+      } else if (animal.vx < 0 && animal_sprite.x <= -20) {
+        animal.vx *= -1;
+        animal_sprite.scale.set(scale_value, scale_value);
+      }
+    }
+
   }
 
   return animal;

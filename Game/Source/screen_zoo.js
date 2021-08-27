@@ -34,6 +34,7 @@ let sand_color = 0xf3cca0;
 let water_color = 0x42b2d2;
 let sign_color = 0xc09f57;
 
+// this should be 6. it looks good at 6.
 let map_scale = 6;
 
 Game.prototype.resetZooScreen = function() {
@@ -54,7 +55,14 @@ Game.prototype.resetZooScreen = function() {
   this.sepia_filter.sepia(true);
 
   this.greyscale_filter = new PIXI.filters.ColorMatrixFilter();
-  this.greyscale_filter.greyscale(0.5, true);
+  this.greyscale_filter.greyscale(0.6, true);
+
+  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
+  this.dropshadow_filter.blur  = 2;
+  this.dropshadow_filter.quality = 3;
+  this.dropshadow_filter.alpha = 0.55;
+  this.dropshadow_filter.distance = 8;
+  this.dropshadow_filter.rotation = 45;
 
   this.map = new PIXI.Container();
   this.map.position.set(640,480)
@@ -72,9 +80,6 @@ Game.prototype.resetZooScreen = function() {
 
   this.map.decoration_layer = new PIXI.Container();
   this.map.addChild(this.map.decoration_layer);
-
-  this.ui_layer = new PIXI.Container();
-  screen.addChild(this.ui_layer);
 
   // Make the ui layer
   this.makeUI();
@@ -95,32 +100,59 @@ Game.prototype.resetZooScreen = function() {
   this.player = this.makeCharacter();
 
   this.addDecorationsAnimalsAndPlayer();
-  // this.addSigns();
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAnimalPens();
-
-  // this.greyAll();
 
   this.setMusic("background_music");
 }
 
 
 Game.prototype.makeUI = function() {
-  // this.typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 144, fill: 0x000000, letterSpacing: 3, align: "left"});
-  // this.typing_text.anchor.set(0,0.5);
-  // this.typing_text.position.set(200, 960/2);
-  // screen.addChild(this.typing_text);
+  var self = this;
+  var screen = this.screens["zoo"];
+  
+  this.ui_layer = new PIXI.Container();
+  screen.addChild(this.ui_layer);
+
+  this.typing_ui = new PIXI.Container();
+  this.ui_layer.addChild(this.typing_ui);
+
+  this.grey_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 140, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+  this.grey_text.anchor.set(0,0.5);
+  this.grey_text.position.set(25, 93);
+  this.typing_ui.addChild(this.grey_text);
+
+  this.typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.typing_text.tint = 0x000000;
+  this.typing_text.anchor.set(0,0.5);
+  this.typing_text.position.set(25, 93);
+  this.typing_ui.addChild(this.typing_text);
+
+  this.typing_backing = null;
+
+  this.typing_ui.visible = false;
+  this.typing_allowed = false;
+
+
+  this.display_ui = new PIXI.Container();
+  this.ui_layer.addChild(this.display_ui);
+
+  this.display_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
+  this.display_backing.anchor.set(0, 1);
+  this.display_backing.scale.set(0.8, 0.8);
+  this.display_backing.position.set(1280 - 400, 960 - 30);
+  this.display_backing.filters = [this.dropshadow_filter];
+  this.display_ui.addChild(this.display_backing);
+
+  this.display_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "right"});
+  this.display_text.tint = 0x000000;
+  this.display_text.anchor.set(1,0.5);
+  this.display_text.position.set(1280 - 25, 960 - 90);
+  this.display_ui.addChild(this.display_text);
+
+  this.display_ui.visible = false;
 }
 
-
-// group_colors = [];
-// for (let c = 0; c < 300; c++) {
-//   group_colors.push([
-//     Math.floor(64 + 192 * Math.random()),
-//     Math.floor(64 + 192 * Math.random()),
-//     Math.floor(64 + 192 * Math.random()),
-//   ]);
-// }
 
 Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
   var self = this;
@@ -149,6 +181,7 @@ Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
       animal_object: null,
       sign: null,
       state: "ungrey",
+      cell_number: i,
     });
   }
 
@@ -234,8 +267,6 @@ Game.prototype.makeInnerGroups = function() {
       group_count = 0;
     }
   }
-
-  console.log("There are " + group_num + " groups");
 
   group_centers = {};
 
@@ -369,7 +400,6 @@ Game.prototype.scaleGroups = function() {
         let n = this.voronoi_metadata[i].neighbors[j];
         if (this.voronoi_metadata[n].use == true && this.voronoi_metadata[n].group == 0) {
           this.voronoi_metadata[i].group = 5001;
-          console.log("neighbor of the perimeter");
         }
       }
     }
@@ -378,6 +408,27 @@ Game.prototype.scaleGroups = function() {
 
 
 Game.prototype.deleteOverlaps = function() {
+  // Delete any outer cell that doesn't have inner cell neighbors, to prevent lockout.
+   for (let i = 0; i < voronoi_size; i++) {
+    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == 0) {
+      has_nonzero_neighbor = false;
+
+      for (let j = 0; j < this.voronoi_metadata[i].neighbors.length; j++) {
+        let cell = this.voronoi_metadata[this.voronoi_metadata[i].neighbors[j]];
+        if (cell.use == true && cell.group != 5000 && cell.group > 0) {
+          has_nonzero_neighbor = true;
+        }
+      }
+
+      if (!has_nonzero_neighbor) {
+        // console.log("Deleting outer cell because it has no inner neighbors");
+        this.voronoi_metadata[i].use = false;
+        this.voronoi_metadata[i].group = null;
+      }
+    }
+  }
+
+  // Delete any cell that overlaps a cell from a lower numbered group
   for (let i = 0; i < voronoi_size; i++) {
     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
       for (let j = 0; j < voronoi_size; j++) {
@@ -386,7 +437,7 @@ Game.prototype.deleteOverlaps = function() {
             for (let k = 0; k < this.voronoi_metadata[j].polygon.length; k++) {
               let point = this.voronoi_metadata[j].polygon[k];
               if (pointInsidePolygon(point, this.voronoi_metadata[i].polygon) == true) {
-                console.log("deleting one");
+                // console.log("deleting an overlap cell");
                 this.voronoi_metadata[j].use = false;
                 this.voronoi_metadata[j].group = null;
               }
@@ -532,6 +583,7 @@ Game.prototype.drawMap = function() {
 
       let ground = new PIXI.Graphics();
 
+      let filled = false;
       if (this.voronoi_metadata[i].land == null || this.voronoi_metadata[i].land == "grass") {
         ground.beginFill(grass_color);
       } else if (this.voronoi_metadata[i].land == "water") {
@@ -539,11 +591,31 @@ Game.prototype.drawMap = function() {
       } else if (this.voronoi_metadata[i].land == "sand") {
         ground.beginFill(sand_color);
       } else if (this.voronoi_metadata[i].land == "watergrass") {
-        ground.beginFill(water_color); // fix this
+        ground.beginFill(water_color);
+        let polygon_right = this.voronoi_metadata[i].polygon.flat();
+        ground.drawPolygon(polygon_right);
+        ground.beginFill(grass_color);
+        let polygon_left = [];
+        for (let k = 0; k < this.voronoi_metadata[i].polygon.length; k++) {
+          if (this.voronoi_metadata[i].polygon[k][0] <= this.voronoi_metadata[i].cx) {
+            polygon_left.push(this.voronoi_metadata[i].polygon[k][0])
+            polygon_left.push(this.voronoi_metadata[i].polygon[k][1]);
+            //ground.beginFill(PIXI.utils.rgb2hex([k / 10, k / 10, k / 10]));
+            //ground.drawCircle(this.voronoi_metadata[i].polygon[k][0], this.voronoi_metadata[i].polygon[k][1], 10);
+          }
+        }
+        polygon_left.push(polygon_left[0])
+        polygon_left.push(polygon_left[1]);
+        ground.drawPolygon(polygon_left);
+        console.log(polygon_left);
+        filled = true;
       }
 
       let polygon = this.voronoi_metadata[i].polygon.flat();
-      ground.drawPolygon(polygon);
+      if (!filled) {
+        // console.log(polygon);
+        ground.drawPolygon(polygon);
+      }
       ground.endFill();
 
       this.voronoi_metadata[i].land_object.addChild(ground);
@@ -568,61 +640,7 @@ Game.prototype.drawMap = function() {
     }
   }
 
-  console.log(this.map.terrain_layer);
-  console.log(this.terrain);
-
   this.sortLayer(this.map.terrain_layer, this.terrain, true);
-
-
-
-
-
-  // let land = new PIXI.Graphics();
-  // for (let i = 0; i < voronoi_size; i++) {
-  //   if (this.voronoi_metadata[i].use == true) {
-
-  //     if(this.voronoi_metadata[i].group != 5000) {
-  //       if (this.voronoi_metadata[i].land == null || this.voronoi_metadata[i].land == "grass") {
-  //         land.beginFill(grass_color);
-  //       } else if (this.voronoi_metadata[i].land == "water") {
-  //         land.beginFill(water_color);
-  //       } else if (this.voronoi_metadata[i].land == "sand") {
-  //         land.beginFill(sand_color);
-  //       } else if (this.voronoi_metadata[i].land == "watergrass") {
-  //         land.beginFill(water_color); // fix this
-  //       }
-  //     }
-
-  //     let polygon = this.voronoi_metadata[i].polygon.flat();
-  //     land.drawPolygon(polygon);
-  //     land.endFill();
-  //   }
-  // }
-  // this.map.addChild(land);
-
-  // let borders = new PIXI.Graphics();
-  // borders.lineStyle(2, 0x754c25, 1); //width, color, alpha
-
-  // for (let i = 0; i < voronoi_size; i++) {
-  //   if (this.voronoi_metadata[i].use == true) {
-  //     let polygon = this.voronoi_metadata[i].polygon.flat();
-  //     borders.drawPolygon(polygon);
-  //   }
-  // }
-
-
-  // let b2 = borders.clone();
-  // b2.position.set(0,2);
-  // b2.tint = 0xAAAAAA;
-  // this.map.addChild(b2);
-
-  // let b3 = borders.clone();
-  // b3.position.set(0,4);
-  // b3.tint = 0xAAAAAA;
-  // this.map.addChild(b3);
-
-  // this.map.addChild(borders);
-
 }
 
 
@@ -650,11 +668,14 @@ Game.prototype.addDecorationsAnimalsAndPlayer = function() {
         }
 
         if (this.voronoi_metadata[i].animal != null) {
-          let animal = this.makeAnimal("LION", this.voronoi_metadata[i]);
+          let animal_name = this.voronoi_metadata[i].animal;
+          // if (animal_name != "LION") animal_name = "RHINO";
+          let animal = this.makeAnimal(animal_name, this.voronoi_metadata[i]);
           animal.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
           this.decorations.push(animal);
           this.voronoi_metadata[i].animal_object = animal;
           this.animals.push(animal);
+          this.shakers.push(this.voronoi_metadata[i].land_object);
         }
 
       }
@@ -693,45 +714,127 @@ Game.prototype.addDecorationsAnimalsAndPlayer = function() {
 }
 
 
-Game.prototype.addSigns = function() {
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
-      if (this.voronoi_metadata[i].animal != null) {
-        let sign = new PIXI.Container();
+Game.prototype.changeTypingText = function(new_word, found_pen) {
+  var self = this;
+  var screen = this.screens["zoo"];
 
-        // let min_point = -1000000;
-        // let min_point_2 = -1000000;
-
-        // for (let k = 0; k < this.voronoi_metadata[j].polygon.length; k++) {
-        //       let point = this.voronoi_metadata[j].polygon[k];
-        //       if (pointInsidePolygon(point, this.voronoi_metadata[i].polygon) == true) {
-        //         console.log("deleting one");
-        //         this.voronoi_metadata[j].use = false;
-        //         this.voronoi_metadata[j].group = null;
-        //       }
-        //     }
-
-        sign.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy + 10);
-
-        let sign_backing = PIXI.Sprite.from(PIXI.Texture.WHITE);
-        sign_backing.tint = sign_color;
-        sign_backing.anchor.set(0.5, 0.5);
-        sign.addChild(sign_backing);
-
-        let sign_text = new PIXI.Text(this.voronoi_metadata[i].animal, {fontFamily: "Bebas Neue", fontSize: 25, fill: 0x000000, letterSpacing: 2, align: "center"});
-        sign_text.anchor.set(0.5, 0.5);
-        sign.addChild(sign_text);
-        sign_text.scaleMode = PIXI.SCALE_MODES.NEAREST;
-
-        let measure = new PIXI.TextMetrics.measureText(sign_text.text, sign_text.style);
-        sign_backing.width = measure.width + 6;
-        sign_backing.height = measure.height + 6;
-
-        this.voronoi_metadata[i].sign = sign;
-        this.decorations.push(sign);
-      }
-    }
+  this.animal_to_type = new_word;
+  this.animal_pen_to_fix = found_pen;
+  
+  if (this.typing_backing != null) {
+    this.typing_ui.removeChild(this.typing_backing);
+    this.typing_backing.destroy();
   }
+
+  if (this.typing_picture != null) {
+    this.typing_ui.removeChild(this.typing_picture);
+    this.typing_picture.destroy();
+  }
+
+  let measure = new PIXI.TextMetrics.measureText(new_word, this.typing_text.style);
+  // sign_backing.width = measure.width + 6;
+  // sign_backing.height = measure.height + 6;
+
+  this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.animal_to_type + ".png"));
+  this.typing_picture.anchor.set(0.5, 0.77);
+  this.typing_picture.scale.set(0.7, 0.7);
+  this.typing_picture.position.set(110 + measure.width, 133);
+
+  this.typing_backing = new PIXI.Graphics();
+  this.typing_backing.beginFill(0xFFFFFF, 1);
+  this.typing_backing.drawRoundedRect(-20, -20, measure.width + 180, 120, 20);
+  for (let i = 0; i < measure.width + 200; i += 40 + Math.floor(Math.random() * 20)) {
+    //this.typing_backing.drawRoundedRect(-20, -20, 500, 180, 20);
+    this.typing_backing.drawCircle(i, 120 + 40 * Math.random() - 40 * (i / (measure.width + 200)), 50 + 30 * Math.random());
+  }
+  this.typing_backing.drawCircle(measure.width + 200, 10 + 30 * Math.random(), 50 + 30 * Math.random());
+  this.typing_backing.endFill();
+  this.typing_backing.filters = [this.dropshadow_filter];
+
+  this.grey_text.text = new_word;
+  this.typing_text.text = "";
+
+  this.typing_ui.addChild(this.typing_backing);
+  this.typing_ui.addChild(this.typing_picture);
+  this.typing_ui.addChild(this.grey_text);
+  this.typing_ui.addChild(this.typing_text);
+
+  if (!this.typing_ui.visible) {
+    this.typing_ui.visible = true;
+    this.typing_ui.position.set(0, -300);
+  }
+  new TWEEN.Tween(this.typing_ui)
+    .to({y: 0})
+    .duration(250)
+    .start()
+    .onUpdate(function() {
+      self.typing_ui.visible = true;
+    })
+    .onComplete(function() {
+      self.typing_allowed = true;
+      self.typing_ui.visible = true;
+    });
+}
+
+
+Game.prototype.changeDisplayText = function(new_word) {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  this.animal_to_display = new_word;
+
+  let measure = new PIXI.TextMetrics.measureText(new_word, this.display_text.style);
+
+  this.display_backing.position.set(1280 - (measure.width + 50), 960 - 30)
+
+  this.display_text.text = new_word;
+
+  if (!this.display_ui.visible) {
+    this.display_ui.visible = true;
+    this.display_ui.position.set(0, 300);
+  }
+  new TWEEN.Tween(this.display_ui)
+    .to({y: 0})
+    .duration(250)
+    .start()
+    .onUpdate(function() {
+      self.display_ui.visible = true;
+    })
+    .onComplete(function() {
+      self.display_ui.visible = true;
+    });
+}
+
+
+Game.prototype.hideTypingText = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  this.typing_allowed = false;
+  this.animal_pen_to_fix = null;
+  this.animal_to_type = "";
+  new TWEEN.Tween(this.typing_ui)
+    .to({y: -300})
+    .duration(250)
+    .start()
+    .onComplete(function() {
+      self.typing_ui.visible = false;
+    });
+}
+
+
+Game.prototype.hideDisplayText = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  this.animal_to_display = "";
+  new TWEEN.Tween(this.display_ui)
+    .to({y: 300})
+    .duration(250)
+    .start()
+    .onComplete(function() {
+      self.display_ui.visible = false;
+    });
 }
 
 
@@ -745,7 +848,7 @@ Game.prototype.grey = function(cell_number) {
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
     // this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 0.35;
-    this.voronoi_metadata[cell_number].decoration_objects[j].filters = [this.sepia_filter];
+    this.voronoi_metadata[cell_number].decoration_objects[j].filters = [this.greyscale_filter];
   }
 }
 
@@ -758,9 +861,11 @@ Game.prototype.ungrey = function(cell_number) {
   this.voronoi_metadata[cell_number].land_object.alpha = 1;
   if (this.voronoi_metadata[cell_number].animal_object != null) {
     this.voronoi_metadata[cell_number].animal_object.alpha = 1;
+    this.voronoi_metadata[cell_number].animal_object.filters = [];
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
     this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 1;
+    this.voronoi_metadata[cell_number].decoration_objects[j].filters = [];
   }
 }
 
@@ -817,40 +922,6 @@ Game.prototype.sortLayer = function(layer_name, layer_object_list, artificial_y 
 }
 
 
-
-
-// Game.prototype.addType = function(letter) {
-//   var self = this;
-//   var screen = this.screens["zoo"];
-
-//   this.typing_text.text += letter;
-
-//   let new_word = this.typing_text.text.toLowerCase();
-
-//   if (new_word in pictures) {
-//     console.log("here i am");
-//     this.soundEffect("victory");
-
-//     let picture = pictures[new_word][Math.floor(Math.random() * pictures[new_word].length)];
-//     console.log(picture);
-
-//     if (this.display_picture != null) {
-//       let x = screen.removeChild(this.display_picture);
-//     }
-
-//     flickerText(this.typing_text, 500, 0x000000, 0x3cb0f3);
-
-//     this.display_picture = new PIXI.Sprite(PIXI.Texture.from("Art/" + new_word + "/" + picture));
-//     this.display_picture.anchor.set(0.5, 0.5);
-//     this.display_picture.position.set(900, 960/2);
-//     screen.addChild(this.display_picture);
-
-//     this.game_phase = "resting";
-//   }
-// }
-
-
-
 Game.prototype.handleKeyUp = function(ev) {
   ev.preventDefault();
 
@@ -870,45 +941,72 @@ Game.prototype.handleKeyDown = function(ev) {
 
   this.keymap[key] = true;
 
-  if (key === "Escape") {
-    this.player.position.set(this.entrance.cx, this.entrance.cy);
+  // if (key === "Escape") {
+  //   this.player.position.set(this.entrance.cx, this.entrance.cy);
+  // }
+
+  if (this.typing_allowed) {
+    if (this.game_phase == "typing") {
+      for (i in lower_array) {
+        if (key === lower_array[i] || key === letter_array[i]) {
+          this.addType(letter_array[i]);
+        }
+      }
+    }
+
+    if (key === "Backspace" || key === "Delete") {
+      if (this.typing_text.text.length > 0) {
+        let l = this.typing_text.text.slice(-1,this.typing_text.text.length);
+        let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 140, fill: 0x000000, letterSpacing: 3, align: "left"});
+        t.anchor.set(0,0.5);
+        t.position.set(25 + 50 * (this.typing_text.text.length - 1), 93);
+        t.vx = -20 + 40 * Math.random();
+        t.vy = -5 + -20 * Math.random();
+        screen.addChild(t);
+        this.freefalling.push(t);
+
+        this.typing_text.text = this.typing_text.text.slice(0,-1);
+        this.soundEffect("swipe");
+      }
+    }
+  }
+}
+
+
+Game.prototype.addType = function(letter) {
+  var self = this;
+  var screen = this.screens["typing"];
+
+  if (this.typing_text.text.length < this.animal_to_type.length) {
+    this.typing_text.text += letter;
   }
 
-  // if (this.game_phase == "typing") {
-  //   for (i in lower_array) {
-  //     if (key === lower_array[i] || key === letter_array[i]) {
-  //       this.addType(letter_array[i]);
-  //     }
-  //   }
-  // }
+  if (this.typing_text.text == this.animal_to_type) {
+    this.soundEffect("success");
+    flicker(this.typing_text, 300, 0x000000, 0xFFFFFF);
+    this.typing_allowed = false;
 
-  // if (key === "Backspace" || key === "Delete" || key === "Escape") {
-  //   if (this.typing_text.text.length > 0) {
-  //     for (let i = 0; i < this.typing_text.text.length; i++) {
-  //       let l = this.typing_text.text[i];
-  //       console.log(l);
-  //       let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 144, fill: 0x000000, letterSpacing: 3, align: "left"});
-  //       t.anchor.set(0,0.5);
-  //       t.position.set(200 + 50 * i, 960/2);
-  //       t.vx = -20 + 40 * Math.random();
-  //       t.vy = -5 + -20 * Math.random();
-  //       screen.addChild(t);
-  //       this.freefalling.push(t);
-  //     }
-  //     this.typing_text.text = "";
-  //     this.soundEffect("swipe");
+    delay(function() {
+      self.ungrey(self.animal_pen_to_fix.cell_number);
+      self.soundEffect("build");
+      self.animal_pen_to_fix.land_object.shake = self.markTime();
 
-  //     // if (this.display_picture != null) {
-  //     //   let x = screen.removeChild(this.display_picture);
-  //     //   x.destroy();
-  //     // }
-  //     this.display_picture.visible = false;
+      for (let i = 0; i < self.animal_pen_to_fix.polygon.length; i++) {
+        let x = self.animal_pen_to_fix.polygon[i][0];
+        let y = self.animal_pen_to_fix.polygon[i][1];
+        self.makeSmoke(self.map.build_effect_layer, x, y, 0.3, 0.3);
+      }
 
-  //     if (this.game_phase == "resting") {
-  //       this.game_phase = "typing";
-  //     }
-  //   }
-  // }
+      self.hideTypingText();
+
+      self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
+
+    }, 200)
+
+    delay(function() {
+      self.hideTypingText();
+    }, 300);
+  }
 }
 
 
@@ -921,7 +1019,7 @@ Game.prototype.shakeDamage = function() {
     if (item.shake != null) {
       if (item.permanent_x == null) item.permanent_x = item.position.x;
       if (item.permanent_y == null) item.permanent_y = item.position.y;
-      item.position.set(item.permanent_x - 3 + Math.random() * 6, item.permanent_y - 3 + Math.random() * 6)
+      item.position.set(item.permanent_x - 3/5 + Math.random() * 6/5, item.permanent_y - 3/5 + Math.random() * 6/5)
       if (this.timeSince(item.shake) >= 150) {
         item.shake = null;
         item.position.set(item.permanent_x, item.permanent_y)
@@ -929,7 +1027,6 @@ Game.prototype.shakeDamage = function() {
     }
   }
 }
-
 
 
 Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
@@ -988,6 +1085,10 @@ Game.prototype.updatePlayer = function() {
 
   if (this.testMove(player.x, player.y, true, player.direction)) {
     player.move();
+
+    if (player.direction != null) {
+      this.checkPenProximity(player.x, player.y, player.direction);
+    }
   }
 }
 
@@ -1034,6 +1135,90 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
   }
 
   return true;
+}
+
+
+Game.prototype.checkPenProximity = function(x, y, direction) {
+  // Check proximity to any animal pens, first by casting a ray,
+  // Then falling back on a small radius.
+
+  let found_pen = null;
+  for (let r = 1; r < 7; r++) {
+    let tx = x;
+    let ty = y;
+    if (direction == "right") tx += 10*r;
+    if (direction == "left") tx -= 10*r;
+    if (direction == "up") ty -= 10*r;
+    if (direction == "down") ty += 10*r;
+    if (direction == "downright") {
+      tx += 7*r;
+      ty += 7*r;
+    }
+    if (direction == "downleft") {
+      tx -= 7*r;
+      ty += 7*r;
+    }
+    if (direction == "upright") {
+      tx += 7*r;
+      ty -= 7*r;
+    }
+    if (direction == "upleft") {
+      tx -= 7*r;
+      ty -= 7*r;
+    }
+
+    for (let i = 0; i < voronoi_size; i++) {
+      if (this.voronoi_metadata[i].use == true
+        && this.voronoi_metadata[i].group != null
+        && this.voronoi_metadata[i].animal_object != null) {
+        if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
+          found_pen = this.voronoi_metadata[i];
+
+          break;
+        }
+      }
+    }
+    if (found_pen != null) break;
+  }
+
+  if (found_pen == null) {
+    for (let a = 0; a < 360; a += 45) {
+      let tx = x + 20 * Math.cos(Math.PI / 180 * a);
+      let ty = y + 20 * Math.sin(Math.PI / 180 * a);
+
+      for (let i = 0; i < voronoi_size; i++) {
+        if (this.voronoi_metadata[i].use == true
+          && this.voronoi_metadata[i].group != null
+          && this.voronoi_metadata[i].animal_object != null) {
+          if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
+            found_pen = this.voronoi_metadata[i];
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  if (found_pen != null) {
+    if (found_pen.animal != this.animal_to_type && found_pen.state == "grey") {
+      // console.log("typing");
+      this.changeTypingText(found_pen.animal, found_pen);
+      if (this.display_ui.visible == true) {
+        this.hideDisplayText();
+      }
+    } else if (found_pen.animal != this.animal_to_display && found_pen.state == "ungrey") {
+      // console.log("display");
+      this.changeDisplayText(found_pen.animal);
+      if (this.typing_ui.visible == true) {
+        this.hideTypingText();
+      }
+    }
+  }
+
+  if (found_pen == null) {
+    if (this.typing_allowed) this.hideTypingText();
+    this.hideDisplayText();
+  }
 }
 
 
