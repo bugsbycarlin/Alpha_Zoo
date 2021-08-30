@@ -274,8 +274,10 @@ class Game {
   soundEffect(effect_name, volume = 0.6) {
     if (use_sound) {
       var sound_effect = document.getElementById(effect_name);
-      sound_effect.volume = volume;
-      sound_effect.play();
+      if (sound_effect != null) {
+        sound_effect.volume = volume;
+        sound_effect.play();
+      }
     }
   }
 

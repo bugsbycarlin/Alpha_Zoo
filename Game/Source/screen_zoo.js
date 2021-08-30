@@ -18,10 +18,11 @@ Game.prototype.initializeZoo = function() {
   this.resetZooScreen();
 }
 
+let zoo_size = 30;
 
 let voronoi_size = 200;
 let relaxation_number = 10;
-let ellipse_size = 200;
+let ellipse_size = 100;
 let ellipse_eccentricity = 1.7;
 let shrink_factor = 0.7;
 let shrink_distance = 20;
@@ -30,6 +31,7 @@ let tree_frequency = 0.35;
 let background_color = 0x318115;
 let path_color = 0xf9e6bb;
 let grass_color = 0xb1d571;
+let ice_color = 0xFAFAFF;
 let sand_color = 0xf3cca0;
 let water_color = 0x42b2d2;
 let sign_color = 0xc09f57;
@@ -85,7 +87,7 @@ Game.prototype.resetZooScreen = function() {
   this.makeUI();
 
   // Make the map
-  this.makeVoronoiDiagram(20);
+  this.makeVoronoiDiagram(zoo_size);
   this.makeInnerGroups();
   this.scaleGroups();
   this.deleteOverlaps();
@@ -590,11 +592,15 @@ Game.prototype.drawMap = function() {
         ground.beginFill(water_color);
       } else if (this.voronoi_metadata[i].land == "sand") {
         ground.beginFill(sand_color);
-      } else if (this.voronoi_metadata[i].land == "watergrass") {
+      } else if (this.voronoi_metadata[i].land == "watergrass" || this.voronoi_metadata[i].land == "waterice") {
         ground.beginFill(water_color);
         let polygon_right = this.voronoi_metadata[i].polygon.flat();
         ground.drawPolygon(polygon_right);
-        ground.beginFill(grass_color);
+        if (this.voronoi_metadata[i].land == "watergrass") {
+          ground.beginFill(grass_color);
+        } else if (this.voronoi_metadata[i].land == "waterice") {
+          ground.beginFill(ice_color);
+        }
         let polygon_left = [];
         for (let k = 0; k < this.voronoi_metadata[i].polygon.length; k++) {
           if (this.voronoi_metadata[i].polygon[k][0] <= this.voronoi_metadata[i].cx) {
@@ -714,6 +720,70 @@ Game.prototype.addDecorationsAnimalsAndPlayer = function() {
 }
 
 
+Game.prototype.addType = function(letter) {
+  var self = this;
+  var screen = this.screens["typing"];
+
+  if (this.typing_text.text.length < this.animal_to_type.length) {
+    if (this.animal_to_type[this.typing_text.text.length] == "_") {
+      this.typing_text.text += " ";
+    }
+    this.typing_text.text += letter;
+  }
+
+  if (this.typing_text.text == this.animal_to_type.replace("_", " ")) {
+    this.soundEffect("success");
+    flicker(this.typing_text, 300, 0x000000, 0xFFFFFF);
+    this.typing_allowed = false;
+
+    delay(function() {
+      self.ungrey(self.animal_pen_to_fix.cell_number);
+      self.soundEffect("build");
+      self.animal_pen_to_fix.land_object.shake = self.markTime();
+
+      for (let i = 0; i < self.animal_pen_to_fix.polygon.length; i++) {
+        let x = self.animal_pen_to_fix.polygon[i][0];
+        let y = self.animal_pen_to_fix.polygon[i][1];
+        self.makeSmoke(self.map.build_effect_layer, x, y, 0.3, 0.3);
+      }
+
+      self.hideTypingText();
+
+      self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
+
+    }, 200)
+
+    delay(function() {
+      self.hideTypingText();
+    }, 300);
+  }
+}
+
+
+Game.prototype.deleteType = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  if (this.typing_text.text.length > 0) {
+    if (this.typing_text.text[this.typing_text.text.length - 1] === " ") { 
+      console.log("yes it does");
+      this.typing_text.text = this.typing_text.text.slice(0,-1);
+    }
+    let l = this.typing_text.text.slice(-1,this.typing_text.text.length);
+    let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 140, fill: 0x000000, letterSpacing: 3, align: "left"});
+    t.anchor.set(0,0.5);
+    t.position.set(25 + 50 * (this.typing_text.text.length - 1), 93);
+    t.vx = -20 + 40 * Math.random();
+    t.vy = -5 + -20 * Math.random();
+    screen.addChild(t);
+    this.freefalling.push(t);
+
+    this.typing_text.text = this.typing_text.text.slice(0,-1);
+    this.soundEffect("swipe");
+  }
+}
+
+
 Game.prototype.changeTypingText = function(new_word, found_pen) {
   var self = this;
   var screen = this.screens["zoo"];
@@ -751,7 +821,7 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
   this.typing_backing.endFill();
   this.typing_backing.filters = [this.dropshadow_filter];
 
-  this.grey_text.text = new_word;
+  this.grey_text.text = new_word.replace("_", " ");
   this.typing_text.text = "";
 
   this.typing_ui.addChild(this.typing_backing);
@@ -783,11 +853,15 @@ Game.prototype.changeDisplayText = function(new_word) {
 
   this.animal_to_display = new_word;
 
+  if (Math.random() > 0.65) {
+    this.soundEffect(this.animal_to_display.toLowerCase());
+  }
+
   let measure = new PIXI.TextMetrics.measureText(new_word, this.display_text.style);
 
   this.display_backing.position.set(1280 - (measure.width + 50), 960 - 30)
 
-  this.display_text.text = new_word;
+  this.display_text.text = new_word.replace("_", " ");
 
   if (!this.display_ui.visible) {
     this.display_ui.visible = true;
@@ -955,57 +1029,8 @@ Game.prototype.handleKeyDown = function(ev) {
     }
 
     if (key === "Backspace" || key === "Delete") {
-      if (this.typing_text.text.length > 0) {
-        let l = this.typing_text.text.slice(-1,this.typing_text.text.length);
-        let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 140, fill: 0x000000, letterSpacing: 3, align: "left"});
-        t.anchor.set(0,0.5);
-        t.position.set(25 + 50 * (this.typing_text.text.length - 1), 93);
-        t.vx = -20 + 40 * Math.random();
-        t.vy = -5 + -20 * Math.random();
-        screen.addChild(t);
-        this.freefalling.push(t);
-
-        this.typing_text.text = this.typing_text.text.slice(0,-1);
-        this.soundEffect("swipe");
-      }
+      this.deleteType();
     }
-  }
-}
-
-
-Game.prototype.addType = function(letter) {
-  var self = this;
-  var screen = this.screens["typing"];
-
-  if (this.typing_text.text.length < this.animal_to_type.length) {
-    this.typing_text.text += letter;
-  }
-
-  if (this.typing_text.text == this.animal_to_type) {
-    this.soundEffect("success");
-    flicker(this.typing_text, 300, 0x000000, 0xFFFFFF);
-    this.typing_allowed = false;
-
-    delay(function() {
-      self.ungrey(self.animal_pen_to_fix.cell_number);
-      self.soundEffect("build");
-      self.animal_pen_to_fix.land_object.shake = self.markTime();
-
-      for (let i = 0; i < self.animal_pen_to_fix.polygon.length; i++) {
-        let x = self.animal_pen_to_fix.polygon[i][0];
-        let y = self.animal_pen_to_fix.polygon[i][1];
-        self.makeSmoke(self.map.build_effect_layer, x, y, 0.3, 0.3);
-      }
-
-      self.hideTypingText();
-
-      self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
-
-    }, 200)
-
-    delay(function() {
-      self.hideTypingText();
-    }, 300);
   }
 }
 
@@ -1037,10 +1062,14 @@ Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
     let item = this.freefalling[i];
     item.position.x += item.vx * fractional;
     item.position.y += item.vy * fractional;
-    item.vy += this.gravity * fractional;
-
+    if (item.gravity != null) {
+      item.vy += item.gravity * fractional;
+    } else {
+      item.vy += this.gravity * fractional;
+    }
+    
     // TODO: this needs to be 200 for the player areas and 960 for the screen in total.
-    if (item.position.y > 1160 || item.alpha < 0.04) {
+    if (item.position.y > 1160 || item.alpha < 0.04 || (item.floor != null && item.position.y > item.floor)) {
       if (item.parent != null) {
         item.parent.removeChild(item);
       }

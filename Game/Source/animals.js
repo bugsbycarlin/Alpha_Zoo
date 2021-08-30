@@ -19,9 +19,25 @@ animals = {
   },
   // "CHEETAH": {},
   // "TIGER": {},
-  // "GORILLA": {},
-
-
+  "GORILLA": {},
+  "GIRAFFE": {},
+  "ZEBRA": {},
+  "ELEPHANT": {
+    land: "sand",
+  },
+  "TIGER": {},
+  "BROWN_BEAR": {},
+  "BLACK_BEAR": {},
+  "POLAR_BEAR": {
+    land: "waterice",
+    decorations: ["rock", "rock"],
+  },
+  "PANDA_BEAR": {},
+  "FOX": {},
+  "ALLIGATOR": {
+    land: "watergrass",
+    decorations: ["rock", "grass"],
+  },
 
 
 }
@@ -50,7 +66,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   if (pen.land == "water") {
     animal.water_fill = PIXI.Sprite.from(PIXI.Texture.WHITE);
-    animal.water_fill.width = 256 * scale_value;
+    animal.water_fill.width = 192 * scale_value;
     animal.water_fill.height = 100 * scale_value;
     animal.water_fill.tint = water_color;
     // animal.water_fill.scale.set(scale_value, scale_value);
@@ -83,6 +99,21 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         if(Math.random() < 0.03) {
           animal.delay = 500 + 2000 * Math.random();
           animal.delay_time = self.markTime();
+        }
+
+        if (Math.random() > 0.5) {
+          if (pen.land == "water" || (pen.land == "watergrass" && animal_sprite.x > 0)) {
+            let droplet = new PIXI.Sprite(PIXI.Texture.from("Art/water_droplet.png"));
+            droplet.scale.set(scale_value * 0.75);
+            droplet.anchor.set(0.5,0.5);
+            droplet.position.set(animal_sprite.x, animal_sprite.y - 1);
+            droplet.vx = -2 + 4 * Math.random();
+            droplet.vy = -3 + -2 * Math.random();
+            droplet.gravity = 1;
+            droplet.floor = 10;
+            animal.addChild(droplet);
+            self.freefalling.push(droplet);
+          }
         }
       } else {
         animal.vy += 0.1;
