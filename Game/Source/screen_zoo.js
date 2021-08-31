@@ -101,7 +101,7 @@ Game.prototype.resetZooScreen = function() {
 
   this.player = this.makeCharacter();
 
-  this.addDecorationsAnimalsAndPlayer();
+  this.populateZoo();
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAnimalPens();
 
@@ -515,6 +515,11 @@ Game.prototype.computeBounds = function() {
     }
   }
 
+  this.left_bound -= 50;
+  this.right_bound += 50;
+  this.upper_bound -= 50;
+  this.lower_bound += 50;
+
   if (center_most_lower == -1) {
     console.log("failed to find the bottom of the zoo!");
   } else {
@@ -650,7 +655,7 @@ Game.prototype.drawMap = function() {
 }
 
 
-Game.prototype.addDecorationsAnimalsAndPlayer = function() {
+Game.prototype.populateZoo = function() {
 
   this.decorations = [];
   for (let i = 0; i < voronoi_size; i++) {
@@ -674,14 +679,22 @@ Game.prototype.addDecorationsAnimalsAndPlayer = function() {
         }
 
         if (this.voronoi_metadata[i].animal != null) {
+          this.voronoi_metadata[i].animal_object = [];
           let animal_name = this.voronoi_metadata[i].animal;
+          let num_animals_here = Math.ceil(2 * Math.random());
+          if (animal_name == "OTTER") num_animals_here = 2;
+          for (let n = 0; n < num_animals_here; n++) {
+            let animal = this.makeAnimal(animal_name, this.voronoi_metadata[i]);
+            animal.position.set(this.voronoi_metadata[i].cx - 6 + 12 * n, this.voronoi_metadata[i].cy - 6 + 12 * Math.random());
+            // animal.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
+            this.decorations.push(animal);
+            this.voronoi_metadata[i].animal_object.push(animal);
+            this.animals.push(animal);
+            this.shakers.push(this.voronoi_metadata[i].land_object);
+          }
+          
           // if (animal_name != "LION") animal_name = "RHINO";
-          let animal = this.makeAnimal(animal_name, this.voronoi_metadata[i]);
-          animal.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
-          this.decorations.push(animal);
-          this.voronoi_metadata[i].animal_object = animal;
-          this.animals.push(animal);
-          this.shakers.push(this.voronoi_metadata[i].land_object);
+          
         }
 
       }
@@ -805,7 +818,14 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
   // sign_backing.width = measure.width + 6;
   // sign_backing.height = measure.height + 6;
 
-  this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.animal_to_type + ".png"));
+  if (!(this.animal_to_type in animated_animals)) {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.animal_to_type.toLowerCase() + ".png"));
+  } else {
+    console.log(this.animal_to_type);
+    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + this.animal_to_type.toLowerCase() + ".json"].spritesheet;
+    this.typing_picture = new PIXI.AnimatedSprite(sheet.animations[this.animal_to_type.toLowerCase()]);
+  }
+  
   this.typing_picture.anchor.set(0.5, 0.77);
   this.typing_picture.scale.set(0.7, 0.7);
   this.typing_picture.position.set(110 + measure.width, 133);
@@ -918,7 +938,9 @@ Game.prototype.grey = function(cell_number) {
   this.voronoi_metadata[cell_number].land_object.filters  = [this.greyscale_filter];
   if (this.voronoi_metadata[cell_number].animal_object != null) {
     //this.voronoi_metadata[cell_number].animal_object.alpha = 0.35;
-    this.voronoi_metadata[cell_number].animal_object.filters  = [this.greyscale_filter];
+    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_object.length; j++) {
+      this.voronoi_metadata[cell_number].animal_object[j].filters = [this.greyscale_filter];
+    }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
     // this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 0.35;
@@ -934,8 +956,10 @@ Game.prototype.ungrey = function(cell_number) {
   this.voronoi_metadata[cell_number].state = "ungrey";
   this.voronoi_metadata[cell_number].land_object.alpha = 1;
   if (this.voronoi_metadata[cell_number].animal_object != null) {
-    this.voronoi_metadata[cell_number].animal_object.alpha = 1;
-    this.voronoi_metadata[cell_number].animal_object.filters = [];
+    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_object.length; j++) {
+      this.voronoi_metadata[cell_number].animal_object[j].alpha  = 1;
+      this.voronoi_metadata[cell_number].animal_object[j].filters  = [];
+    }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
     this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 1;
@@ -1259,8 +1283,6 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  if(Math.random() > 0.75) this.sortLayer(this.map.decoration_layer, this.decorations);
-
   this.map.position.set(640-map_scale*this.player.x, 480-map_scale*this.player.y);
 
   for (let i = 0; i < this.animals.length; i++) {
@@ -1268,6 +1290,8 @@ Game.prototype.updateZoo = function(diff) {
       this.animals[i].update();
     }
   }
+
+  this.sortLayer(this.map.decoration_layer, this.decorations);
 
   let fractional = diff / (1000/30.0);
 

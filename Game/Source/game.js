@@ -194,6 +194,7 @@ class Game {
 
     PIXI.Loader.shared
       .add("Art/bear.json")
+      .add("Art/Animals/parrot.json")
       .add("Art/smoke.json")
       .load(function() {
         WebFont.load({
