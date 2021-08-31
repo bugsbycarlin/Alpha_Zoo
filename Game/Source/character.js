@@ -98,5 +98,18 @@ Game.prototype.makeCharacter = function() {
     }
   }
 
+
+  character.updateDirection = function() {
+    for(let i = 0; i < 8; i++) {
+      if (directions[i] == character.direction) {
+        character.bear_sprite[directions[i]].visible = true;
+      } else {
+        character.bear_sprite[directions[i]].visible = false;
+      }
+    }
+
+    character.bear_sprite[character.direction].gotoAndStop(0);
+  }
+
   return character;
 }

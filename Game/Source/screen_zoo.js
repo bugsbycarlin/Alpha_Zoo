@@ -155,6 +155,7 @@ Game.prototype.makeUI = function() {
   this.display_ui.visible = false;
 }
 
+let pen_scale = 5;
 
 Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
   var self = this;
@@ -192,12 +193,15 @@ Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
   }
 
   for (let i = 0; i < voronoi_size; i++) {
-    this.voronoi_points[i][0] *= 4;
-    this.voronoi_points[i][1] *= 4;
+    // this.voronoi_points[i][0] *= 4;
+    // this.voronoi_points[i][1] *= 4;
+    this.voronoi_points[i][0] *= pen_scale;
+    this.voronoi_points[i][1] *= pen_scale;
   }
 
   this.delaunay = d3.Delaunay.from(this.voronoi_points);
-  this.voronoi_vertices = this.delaunay.voronoi([0, 0, 1280, 960]);
+  // this.voronoi_vertices = this.delaunay.voronoi([0, 0, 1280, 960]);
+  this.voronoi_vertices = this.delaunay.voronoi([0, 0, 320*pen_scale, 240*pen_scale]);
 
   for (let i = 0; i < voronoi_size; i++) {
     let neighbors = this.voronoi_vertices.neighbors(i);
@@ -223,8 +227,8 @@ Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
 
     for (let i = 0; i < voronoi_size; i++) {
       let p = this.voronoi_points[i];
-      let px = p[0] - 640;
-      let py = p[1] - 480;
+      let px = p[0] - (320 * pen_scale / 2);
+      let py = p[1] - (240 * pen_scale / 2);
       if (px*px/(ellipse_eccentricity*ellipse_eccentricity) + py*py < ellipse_size*ellipse_size) {
         cell_count += 1;
         this.voronoi_metadata[i].use = true;
@@ -346,8 +350,8 @@ Game.prototype.scaleGroups = function() {
           point[1] = shrink_factor * point[1] + (1 - shrink_factor) * gcy;
         }
 
-        point[0] -= 640;
-        point[1] -= 480;
+        point[0] -= (320 * pen_scale / 2);
+        point[1] -= (240 * pen_scale / 2);
         
 
         // fixed distance shrink version
@@ -378,8 +382,8 @@ Game.prototype.scaleGroups = function() {
         point[0] = 1.05 * point[0] + (1 - 1.05) * this.zoo_center[0];
         point[1] = 1.05 * point[1] + (1 - 1.05) * this.zoo_center[1];
 
-        point[0] -= 640;
-        point[1] -= 480;
+        point[0] -= (320 * pen_scale / 2);
+        point[1] -= (240 * pen_scale / 2);
       }
 
       let cx = 0;
@@ -873,9 +877,9 @@ Game.prototype.changeDisplayText = function(new_word) {
 
   this.animal_to_display = new_word;
 
-  if (Math.random() > 0.65) {
-    this.soundEffect(this.animal_to_display.toLowerCase());
-  }
+  // if (Math.random() > 0.65) {
+  //   this.soundEffect(this.animal_to_display.toLowerCase());
+  // }
 
   let measure = new PIXI.TextMetrics.measureText(new_word, this.display_text.style);
 
@@ -1142,6 +1146,8 @@ Game.prototype.updatePlayer = function() {
     if (player.direction != null) {
       this.checkPenProximity(player.x, player.y, player.direction);
     }
+  } else if (player.direction != null) {
+    player.updateDirection();
   }
 }
 
@@ -1283,7 +1289,7 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  this.map.position.set(640-map_scale*this.player.x, 480-map_scale*this.player.y);
+  this.map.position.set((320 * pen_scale/2)-map_scale*this.player.x, (240 * pen_scale/2)-map_scale*this.player.y);
 
   for (let i = 0; i < this.animals.length; i++) {
     if (this.animals[i].pen.state == "ungrey") {

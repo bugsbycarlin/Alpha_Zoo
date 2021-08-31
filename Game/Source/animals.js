@@ -27,11 +27,16 @@ animals = {
   "CHEETAH": {},
   "PANTHER": {},
   "DOG": {},
-  "BROWN_BEAR": {},
-  "BLACK_BEAR": {},
+  "BROWN_BEAR": {
+    sound: "bear"
+  },
+  "BLACK_BEAR": {
+    sound: "bear"
+  },
   "POLAR_BEAR": {
     land: "waterice",
     decorations: ["rock", "rock"],
+    sound: "bear"
   },
   "PANDA_BEAR": {},
   "FOX": {},
@@ -46,6 +51,8 @@ animals = {
     movement: "undulate"
   }
 }
+
+console.log("There are " + Object.keys(animals).length + " different animals available!");
 
 omnivores = [
   "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE"
@@ -73,6 +80,9 @@ for (const [name, data] of Object.entries(animals)) {
   if (!("land" in data)) data["land"] = "grass";
   if (!("decorations" in data)) data["decorations"] = ["grass", "grass", "rock", "grass", "tree", "bush", "rock"];
   if (!("movement" in data)) data["movement"] = "bounce";
+  if (!("last_sound" in data)) data["last_sound"] = null;
+  if (!("sound_delay" in data)) data["sound_delay"] = 500;
+  if (!("sound" in data)) data["sound"] = name.toLowerCase();
 }
 
 
@@ -130,6 +140,16 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     if (animal.delay > 0 && self.timeSince(animal.delay_time) > animal.delay) {
       animal.delay = 0;
       animal.delay_time = null;
+    }
+
+    if (animals[animal_type].last_sound == null || self.timeSince(animals[animal_type].last_sound) > animals[animal_type].sound_delay) {
+      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 80) {
+        if (Math.random() > 0.65) {
+          self.soundEffect(animals[animal_type].sound);
+          animals[animal_type].sound_delay = 2000 + Math.random() * 10000;
+          animals[animal_type].last_sound = self.markTime();
+        }
+      }
     }
 
     if (animal.delay == 0) {
