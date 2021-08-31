@@ -1,5 +1,5 @@
 
-var default_walk_speed = 1;
+var default_walk_speed = 6;
 var walk_frame_time = 105;
 
 var directions = ["down", "left", "up", "right", "downleft", "upleft", "downright", "upright"]
@@ -7,7 +7,7 @@ var directions = ["down", "left", "up", "right", "downleft", "upleft", "downrigh
 Game.prototype.makeCharacter = function() {
   let character = new PIXI.Container();
   character.position.set(0,0);
-  character.scale.set(0.12, 0.12);
+  character.scale.set(0.72, 0.72);
   // map.addChild(character);
   
 
@@ -20,8 +20,6 @@ Game.prototype.makeCharacter = function() {
     character.addChild(character.bear_sprite[directions[i]]);
     character.bear_sprite[directions[i]].visible = false;
   }
-  
-  character.radius = 40;
 
   character.direction = "down";
 

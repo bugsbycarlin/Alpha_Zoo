@@ -37,7 +37,7 @@ let water_color = 0x42b2d2;
 let sign_color = 0xc09f57;
 
 // this should be 6. it looks good at 6.
-let map_scale = 6;
+// let map_scale = 6;
 
 Game.prototype.resetZooScreen = function() {
   var self = this;
@@ -68,7 +68,7 @@ Game.prototype.resetZooScreen = function() {
 
   this.map = new PIXI.Container();
   this.map.position.set(640,480)
-  this.map.scale.set(map_scale, map_scale);
+  // this.map.scale.set(map_scale, map_scale);
   screen.addChild(this.map);
 
   this.map.background_layer = new PIXI.Container();
@@ -155,7 +155,7 @@ Game.prototype.makeUI = function() {
   this.display_ui.visible = false;
 }
 
-let pen_scale = 5;
+let pen_scale = 30;
 
 Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
   var self = this;
@@ -519,10 +519,10 @@ Game.prototype.computeBounds = function() {
     }
   }
 
-  this.left_bound -= 50;
-  this.right_bound += 50;
-  this.upper_bound -= 50;
-  this.lower_bound += 50;
+  this.left_bound -= 300;
+  this.right_bound += 300;
+  this.upper_bound -= 300;
+  this.lower_bound += 300;
 
   if (center_most_lower == -1) {
     console.log("failed to find the bottom of the zoo!");
@@ -636,14 +636,14 @@ Game.prototype.drawMap = function() {
       this.voronoi_metadata[i].land_object.addChild(ground);
 
       let border = new PIXI.Graphics();
-      border.lineStyle(2, 0x754c25, 1); //width, color, alpha
+      border.lineStyle(12, 0x754c25, 1); //width, color, alpha
       let border_polygon = this.voronoi_metadata[i].polygon.flat();
       border.drawPolygon(border_polygon);
       let border_depth_1 = border.clone();
-      border_depth_1.position.set(0,2);
+      border_depth_1.position.set(0,12);
       border_depth_1.tint = 0xAAAAAA;
       let border_depth_2 = border.clone();
-      border_depth_2.position.set(0,4);
+      border_depth_2.position.set(0,24);
       border_depth_2.tint = 0xAAAAAA;
       this.voronoi_metadata[i].land_object.addChild(border_depth_1);
       this.voronoi_metadata[i].land_object.addChild(border_depth_2);
@@ -675,7 +675,7 @@ Game.prototype.populateZoo = function() {
             decoration.position.set(
               (1-fraction) * this.voronoi_metadata[i].cx + (fraction) * edge[0],
               (1-fraction) * this.voronoi_metadata[i].cy + (fraction) * edge[1]);
-            decoration.scale.set(0.2, 0.2);
+            decoration.scale.set(1.2, 1.2);
             decoration.anchor.set(0.5,0.9);
             this.decorations.push(decoration);
             this.voronoi_metadata[i].decoration_objects.push(decoration);
@@ -689,7 +689,7 @@ Game.prototype.populateZoo = function() {
           if (animal_name == "OTTER") num_animals_here = 2;
           for (let n = 0; n < num_animals_here; n++) {
             let animal = this.makeAnimal(animal_name, this.voronoi_metadata[i]);
-            animal.position.set(this.voronoi_metadata[i].cx - 6 + 12 * n, this.voronoi_metadata[i].cy - 6 + 12 * Math.random());
+            animal.position.set(this.voronoi_metadata[i].cx - 36 + 72 * n, this.voronoi_metadata[i].cy - 36 + 72 * Math.random());
             // animal.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
             this.decorations.push(animal);
             this.voronoi_metadata[i].animal_object.push(animal);
@@ -707,11 +707,11 @@ Game.prototype.populateZoo = function() {
       for (let t = 0; t < 12; t++) {
         if (Math.random() > 0.4) {
           let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-          let x = this.voronoi_metadata[i].cx - 50 + 100 * Math.random();
-          let y = this.voronoi_metadata[i].cy - 50 + 100 * Math.random();
+          let x = this.voronoi_metadata[i].cx - 300 + 600 * Math.random();
+          let y = this.voronoi_metadata[i].cy - 300 + 600 * Math.random();
           if (this.testMove(x, y, false, "blah") == true) {
             decoration.position.set(x, y);
-            decoration.scale.set(0.2, 0.2);
+            decoration.scale.set(1.2, 1.2);
             decoration.anchor.set(0.5,0.9);
             this.decorations.push(decoration);
           }
@@ -724,7 +724,7 @@ Game.prototype.populateZoo = function() {
   for (let i = 0; i < voronoi_size; i++) {
     if(this.voronoi_metadata[i].group == 5000) {
       let zoo = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo.png"));
-      zoo.scale.set(0.2, 0.2);
+      zoo.scale.set(1.2, 1.2);
       zoo.anchor.set(0.5, 0.8);
       zoo.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
       this.decorations.push(zoo);
@@ -761,7 +761,7 @@ Game.prototype.addType = function(letter) {
       for (let i = 0; i < self.animal_pen_to_fix.polygon.length; i++) {
         let x = self.animal_pen_to_fix.polygon[i][0];
         let y = self.animal_pen_to_fix.polygon[i][1];
-        self.makeSmoke(self.map.build_effect_layer, x, y, 0.3, 0.3);
+        self.makeSmoke(self.map.build_effect_layer, x, y, 1.8, 1.8);
       }
 
       self.hideTypingText();
@@ -1072,7 +1072,7 @@ Game.prototype.shakeDamage = function() {
     if (item.shake != null) {
       if (item.permanent_x == null) item.permanent_x = item.position.x;
       if (item.permanent_y == null) item.permanent_y = item.position.y;
-      item.position.set(item.permanent_x - 3/5 + Math.random() * 6/5, item.permanent_y - 3/5 + Math.random() * 6/5)
+      item.position.set(item.permanent_x - 3 + Math.random() * 6, item.permanent_y - 3 + Math.random() * 6)
       if (this.timeSince(item.shake) >= 150) {
         item.shake = null;
         item.position.set(item.permanent_x, item.permanent_y)
@@ -1156,25 +1156,25 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
   let tx = x;
   let ty = y;
 
-  if (direction == "right") tx += 5;
-  if (direction == "left") tx -= 5;
-  if (direction == "up") ty -= 5;
-  if (direction == "down") ty += 8;
+  if (direction == "right") tx += 30;
+  if (direction == "left") tx -= 30;
+  if (direction == "up") ty -= 30;
+  if (direction == "down") ty += 48;
   if (direction == "downright") {
-    tx += 5;
-    ty += 8;
+    tx += 30;
+    ty += 48;
   }
   if (direction == "downleft") {
-    tx -= 5;
-    ty += 8;
+    tx -= 30;
+    ty += 48;
   }
   if (direction == "upright") {
-    tx += 5;
-    ty -= 5;
+    tx += 30;
+    ty -= 30;
   }
   if (direction == "upleft") {
-    tx -= 5;
-    ty -= 5;
+    tx -= 30;
+    ty -= 30;
   }
 
   if (use_bounds) {
@@ -1205,25 +1205,25 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
   for (let r = 1; r < 7; r++) {
     let tx = x;
     let ty = y;
-    if (direction == "right") tx += 10*r;
-    if (direction == "left") tx -= 10*r;
-    if (direction == "up") ty -= 10*r;
-    if (direction == "down") ty += 10*r;
+    if (direction == "right") tx += 60*r;
+    if (direction == "left") tx -= 60*r;
+    if (direction == "up") ty -= 60*r;
+    if (direction == "down") ty += 60*r;
     if (direction == "downright") {
-      tx += 7*r;
-      ty += 7*r;
+      tx += 42*r;
+      ty += 42*r;
     }
     if (direction == "downleft") {
-      tx -= 7*r;
-      ty += 7*r;
+      tx -= 42*r;
+      ty += 42*r;
     }
     if (direction == "upright") {
-      tx += 7*r;
-      ty -= 7*r;
+      tx += 42*r;
+      ty -= 42*r;
     }
     if (direction == "upleft") {
-      tx -= 7*r;
-      ty -= 7*r;
+      tx -= 42*r;
+      ty -= 42*r;
     }
 
     for (let i = 0; i < voronoi_size; i++) {
@@ -1242,8 +1242,8 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
 
   if (found_pen == null) {
     for (let a = 0; a < 360; a += 45) {
-      let tx = x + 20 * Math.cos(Math.PI / 180 * a);
-      let ty = y + 20 * Math.sin(Math.PI / 180 * a);
+      let tx = x + 120 * Math.cos(Math.PI / 180 * a);
+      let ty = y + 120 * Math.sin(Math.PI / 180 * a);
 
       for (let i = 0; i < voronoi_size; i++) {
         if (this.voronoi_metadata[i].use == true
@@ -1289,7 +1289,8 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  this.map.position.set((320 * pen_scale/2)-map_scale*this.player.x, (240 * pen_scale/2)-map_scale*this.player.y);
+  // this.map.position.set((320 * pen_scale/2)-this.player.x - 4500, (240 * pen_scale/2)-this.player.y - 3200);
+  this.map.position.set(640 - this.player.x, 480 - this.player.y);
 
   for (let i = 0; i < this.animals.length; i++) {
     if (this.animals[i].pen.state == "ungrey") {

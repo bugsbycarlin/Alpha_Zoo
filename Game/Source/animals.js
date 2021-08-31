@@ -89,7 +89,7 @@ for (const [name, data] of Object.entries(animals)) {
 Game.prototype.makeAnimal = function(animal_type, pen) {
   let self = this;
 
-  let scale_value = 0.11;
+  let scale_value = 0.66;
 
   let animal = new PIXI.Container();
 
@@ -123,13 +123,13 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.delay = 0;
   animal.delay_time = null;
 
-  animal.vx = 0.4;
+  animal.vx = 2.4;
   animal.vy = 0;
 
-  animal.land_speed = 0.4;
+  animal.land_speed = 2.4;
   animal.land_angle = (Math.random() * 360) * Math.PI / 180;
 
-  if (animal_type == "CHEETAH") animal.land_speed = 0.8;
+  if (animal_type == "CHEETAH") animal.land_speed = 4.8;
 
   animal.undulation_counter = 0;
 
@@ -143,7 +143,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     }
 
     if (animals[animal_type].last_sound == null || self.timeSince(animals[animal_type].last_sound) > animals[animal_type].sound_delay) {
-      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 80) {
+      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 480) {
         if (Math.random() > 0.65) {
           self.soundEffect(animals[animal_type].sound);
           animals[animal_type].sound_delay = 2000 + Math.random() * 10000;
@@ -168,7 +168,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
         let outside = false;
         for (let a = 0; a < 360; a += 45) {
-          let p = [animal.x + 7 * Math.cos(a * Math.PI / 180), animal.y + 7 * Math.sin(a * Math.PI / 180)];
+          let p = [animal.x + 42 * Math.cos(a * Math.PI / 180), animal.y + 42 * Math.sin(a * Math.PI / 180)];
           if(!pointInsidePolygon(p, pen.polygon)) {
             outside = true;
           }
@@ -181,7 +181,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         }
 
         if (animal_sprite.y >= 0) {
-          animal.vy = -0.6;
+          animal.vy = -3.6;
           animal_sprite.y = 0;
 
           if(Math.random() < 0.05) {
@@ -208,7 +208,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             }
           }
         } else {
-          animal.vy += 0.1;
+          animal.vy += 0.6;
         }
       }
 
@@ -226,7 +226,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
         let outside = false;
         for (let a = 0; a < 360; a += 45) {
-          let p = [animal.x + 7 * Math.cos(a * Math.PI / 180), animal.y + 7 * Math.sin(a * Math.PI / 180)];
+          let p = [animal.x + 42 * Math.cos(a * Math.PI / 180), animal.y + 42 * Math.sin(a * Math.PI / 180)];
           if(!pointInsidePolygon(p, pen.polygon)) {
             outside = true;
           }
@@ -240,7 +240,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
         animal.undulation_counter += 1;
 
-        animal_sprite.y = 0.5 * Math.sin(Math.PI * animal.undulation_counter / 16);
+        animal_sprite.y = 3 * Math.sin(Math.PI * animal.undulation_counter / 16);
 
         if (Math.abs(animal_sprite.y) < 0.0005) {
           if(Math.random() < 0.1) {
@@ -268,8 +268,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
             if (animal_type in animated_animals) animal_sprite.gotoAndStop(0);
           } else {
-            animal_sprite.y -= 3;
-            animal.vy = -0.3;
+            animal_sprite.y -= 18;
+            animal.vy = -1.8;
           }
         } else {
           // fliers are always animated
@@ -284,16 +284,16 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             animal.animated = self.markTime();
           }
 
-          animal.vy += -0.1 + Math.random() * 0.2;
-          if (animal_sprite.y < -50) {
-            animal.vy += 0.1;
+          animal.vy += -0.6 + Math.random() * 1.2;
+          if (animal_sprite.y < -300) {
+            animal.vy += 0.6;
           }
         }
 
-        if (animal.vx > 0 && animal_sprite.x >= 20) {
+        if (animal.vx > 0 && animal_sprite.x >= 120) {
           animal.vx *= -1;
           animal_sprite.scale.set(-scale_value, scale_value);
-        } else if (animal.vx < 0 && animal_sprite.x <= -20) {
+        } else if (animal.vx < 0 && animal_sprite.x <= -120) {
           animal.vx *= -1;
           animal_sprite.scale.set(scale_value, scale_value);
         }
