@@ -176,6 +176,10 @@ function resumeAllDelays() {
   }
 }
 
+function pick(some_list) {
+  return some_list[Math.floor(Math.random() * some_list.length)]
+}
+
 
 function addDedupeSort(some_list, other_list) {
   other_list.forEach((score) => {

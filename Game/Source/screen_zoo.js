@@ -6,14 +6,14 @@ Game.prototype.initializeZoo = function() {
 
   this.freefalling = [];
   this.shakers = [];
+  this.drops = [];
+  this.foods = [];
 
   this.terrain = [];
   this.decorations = [];
   this.animals = [];
 
   this.keymap = {};
-
-  this.game_phase = "typing";
 
   this.resetZooScreen();
 }
@@ -35,6 +35,12 @@ let ice_color = 0xFAFAFF;
 let sand_color = 0xf3cca0;
 let water_color = 0x42b2d2;
 let sign_color = 0xc09f57;
+
+let steak_color = 0x954a4a;
+let greens_color = 0x3c713a;
+let fruit_color = 0x70527d;
+
+let poop_color = 0x644b38;
 
 // this should be 6. it looks good at 6.
 // let map_scale = 6;
@@ -134,10 +140,77 @@ Game.prototype.makeUI = function() {
 
   this.typing_ui.visible = false;
   this.typing_allowed = false;
+  this.display_typing_allowed = false;
 
 
   this.display_ui = new PIXI.Container();
   this.ui_layer.addChild(this.display_ui);
+
+  // this.display_action_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
+  // this.display_action_backing.anchor.set(0, 0);
+  // this.display_action_backing.scale.set(0.5, 0.5);
+  // this.display_action_backing.position.set(-200, 810);
+  // this.display_action_backing.filters = [this.dropshadow_filter];
+  // this.display_ui.addChild(this.display_action_backing);
+
+  // this.display_food_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/Food/food.png"));
+  // this.display_food_glyph.anchor.set(0.5,0.75);
+  // this.display_food_glyph.position.set(70, 855);
+  // this.display_food_glyph.scale.set(0.75, 0.75)
+  // this.display_ui.addChild(this.display_food_glyph);
+
+  // this.display_food_grey_text = new PIXI.Text("FEED", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+  // this.display_food_grey_text.anchor.set(0,1);
+  // this.display_food_grey_text.position.set(130, 900);
+  // this.display_ui.addChild(this.display_food_grey_text);
+
+  // this.display_food_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  // this.display_food_typing_text.tint = 0x000000;
+  // this.display_food_typing_text.anchor.set(0,1);
+  // this.display_food_typing_text.position.set(130, 900);
+  // this.display_ui.addChild(this.display_food_typing_text);
+
+
+  this.display_action_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
+  this.display_action_backing.anchor.set(0, 1);
+  this.display_action_backing.scale.set(0.5, 1);
+  this.display_action_backing.position.set(-200, 960 - 16);
+  this.display_action_backing.filters = [this.dropshadow_filter];
+  this.display_ui.addChild(this.display_action_backing);
+
+  this.display_food_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/Food/food.png"));
+  this.display_food_glyph.anchor.set(0.5,0.75);
+  this.display_food_glyph.position.set(70, 815);
+  this.display_food_glyph.scale.set(0.75, 0.75)
+  this.display_ui.addChild(this.display_food_glyph);
+
+  this.display_food_grey_text = new PIXI.Text("FEED", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+  this.display_food_grey_text.anchor.set(0,1);
+  this.display_food_grey_text.position.set(130, 855);
+  this.display_ui.addChild(this.display_food_grey_text);
+
+  this.display_food_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.display_food_typing_text.tint = 0x000000;
+  this.display_food_typing_text.anchor.set(0,1);
+  this.display_food_typing_text.position.set(130, 855);
+  this.display_ui.addChild(this.display_food_typing_text);
+
+  this.display_food_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
+  this.display_food_glyph.anchor.set(0.5,0.75);
+  this.display_food_glyph.position.set(70, 905);
+  this.display_food_glyph.scale.set(0.75, 0.75)
+  this.display_ui.addChild(this.display_food_glyph);
+
+  this.display_poop_grey_text = new PIXI.Text("POOP", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+  this.display_poop_grey_text.anchor.set(0,1);
+  this.display_poop_grey_text.position.set(130, 945);
+  this.display_ui.addChild(this.display_poop_grey_text);
+
+  this.display_poop_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.display_poop_typing_text.tint = 0x000000;
+  this.display_poop_typing_text.anchor.set(0,1);
+  this.display_poop_typing_text.position.set(130, 945);
+  this.display_ui.addChild(this.display_poop_typing_text);
 
   this.display_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
   this.display_backing.anchor.set(0, 1);
@@ -181,7 +254,7 @@ Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
       decorations: ["grass", "tree", "bush", "rock"],
       decoration_objects: [],
       land_object: null,
-      animal_object: null,
+      animal_objects: null,
       sign: null,
       state: "ungrey",
       cell_number: i,
@@ -668,9 +741,9 @@ Game.prototype.populateZoo = function() {
         decoration_number = Math.random();
         for (let t = 0; t < 5; t++) {
           if (Math.random() > 0.3) {
-            let decoration_type = this.voronoi_metadata[i].decorations[Math.floor(Math.random() * this.voronoi_metadata[i].decorations.length)];
+            let decoration_type = pick(this.voronoi_metadata[i].decorations);
             let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
-            let edge = this.voronoi_metadata[i].polygon[Math.floor(Math.random() * this.voronoi_metadata[i].polygon.length)];
+            let edge = pick(this.voronoi_metadata[i].polygon);
             let fraction = 0.3 + 0.5 * Math.random();
             decoration.position.set(
               (1-fraction) * this.voronoi_metadata[i].cx + (fraction) * edge[0],
@@ -683,7 +756,7 @@ Game.prototype.populateZoo = function() {
         }
 
         if (this.voronoi_metadata[i].animal != null) {
-          this.voronoi_metadata[i].animal_object = [];
+          this.voronoi_metadata[i].animal_objects = [];
           let animal_name = this.voronoi_metadata[i].animal;
           let num_animals_here = Math.ceil(2 * Math.random());
           if (animal_name == "OTTER") num_animals_here = 2;
@@ -692,8 +765,9 @@ Game.prototype.populateZoo = function() {
             animal.position.set(this.voronoi_metadata[i].cx - 36 + 72 * n, this.voronoi_metadata[i].cy - 36 + 72 * Math.random());
             // animal.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
             this.decorations.push(animal);
-            this.voronoi_metadata[i].animal_object.push(animal);
+            this.voronoi_metadata[i].animal_objects.push(animal);
             this.animals.push(animal);
+            this.shakers.push(animal);
             this.shakers.push(this.voronoi_metadata[i].land_object);
           }
           
@@ -732,6 +806,53 @@ Game.prototype.populateZoo = function() {
 
       this.player.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
       this.decorations.push(this.player);
+    }
+  }
+}
+
+
+Game.prototype.handleKeyUp = function(ev) {
+  ev.preventDefault();
+
+  this.keymap[ev.key] = null;
+}
+
+
+Game.prototype.handleKeyDown = function(ev) {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  if (ev.key === "Tab") {
+    ev.preventDefault();
+  }
+
+  let key = ev.key;
+
+  this.keymap[key] = true;
+
+  // if (key === "Escape") {
+  //   this.player.position.set(this.entrance.cx, this.entrance.cy);
+  // }
+
+  if (this.typing_allowed && this.typing_ui.visible) {
+    for (i in lower_array) {
+      if (key === lower_array[i] || key === letter_array[i]) {
+        this.addType(letter_array[i]);
+      }
+    }
+
+    if (key === "Backspace" || key === "Delete") {
+      this.deleteType();
+    }
+  } else if (this.display_typing_allowed && this.display_ui.visible) {
+    for (i in lower_array) {
+      if (key === lower_array[i] || key === letter_array[i]) {
+        this.addDisplayType(letter_array[i]);
+      }
+    }
+
+    if (key === "Backspace" || key === "Delete") {
+      this.deleteDisplayType();
     }
   }
 }
@@ -792,10 +913,148 @@ Game.prototype.deleteType = function() {
     t.position.set(25 + 50 * (this.typing_text.text.length - 1), 93);
     t.vx = -20 + 40 * Math.random();
     t.vy = -5 + -20 * Math.random();
+    t.floor = 1200;
     screen.addChild(t);
     this.freefalling.push(t);
 
     this.typing_text.text = this.typing_text.text.slice(0,-1);
+    this.soundEffect("swipe");
+  }
+}
+
+
+Game.prototype.addDisplayType = function(letter) {
+  var self = this;
+  var screen = this.screens["typing"];
+
+  if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length == 0) {
+    if (letter === "P") {
+      this.display_poop_typing_text.text += letter;
+    } else {
+      this.display_food_typing_text.text += letter;
+    }
+  } else if (this.display_poop_typing_text.text.length == 0 && this.display_food_typing_text.text.length < 4) {
+    this.display_food_typing_text.text += letter;
+  } else if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length < 4) {
+    this.display_poop_typing_text.text += letter;
+  }
+
+  if (this.display_food_typing_text.text == "FEED" || this.display_poop_typing_text.text == "POOP") {
+    this.soundEffect("success");
+  
+    this.display_typing_allowed = false;
+
+    delay(function() {
+      self.display_food_typing_text.text = "";
+      self.display_poop_typing_text.text = "";
+      self.display_typing_allowed = true;
+    }, 300);
+  }
+
+  if (this.display_food_typing_text.text == "FEED") {
+    flicker(this.display_food_typing_text, 300, 0x000000, 0xFFFFFF);
+
+    let food_types = ["greens"]
+    if (carnivores.includes(this.animal_to_display)) {
+      food_types = ["steak"];
+    } else if (omnivores.includes(this.animal_to_display)) {
+      food_types = ["greens", "steak", "fruit"];
+    }
+    let food_type = pick(food_types);
+
+    let sheet = PIXI.Loader.shared.resources["Art/Food/" + food_type + ".json"].spritesheet
+    let food = new PIXI.AnimatedSprite(sheet.animations[food_type]);
+    food.scale.set(0.75, 0.75);
+    food.type = food_type;
+    food.start_x = this.player.x;
+    food.start_y = this.player.y + 1;
+    food.end_x = this.animal_pen_to_display.cx;
+    food.end_y = this.animal_pen_to_display.cy;
+    food.anchor.set(0.5,0.75)
+    food.position.set(food.start_x, food.start_y);
+    food.interpolation = 0;
+    food.state = "flying";
+    food.parent = this.map.decoration_layer;
+    // this.map.decoration_layer.addChild(food);
+    this.decorations.push(food);
+    this.foods.push(food);
+    console.log(food);
+  } else if (this.display_poop_typing_text.text == "POOP") {
+    flicker(this.display_poop_typing_text, 300, 0x000000, 0xFFFFFF);
+
+    console.log(this.animal_pen_to_display)
+    let current_animal = pick(this.animal_pen_to_display.animal_objects);
+    self.soundEffect("poop_" + Math.ceil(Math.random() * 3));
+    for(let i = 0; i <= 600; i+= 300) {
+      delay(function() {
+        let b = current_animal.global_butt_coords();
+      
+        let poop_shard = new PIXI.Graphics();
+        poop_shard.beginFill(poop_color);
+        poop_shard.drawPolygon([
+          -4, -6,
+          2 + 4 * Math.random(), -4 - 4 * Math.random(),
+          6 + 5 * Math.random(), 4 + 4 * Math.random(),
+          -6 - 5 * Math.random(), 4 + 4 * Math.random(),
+          -4, -6,
+        ]);
+        poop_shard.position.set(b[0], b[1]);
+        poop_shard.endFill();
+        // let poop_shard = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
+        // poop_shard.anchor.set(0.5, 0.5);
+        // poop_shard.position.set(x, y);
+        poop_shard.vx = -1 - 1.5 * Math.random();
+        if (current_animal.direction < 0) poop_shard.vx *= -1;
+        poop_shard.vy = 0;
+        poop_shard.gravity = 1;
+        poop_shard.floor = b[1] + 50;
+        poop_shard.parent = self.map.decoration_layer;
+        self.map.decoration_layer.addChild(poop_shard);
+        self.decorations.push(poop_shard);
+
+        console.log(poop_shard);
+        self.drops.push(poop_shard);
+
+        delay(function() {
+          poop_shard.parent.removeChild(poop_shard);
+          poop_shard.status = "dead";
+        }, 2000 + Math.random() * 2000);
+
+      }, i);
+    }
+  }
+}
+
+
+Game.prototype.deleteDisplayType = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  if (this.display_food_typing_text.text.length > 0) {
+    let l = this.display_food_typing_text.text.slice(-1,this.display_food_typing_text.text.length);
+    let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 80, fill: 0x000000, letterSpacing: 3, align: "left"});
+    t.anchor.set(0,1);
+    t.position.set(130 + 28 * (this.display_food_typing_text.text.length - 1), 855);
+    t.vx = -20 + 40 * Math.random();
+    t.vy = -5 + -20 * Math.random();
+    t.floor = 1200;
+    screen.addChild(t);
+    this.freefalling.push(t);
+
+    this.display_food_typing_text.text = this.display_food_typing_text.text.slice(0,-1);
+    this.soundEffect("swipe");
+  } else if (this.display_poop_typing_text.text.length > 0) {
+    let l = this.display_poop_typing_text.text.slice(-1,this.display_poop_typing_text.text.length);
+    let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 80, fill: 0x000000, letterSpacing: 3, align: "left"});
+    t.anchor.set(0,1);
+    t.position.set(130 + 28 * (this.display_poop_typing_text.text.length - 1), 945);
+    t.vx = -20 + 40 * Math.random();
+    t.vy = -5 + -20 * Math.random();
+    t.floor = 1200;
+    screen.addChild(t);
+    this.freefalling.push(t);
+
+    this.display_poop_typing_text.text = this.display_poop_typing_text.text.slice(0,-1);
     this.soundEffect("swipe");
   }
 }
@@ -871,11 +1130,14 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
 }
 
 
-Game.prototype.changeDisplayText = function(new_word) {
+Game.prototype.changeDisplayText = function(new_word, found_pen) {
   var self = this;
   var screen = this.screens["zoo"];
 
   this.animal_to_display = new_word;
+  this.animal_pen_to_display = found_pen;
+
+  this.display_food_typing_text.text = "";
 
   // if (Math.random() > 0.65) {
   //   this.soundEffect(this.animal_to_display.toLowerCase());
@@ -899,6 +1161,7 @@ Game.prototype.changeDisplayText = function(new_word) {
       self.display_ui.visible = true;
     })
     .onComplete(function() {
+      self.display_typing_allowed = true;
       self.display_ui.visible = true;
     });
 }
@@ -925,6 +1188,9 @@ Game.prototype.hideDisplayText = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
+  this.display_typing_allowed = false;
+  this.animal_pen_to_display = null;
+
   this.animal_to_display = "";
   new TWEEN.Tween(this.display_ui)
     .to({y: 300})
@@ -940,10 +1206,10 @@ Game.prototype.grey = function(cell_number) {
   this.voronoi_metadata[cell_number].state = "grey";
   // this.voronoi_metadata[cell_number].land_object.alpha = 0.35;
   this.voronoi_metadata[cell_number].land_object.filters  = [this.greyscale_filter];
-  if (this.voronoi_metadata[cell_number].animal_object != null) {
-    //this.voronoi_metadata[cell_number].animal_object.alpha = 0.35;
-    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_object.length; j++) {
-      this.voronoi_metadata[cell_number].animal_object[j].filters = [this.greyscale_filter];
+  if (this.voronoi_metadata[cell_number].animal_objects != null) {
+    //this.voronoi_metadata[cell_number].animal_objects.alpha = 0.35;
+    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
+      this.voronoi_metadata[cell_number].animal_objects[j].filters = [this.greyscale_filter];
     }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
@@ -959,10 +1225,10 @@ Game.prototype.ungrey = function(cell_number) {
 
   this.voronoi_metadata[cell_number].state = "ungrey";
   this.voronoi_metadata[cell_number].land_object.alpha = 1;
-  if (this.voronoi_metadata[cell_number].animal_object != null) {
-    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_object.length; j++) {
-      this.voronoi_metadata[cell_number].animal_object[j].alpha  = 1;
-      this.voronoi_metadata[cell_number].animal_object[j].filters  = [];
+  if (this.voronoi_metadata[cell_number].animal_objects != null) {
+    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
+      this.voronoi_metadata[cell_number].animal_objects[j].alpha  = 1;
+      this.voronoi_metadata[cell_number].animal_objects[j].filters  = [];
     }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
@@ -1019,48 +1285,12 @@ Game.prototype.sortLayer = function(layer_name, layer_object_list, artificial_y 
   }
 
   for (let i = 0; i < layer_object_list.length; i++) {
-    layer_name.addChild(layer_object_list[i]);
-  }
-}
-
-
-Game.prototype.handleKeyUp = function(ev) {
-  ev.preventDefault();
-
-  this.keymap[ev.key] = null;
-}
-
-
-Game.prototype.handleKeyDown = function(ev) {
-  var self = this;
-  var screen = this.screens["zoo"];
-
-  if (ev.key === "Tab") {
-    ev.preventDefault();
-  }
-
-  let key = ev.key;
-
-  this.keymap[key] = true;
-
-  // if (key === "Escape") {
-  //   this.player.position.set(this.entrance.cx, this.entrance.cy);
-  // }
-
-  if (this.typing_allowed) {
-    if (this.game_phase == "typing") {
-      for (i in lower_array) {
-        if (key === lower_array[i] || key === letter_array[i]) {
-          this.addType(letter_array[i]);
-        }
-      }
-    }
-
-    if (key === "Backspace" || key === "Delete") {
-      this.deleteType();
+    if (!(layer_object_list[i].status == "dead")) {
+      layer_name.addChild(layer_object_list[i]);
     }
   }
 }
+
 
 
 Game.prototype.shakeDamage = function() {
@@ -1082,6 +1312,48 @@ Game.prototype.shakeDamage = function() {
 }
 
 
+Game.prototype.poopsAndFoods = function(fractional) {
+  var self = this;
+  var screen = this.screens[this.current_screen];
+
+  for (let i = 0; i < this.foods.length; i++) {
+    let food = this.foods[i];
+    if (food.interpolation < 1) {
+      food.interpolation += 0.05;
+      food.position.set(
+        (1 - food.interpolation) * food.start_x + food.interpolation * food.end_x,
+        (1 - food.interpolation) * food.start_y + food.interpolation * food.end_y - 50 * Math.sin(food.interpolation * Math.PI),
+      )
+      if (food.interpolation >= 1) {
+        food.interpolation = 1;
+        food.status = "ground";
+        food.position.set(food.end_x, food.end_y);
+      }
+    }
+  }
+
+  for (let i = 0; i < this.drops.length; i++) {
+    let item = this.drops[i];
+    if (item.position.y < item.floor) {
+      item.position.x += item.vx * fractional;
+      item.position.y += item.vy * fractional;
+      item.vy += item.gravity * fractional;
+    } else {
+      item.position.y = item.floor;
+    }
+  }
+
+  let new_drops = [];
+  for (let i = 0; i < this.drops.length; i++) {
+    let item = this.drops[i];
+    if (item.status != "dead") {
+      new_drops.push(item);
+    }
+  }
+  this.drops = new_drops;
+}
+
+
 Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
   var self = this;
   var screen = this.screens[this.current_screen];
@@ -1096,8 +1368,7 @@ Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
       item.vy += this.gravity * fractional;
     }
     
-    // TODO: this needs to be 200 for the player areas and 960 for the screen in total.
-    if (item.position.y > 1160 || item.alpha < 0.04 || (item.floor != null && item.position.y > item.floor)) {
+    if (item.floor != null && item.position.y > item.floor) {
       if (item.parent != null) {
         item.parent.removeChild(item);
       }
@@ -1229,7 +1500,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
     for (let i = 0; i < voronoi_size; i++) {
       if (this.voronoi_metadata[i].use == true
         && this.voronoi_metadata[i].group != null
-        && this.voronoi_metadata[i].animal_object != null) {
+        && this.voronoi_metadata[i].animal_objects != null) {
         if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
           found_pen = this.voronoi_metadata[i];
 
@@ -1248,7 +1519,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       for (let i = 0; i < voronoi_size; i++) {
         if (this.voronoi_metadata[i].use == true
           && this.voronoi_metadata[i].group != null
-          && this.voronoi_metadata[i].animal_object != null) {
+          && this.voronoi_metadata[i].animal_objects != null) {
           if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
             found_pen = this.voronoi_metadata[i];
             break;
@@ -1267,7 +1538,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       }
     } else if (found_pen.animal != this.animal_to_display && found_pen.state == "ungrey") {
       // console.log("display");
-      this.changeDisplayText(found_pen.animal);
+      this.changeDisplayText(found_pen.animal, found_pen);
       if (this.typing_ui.visible == true) {
         this.hideTypingText();
       }
@@ -1304,5 +1575,6 @@ Game.prototype.updateZoo = function(diff) {
 
   this.shakeDamage();
   this.freeeeeFreeeeeFalling(fractional);
+  this.poopsAndFoods(fractional);
 
 }
