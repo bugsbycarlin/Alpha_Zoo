@@ -295,7 +295,6 @@ Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
   let cell_count = 0;
 
   while(cell_count < Math.min(number_of_pens, voronoi_size)) {
-    console.log("Iteration " + ellipse_size);
     cell_count = 0;
 
     for (let i = 0; i < voronoi_size; i++) {
@@ -339,6 +338,8 @@ Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
 Game.prototype.makeInnerGroups = function() {
   let group_num = 1;
   let group_count = 0;
+
+  //walk and recursively mark groups until they reach a certain size (typically 3)
   for (let i = 0; i < voronoi_size; i++) {
     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == null) {
       this.markGroup(i, group_num, group_count);
@@ -347,6 +348,7 @@ Game.prototype.makeInnerGroups = function() {
     }
   }
 
+  // compute centers of each group
   group_centers = {};
 
   for (let i = 0; i < voronoi_size; i++) {
@@ -411,13 +413,37 @@ Game.prototype.scaleGroups = function() {
       let gcx = this.voronoi_metadata[i].group_center[0];
       let gcy = this.voronoi_metadata[i].group_center[1];
 
+      // if (this.voronoi_metadata[i].group == 0) {
+      //   // precompute group so we can use it to check inner and outer points on the outer groups
+      //   let cx = 0;
+      //   let cy = 0;
+      //   let count = 0;
+      //   for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+      //     let point = this.voronoi_metadata[i].polygon[j];
+      //     cx += point[0];
+      //     cy += point[1];
+      //     count += 1;
+      //   }
+      //   this.voronoi_metadata[i].cx = cx / count;
+      //   this.voronoi_metadata[i].cy = cy / count;
+      // }
+
       for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
         let point = this.voronoi_metadata[i].polygon[j];
 
-        // percentage shrink version
+        // percentage scale version
         if (this.voronoi_metadata[i].group == 0) {
+          // // scale inner and outer points differently
+          // if (distance(point[0], point[1], this.zoo_center[0], this.zoo_center[1]) <= distance(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy, this.zoo_center[0], this.zoo_center[1])) {
+          //   point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
+          //   point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
+          // } else {
+          //   point[0] = 1.05 * point[0] + (1 - 1.05) * gcx;
+          //   point[1] = 1.05 * point[1] + (1 - 1.05) * gcy;
+          // }
           point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
           point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
+          
         } else {
           point[0] = shrink_factor * point[0] + (1 - shrink_factor) * gcx;
           point[1] = shrink_factor * point[1] + (1 - shrink_factor) * gcy;
@@ -695,7 +721,6 @@ Game.prototype.drawMap = function() {
         polygon_left.push(polygon_left[0])
         polygon_left.push(polygon_left[1]);
         ground.drawPolygon(polygon_left);
-        console.log(polygon_left);
         filled = true;
       }
 

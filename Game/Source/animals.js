@@ -106,16 +106,26 @@ animals = {
     butt: [235, 386],
   },
   "SNAKE": {
+    land: "sand",
     movement: "undulate",
     mouth: [371, 383],
     butt: [191, 392],
-  }
+  },
+  "COW": {
+    mouth: [316, 351],
+    butt: [180, 327],
+  },
+  "PIG": {
+    land: "sand",
+    mouth: [313, 354],
+    butt: [178, 319],
+  },
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
 
 omnivores = [
-  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE", "PARROT", "MOUSE", "DOG",
+  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE", "PARROT", "MOUSE", "DOG", "PIG",
 ]
 carnivores = [
   "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT",
@@ -173,15 +183,28 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
 
 
-  if (pen.land == "water") {
-    animal.water_fill = PIXI.Sprite.from(PIXI.Texture.WHITE);
-    animal.water_fill.width = 192 * animal_scale;
-    animal.water_fill.height = 100 * animal_scale;
-    animal.water_fill.tint = water_color;
-    // animal.water_fill.scale.set(animal_scale, animal_scale);
-    animal.water_fill.anchor.set(0.5,1);
-    animal.water_fill.position.set(0,90*animal_scale);
-    animal.addChild(animal.water_fill);
+  // if (pen.land == "water") {
+  //   animal.water_fill = PIXI.Sprite.from(PIXI.Texture.WHITE);
+  //   animal.water_fill.width = 192 * animal_scale;
+  //   animal.water_fill.height = 100 * animal_scale;
+  //   animal.water_fill.tint = water_color;
+  //   animal.water_fill.anchor.set(0.5,1);
+  //   animal.water_fill.position.set(0,90*animal_scale);
+  //   animal.addChild(animal.water_fill);
+  // }
+
+  if (pen.land == "water" || pen.land == "watergrass" || pen.land == "waterice") {
+    animal.water_mask = new PIXI.Graphics();
+    animal.water_mask.beginFill(water_color);
+    animal.water_mask.drawRect(-128, -5, 256, -384);
+    animal.water_mask.endFill();
+    animal.addChild(animal.water_mask);
+    if (pen.land == "water") {
+      animal.mask = animal.water_mask;
+      animal.water_mask.visible = true;
+    } else {
+      animal.water_mask.visible = false;
+    }
   }
 
   animal.delay = 0;
@@ -273,7 +296,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     if (animal.delay > 0 && self.timeSince(animal.delay_time) > animal.delay) {
       animal.delay = 0;
       animal.delay_time = null;
-
     }
 
     if (animals[animal.type].last_sound == null || self.timeSince(animals[animal.type].last_sound) > animals[animal.type].sound_delay) {
@@ -450,10 +472,22 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
 
 
-      if (animal.water_fill != null) {
-        animal.water_fill.x = animal.sprite.x;
+      // if (animal.water_fill != null) {
+      //   animal.water_fill.x = animal.sprite.x;
+      // }
+
+      if ((animal.water_mask != null) && 
+        (pen.land == "water" || (pen.land == "watergrass" && animal.x > pen.cx) 
+          || (pen.land == "waterice" && animal.x > pen.cx))) {
+        animal.mask = animal.water_mask;
+        animal.water_mask.visible = true;
+      } else if (animal.water_mask != null) {
+        animal.mask = null;
+        animal.water_mask.visible = false;
       }
     }
+
+
 
   }
 
