@@ -18,7 +18,7 @@ Game.prototype.initializeZoo = function() {
   this.resetZooScreen();
 }
 
-let zoo_size = 30;
+let zoo_size = 40;
 
 let voronoi_size = 200;
 let relaxation_number = 10;
@@ -35,6 +35,7 @@ let ice_color = 0xFAFAFF;
 let sand_color = 0xf3cca0;
 let water_color = 0x42b2d2;
 let sign_color = 0xc09f57;
+let pen_color = 0x754c25
 
 let steak_color = 0x954a4a;
 let greens_color = 0x3c713a;
@@ -89,6 +90,11 @@ Game.prototype.resetZooScreen = function() {
   this.map.decoration_layer = new PIXI.Container();
   this.map.addChild(this.map.decoration_layer);
 
+  this.title_image = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo_title.png"));
+  this.title_image.width = this.width;
+  this.title_image.height = this.height;
+  screen.addChild(this.title_image);
+
   // Make the ui layer
   this.makeUI();
 
@@ -110,6 +116,8 @@ Game.prototype.resetZooScreen = function() {
   this.populateZoo();
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAnimalPens();
+
+  this.start_time = this.markTime();
 
   this.setMusic("background_music");
 }
@@ -734,7 +742,7 @@ Game.prototype.drawMap = function() {
       this.voronoi_metadata[i].land_object.addChild(ground);
 
       let border = new PIXI.Graphics();
-      border.lineStyle(12, 0x754c25, 1); //width, color, alpha
+      border.lineStyle(12, pen_color, 1); //width, color, alpha
       let border_polygon = this.voronoi_metadata[i].polygon.flat();
       border.drawPolygon(border_polygon);
       let border_depth_1 = border.clone();
@@ -1229,36 +1237,36 @@ Game.prototype.hideDisplayText = function() {
 
 Game.prototype.grey = function(cell_number) {
   this.voronoi_metadata[cell_number].state = "grey";
-  // this.voronoi_metadata[cell_number].land_object.alpha = 0.35;
-  this.voronoi_metadata[cell_number].land_object.filters  = [this.greyscale_filter];
+  this.voronoi_metadata[cell_number].land_object.alpha = 0.35;
+  // this.voronoi_metadata[cell_number].land_object.filters  = [this.greyscale_filter];
   if (this.voronoi_metadata[cell_number].animal_objects != null) {
-    //this.voronoi_metadata[cell_number].animal_objects.alpha = 0.35;
     for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
-      this.voronoi_metadata[cell_number].animal_objects[j].filters = [this.greyscale_filter];
+      this.voronoi_metadata[cell_number].animal_objects[j].alpha = 0.35;
+      // this.voronoi_metadata[cell_number].animal_objects[j].filters = [this.greyscale_filter];
     }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
-    // this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 0.35;
-    this.voronoi_metadata[cell_number].decoration_objects[j].filters = [this.greyscale_filter];
+    this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 0.35;
+    // this.voronoi_metadata[cell_number].decoration_objects[j].filters = [this.greyscale_filter];
   }
 }
 
 
 Game.prototype.ungrey = function(cell_number) {
 
-  this.voronoi_metadata[cell_number].land_object.filters  = [];
+  // this.voronoi_metadata[cell_number].land_object.filters  = [];
 
   this.voronoi_metadata[cell_number].state = "ungrey";
   this.voronoi_metadata[cell_number].land_object.alpha = 1;
   if (this.voronoi_metadata[cell_number].animal_objects != null) {
     for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
       this.voronoi_metadata[cell_number].animal_objects[j].alpha  = 1;
-      this.voronoi_metadata[cell_number].animal_objects[j].filters  = [];
+      // this.voronoi_metadata[cell_number].animal_objects[j].filters  = [];
     }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
     this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 1;
-    this.voronoi_metadata[cell_number].decoration_objects[j].filters = [];
+    // this.voronoi_metadata[cell_number].decoration_objects[j].filters = [];
   }
 }
 
@@ -1413,6 +1421,7 @@ Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
 
 
 Game.prototype.updatePlayer = function() {
+  var self = this;
   var keymap = this.keymap;
   var player = this.player;
 
@@ -1437,6 +1446,18 @@ Game.prototype.updatePlayer = function() {
   }
 
   if (this.testMove(player.x, player.y, true, player.direction)) {
+    if (player.direction != null && this.title_image.visible == true && this.title_image.alpha == 1) {
+      new TWEEN.Tween(this.title_image)
+        .to({alpha: 0})
+        .duration(1000)
+        .start()
+        .onUpdate(function() {
+        })
+        .onComplete(function() {
+          self.title_image.visible = false;
+        });
+    }
+
     player.move();
 
     if (player.direction != null) {
@@ -1586,7 +1607,12 @@ Game.prototype.updateZoo = function(diff) {
   this.updatePlayer();
 
   // this.map.position.set((320 * pen_scale/2)-this.player.x - 4500, (240 * pen_scale/2)-this.player.y - 3200);
-  this.map.position.set(640 - this.player.x, 480 - this.player.y);
+  if (this.timeSince(this.start_time) < 2000) {
+    this.map.position.set(640 - this.player.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y);
+  } else {
+    this.map.position.set(640 - this.player.x, 580 - this.player.y);  
+  }
+  
 
   for (let i = 0; i < this.animals.length; i++) {
     if (this.animals[i].pen.state == "ungrey") {

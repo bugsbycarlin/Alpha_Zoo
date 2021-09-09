@@ -26,132 +26,6 @@ function initialize() {
 
 
 
-// var words = [
-//   "no",
-//    "yes",
-//    "dog",
-//    "pig",
-//    "cat",
-//    "run",
-//    "green",
-//    "black",
-//    "pink",
-//    "red",
-//    "jump",
-//    "sleep",
-//    "sheep",
-//    "three",
-//    "wow",
-//    "bag",
-//    "yuck",
-//    "rat",
-//    "hat",
-//    "bat",
-//    "man",
-//    "cow",
-//    "cup",
-//    "bird",
-//    "tree",
-//    "box",
-//    "dad",
-//    "mom",
-//    "stop",
-//    "toy",
-//    "bee",
-//    "boat",
-//    "bus",
-//    "candy",
-//    "coat",
-//    "corn",
-//    "deer",
-//    "dress",
-//    "duck",
-//    "egg",
-//    "farm",
-//    "fox",
-//    "feet",
-//    "food",
-//    "goat",
-//    "hand",
-//    "leg",
-//    "milk",
-//    "moon",
-//    "park",
-//    "plant",
-//    "pony",
-//    "rabbit",
-//    "road",
-//    "rock",
-//    "car",
-//    "truck",
-//    "bath",
-//    "zoo"
-// ]
-
-
-// var picture_counts = {
-//   "no": 6,
-//    "yes": 13,
-//    "dog": 1,
-//    "pig": 1,
-//    "cat": 1,
-//    "run": 13,
-//    "green": 1,
-//    "black": 1,
-//    "pink": 7,
-//    "red": 10,
-//    "jump": 1,
-//    "sleep": 1,
-//    "sheep": 1,
-//    "three": 1,
-//    "wow": 1,
-//    "bag": 1,
-//    "yuck": 1,
-//    "rat": 1,
-//    "hat": 1,
-//    "bat": 1,
-//    "man": 1,
-//    "cow": 1,
-//    "cup": 1,
-//    "bird": 1,
-//    "tree": 1,
-//    "box": 1,
-//    "dad": 1,
-//    "mom": 1,
-//    "stop": 1,
-//    "toy": 1,
-//    "bee": 1,
-//    "boat": 11,
-//    "bus": 1,
-//    "candy": 1,
-//    "coat": 1,
-//    "corn": 1,
-//    "deer": 1,
-//    "dress": 1,
-//    "duck": 1,
-//    "egg": 1,
-//    "farm": 1,
-//    "fox": 1,
-//    "feet": 1,
-//    "food": 1,
-//    "goat": 1,
-//    "hand": 1,
-//    "leg": 1,
-//    "milk": 1,
-//    "moon": 1,
-//    "park": 1,
-//    "plant": 1,
-//    "pony": 1,
-//    "rabbit": 1,
-//    "road": 1,
-//    "rock": 1,
-//    "car": 1,
-//    "truck": 1,
-//    "bath": 1,
-//    "zoo": 1,
-//  }
-
-
 class Game {
   constructor() {
 
@@ -213,6 +87,41 @@ class Game {
   }
 
 
+  //
+  // Tracking functions, useful for testing the timing of things.
+  //
+  trackStart(label) {
+    if (!(label in this.tracking)) {
+      this.tracking[label] = {
+        start: 0,
+        total: 0
+      }
+    }
+    this.tracking[label].start = Date.now();
+  }
+
+
+  trackStop(label) {
+    if (this.tracking[label].start == -1) {
+      console.log("ERROR! Tracking for " + label + " stopped without having started.")
+    }
+    this.tracking[label].total += Date.now() - this.tracking[label].start;
+    this.tracking[label].start = -1
+  }
+
+
+  trackPrint(labels) {
+    var sum_of_totals = 0;
+    for (var label of labels) {
+      sum_of_totals += this.tracking[label].total;
+    }
+    for (var label of labels) {
+      var fraction = this.tracking[label].total / sum_of_totals;
+      console.log(label + ": " + Math.round(fraction * 100).toFixed(2) + "%");
+    }
+  }
+
+
   basicInit() {
     var self = this;
 
@@ -247,10 +156,25 @@ class Game {
         ticker.update(now);
         pixi.renderer.render(pixi.stage);
 
+        // self.trackStart("tween");
+        // TWEEN.update(now);
+        // self.trackStop("tween");
+
+        // self.trackStart("update");
+        // self.update(diff);
+        // self.trackStop("update");
+
+        // self.trackStart("animate");
+        // ticker.update(now);
+        // pixi.renderer.render(pixi.stage);
+        // self.trackStop("animate");
+
+
         if (now - last_performance_update > 3000 && log_performance) {
           //There were 3000 milliseconds, so divide fps_counter by 3
-          //console.log("FPS: " + fps_counter / 3);
-          //self.trackPrint(["update", "tween", "animate"]);
+          // console.log("FPS: " + fps_counter / 3);
+          // self.trackPrint(["update", "tween", "animate"]);
+          
           fps_counter = 0;
           last_performance_update = now;
         }

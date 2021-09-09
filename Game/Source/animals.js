@@ -53,6 +53,11 @@ animals = {
     mouth: [311, 342],
     butt: [194, 356],
   },
+  "LYNX": {
+    sound: "zebra",
+    mouth: [307, 345],
+    butt: [200, 355],
+  },
   "PANTHER": {
     mouth: [313, 339],
     butt: [194, 359],
@@ -85,6 +90,12 @@ animals = {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
+  },
+  "SEAL": {
+    land: "waterice",
+    decorations: ["rock", "rock"],
+    mouth: [299, 344],
+    butt: [200, 382],
   },
   "PANDA_BEAR": {
     mouth: [314, 327],
@@ -120,15 +131,40 @@ animals = {
     mouth: [313, 354],
     butt: [178, 319],
   },
+  "SHEEP": {
+    mouth: [312, 349],
+    butt: [181, 334],
+  },
+  "DEER": {
+    mouth: [317, 327],
+    butt: [192, 332],
+  },
+  "GAZELLE": {
+    mouth: [317, 327],
+    butt: [192, 332],
+  },
+  "ELK": {
+    sound: "deer",
+    mouth: [314, 324],
+    butt: [174, 333],
+  },
+  "MOOSE": {
+    mouth: [325, 332],
+    butt: [158, 312],
+  },
+  "RED_PANDA": {
+    mouth: [272, 333],
+    butt: [222, 396],
+  },
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
 
 omnivores = [
-  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE", "PARROT", "MOUSE", "DOG", "PIG",
+  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE", "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA",
 ]
 carnivores = [
-  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT",
+  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT", "SEAL",
 ]
 bamboovores = [
   "PANDA_BEAR"
@@ -218,6 +254,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.land_angle = (Math.random() * 360) * Math.PI / 180;
 
   if (animal.type == "CHEETAH") animal.land_speed = 4.8;
+  if (animal.type == "GAZELLE") animal.land_speed = 4.8;
 
   animal.undulation_counter = 0;
 
