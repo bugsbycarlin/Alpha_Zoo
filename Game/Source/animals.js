@@ -135,6 +135,10 @@ animals = {
     mouth: [316, 351],
     butt: [180, 327],
   },
+  "YAK": {
+    mouth: [316, 352],
+    butt: [175, 344],
+  },
   "PIG": {
     land: "sand",
     mouth: [313, 354],
@@ -272,8 +276,17 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.eating = false;
   animal.eating_time = this.markTime();
+  animal.eating_target = null;
 
   animal.update = function() {
+
+    animal.eating_target = null;
+    for (let j = 0; j < self.foods.length; j++) {
+      let food = self.foods[j];
+      if (food.status == "ground" && food.animal_target == animal.type) {
+        animal.eating_target = food;
+      }
+    }
 
     for (let j = 0; j < self.foods.length; j++) {
       let food = self.foods[j];
@@ -281,7 +294,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         distance(animal.x, animal.y + animal.sprite.y, food.x, food.y) < 70) {
         animal.delay = 500 + 2000 * Math.random();
         animal.delay_time = self.markTime();
-        animal.food_target = food;
+        // animal.food_target = food;
         if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
 
         if (self.timeSince(animal.eating_time) > 500) {
@@ -395,9 +408,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
             if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
 
-            if (Math.random() < 0.5) {
-              animal.land_angle = (Math.random() * 360) * Math.PI / 180;
-            }
+            animal.maybeChangeDirection();
           }
 
           if (Math.random() > 0.5) {
@@ -460,9 +471,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
             if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
 
-            if (Math.random() < 0.5) {
-              animal.land_angle = (Math.random() * 360) * Math.PI / 180;
-            }
+            animal.maybeChangeDirection();
           }
         }
       }
@@ -533,9 +542,18 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         animal.water_mask.visible = false;
       }
     }
+  }
 
-
-
+  animal.maybeChangeDirection = function() {
+    console.log("Maybe changing direction");
+    let dice = Math.random();
+    if ((animal.eating_target == null && dice < 0.5)
+      || (animal.eating_target != null && dice < 0.25)) {
+      animal.land_angle = (Math.random() * 360) * Math.PI / 180;
+    } else if (animal.eating_target != null && dice >= 0.25 && dice < 0.75) {
+      animal.land_angle = Math.atan2(animal.eating_target.position.y - animal.y, animal.eating_target.position.x - animal.x);
+      console.log("Seeking the food");
+    }
   }
 
   animal.global_butt_coords = function() {

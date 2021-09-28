@@ -1001,13 +1001,14 @@ Game.prototype.addDisplayType = function(letter) {
     food.type = food_type;
     food.start_x = this.player.x;
     food.start_y = this.player.y + 1;
-    food.end_x = this.animal_pen_to_display.cx;
-    food.end_y = this.animal_pen_to_display.cy;
+    food.end_x = this.animal_pen_to_display.cx - 32 + 64 * Math.random();
+    food.end_y = this.animal_pen_to_display.cy - 32 + 64 * Math.random();
     food.anchor.set(0.5,0.75)
     food.position.set(food.start_x, food.start_y);
     food.interpolation = 0;
     food.state = "flying";
     food.parent = this.map.decoration_layer;
+    food.animal_target = this.animal_to_display;
     // this.map.decoration_layer.addChild(food);
     this.decorations.push(food);
     this.foods.push(food);
