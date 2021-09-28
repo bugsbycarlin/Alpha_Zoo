@@ -32,6 +32,11 @@ animals = {
     mouth: [284, 307],
     butt: [191, 345],
   },
+  "BABOON": {
+    land: "sand",
+    mouth: [288, 328],
+    butt: [192, 350],
+  },
   "GIRAFFE": {
     mouth: [332, 198],
     butt: [168, 319],
@@ -39,6 +44,10 @@ animals = {
   "ZEBRA": {
     mouth: [317, 318],
     butt: [183, 342],
+  },
+  "HORSE": {
+    mouth: [316, 347],
+    butt: [179, 334],
   },
   "ELEPHANT": {
     land: "sand",
@@ -161,7 +170,8 @@ animals = {
 console.log("There are " + Object.keys(animals).length + " different animals available!");
 
 omnivores = [
-  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE", "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA",
+  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE",
+  "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
 ]
 carnivores = [
   "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT", "SEAL",
