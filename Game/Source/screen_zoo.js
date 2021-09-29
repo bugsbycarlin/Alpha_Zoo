@@ -907,14 +907,17 @@ Game.prototype.addType = function(letter) {
     flicker(this.typing_text, 300, 0x000000, 0xFFFFFF);
     this.typing_allowed = false;
 
+    let animal_to_type = this.animal_to_type;
+    let animal_pen_to_fix = this.animal_pen_to_fix;
+
     delay(function() {
-      self.ungrey(self.animal_pen_to_fix.cell_number);
+      self.ungrey(animal_pen_to_fix.cell_number);
       self.soundEffect("build");
-      self.animal_pen_to_fix.land_object.shake = self.markTime();
+      animal_pen_to_fix.land_object.shake = self.markTime();
 
       for (let i = 0; i < self.animal_pen_to_fix.polygon.length; i++) {
-        let x = self.animal_pen_to_fix.polygon[i][0];
-        let y = self.animal_pen_to_fix.polygon[i][1];
+        let x = animal_pen_to_fix.polygon[i][0];
+        let y = animal_pen_to_fix.polygon[i][1];
         self.makeSmoke(self.map.build_effect_layer, x, y, 1.8, 1.8);
       }
 
@@ -922,9 +925,11 @@ Game.prototype.addType = function(letter) {
 
       self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
 
-    }, 200)
+    }, 200);
+
 
     delay(function() {
+      self.changeDisplayText(animal_to_type, animal_pen_to_fix);
       self.hideTypingText();
     }, 300);
   }
@@ -1520,7 +1525,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
   // Then falling back on a small radius.
 
   let found_pen = null;
-  for (let r = 1; r < 7; r++) {
+  for (let r = 1; r < 5; r++) {
     let tx = x;
     let ty = y;
     if (direction == "right") tx += 60*r;

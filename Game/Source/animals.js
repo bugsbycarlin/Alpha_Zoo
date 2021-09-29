@@ -125,6 +125,11 @@ animals = {
     mouth: [264, 324],
     butt: [235, 386],
   },
+  "OWL": {
+    movement: "fly",
+    mouth: [261, 297],
+    butt: [257, 388],
+  },
   "SNAKE": {
     land: "sand",
     movement: "undulate",
@@ -178,7 +183,7 @@ omnivores = [
   "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
 ]
 carnivores = [
-  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT", "SEAL",
+  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT", "SEAL", "OWL",
 ]
 bamboovores = [
   "PANDA_BEAR"
@@ -186,6 +191,7 @@ bamboovores = [
 
 animated_animals = {
   "PARROT":0,
+  "OWL":0,
 }
 
 
