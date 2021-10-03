@@ -185,6 +185,18 @@
     <script type="text/javascript" charset="utf-8">
       var device = null;
     </script>
+
+<!--     <script id="greyscale_shader" type="shader">
+      //FRAGMENT SHADER
+      varying vec2 vTextureCoord;
+      uniform sampler2D uSampler;
+      void main(void)
+      {
+          vec4 color = texture2D(uSampler, vTextureCoord);
+          gl_FragColor = color;
+      }
+    </script> -->
+
     <script type="text/javascript" src="Source/Libraries/webfont.js"></script>
     <script type="text/javascript" src="Source/Libraries/firebase-app.js"></script>
     <script type="text/javascript" src="Source/Libraries/firebase-analytics.js"></script>
@@ -202,6 +214,7 @@
     <script type="text/javascript" src="Source/animals.js"></script>
     <script type="text/javascript" src="Source/character.js"></script>
     <script type="text/javascript" src="Source/screen_zoo.js"></script>
+    <script type="text/javascript" src="Source/screen_alt_gen.js"></script>
     <script type="text/javascript" src="Source/user_interface.js"></script>
   </body>
 </html>

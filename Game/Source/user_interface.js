@@ -391,6 +391,7 @@ Game.prototype.initializeScreens = function() {
   var self = this;
   this.screens = [];
 
+  this.makeScreen("alt_gen");
   this.makeScreen("zoo");
 
   this.black = PIXI.Sprite.from(PIXI.Texture.WHITE);

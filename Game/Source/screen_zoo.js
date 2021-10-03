@@ -23,6 +23,7 @@ let zoo_size = 40;
 let voronoi_size = 200;
 let relaxation_number = 10;
 let ellipse_size = 100;
+let pen_scale = 30;
 let ellipse_eccentricity = 1.7;
 let shrink_factor = 0.7;
 let shrink_distance = 20;
@@ -35,11 +36,15 @@ let ice_color = 0xFAFAFF;
 let sand_color = 0xf3cca0;
 let water_color = 0x42b2d2;
 let sign_color = 0xc09f57;
-let pen_color = 0x754c25
+let pen_color = 0x754c25;
+let pen_shadow_color = 0x4d321a;
 
 let steak_color = 0x954a4a;
 let greens_color = 0x3c713a;
 let fruit_color = 0x70527d;
+
+let greyscale_pen_color = 0x8a8a8a;
+let greyscale_pen_shadow_color = 0x5b5b5b;
 
 let poop_color = 0x644b38;
 
@@ -235,8 +240,6 @@ Game.prototype.makeUI = function() {
 
   this.display_ui.visible = false;
 }
-
-let pen_scale = 30;
 
 Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
   var self = this;
@@ -436,30 +439,39 @@ Game.prototype.scaleGroups = function() {
       //   this.voronoi_metadata[i].cy = cy / count;
       // }
 
+      // this.voronoi_metadata[i].grass_polygon = [];
+
       for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
         let point = this.voronoi_metadata[i].polygon[j];
 
         // percentage scale version
         if (this.voronoi_metadata[i].group == 0) {
           // // scale inner and outer points differently
-          // if (distance(point[0], point[1], this.zoo_center[0], this.zoo_center[1]) <= distance(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy, this.zoo_center[0], this.zoo_center[1])) {
-          //   point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
-          //   point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
-          // } else {
-          //   point[0] = 1.05 * point[0] + (1 - 1.05) * gcx;
-          //   point[1] = 1.05 * point[1] + (1 - 1.05) * gcy;
-          // }
-          point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
-          point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
+          if (distance(point[0], point[1], this.zoo_center[0], this.zoo_center[1]) <= distance(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy, this.zoo_center[0], this.zoo_center[1])) {
+            point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
+            point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
+          } else {
+            point[0] = 1.05 * point[0] + (1 - 1.05) * gcx;
+            point[1] = 1.05 * point[1] + (1 - 1.05) * gcy;
+          }
+
           
         } else {
           point[0] = shrink_factor * point[0] + (1 - shrink_factor) * gcx;
           point[1] = shrink_factor * point[1] + (1 - shrink_factor) * gcy;
         }
 
+
+        // this.voronoi_metadata[i].grass_polygon.push(
+        //   [1.05 * point[0] + (1 - 1.05) * gcx - (320 * pen_scale / 2),
+        //   1.05 * point[1] + (1 - 1.05) * gcy - (240 * pen_scale / 2)
+        // ]);
+        
+
         point[0] -= (320 * pen_scale / 2);
         point[1] -= (240 * pen_scale / 2);
-        
+
+
 
         // fixed distance shrink version
         // bring the point closer to the center by a fixed shrink_distance.
@@ -678,6 +690,10 @@ Game.prototype.drawMap = function() {
   path_background.endFill();
   this.map.background_layer.addChild(path_background);
 
+  let new_path_background = new PIXI.TilingSprite(PIXI.Texture.from("Art/path_art_2.png"));
+  new_path_background.position.set(0, 0);
+  this.map.background_layer.addChild(new_path_background);
+
   // Draw the land background, using the unused voronoi cells to partially cover
   // the elliptical edges of the path background.
   let land_background = new PIXI.Graphics();
@@ -692,69 +708,138 @@ Game.prototype.drawMap = function() {
   }
   this.map.background_layer.addChild(land_background);
 
-
   for (let i = 0; i < voronoi_size; i++) {
     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
       this.voronoi_metadata[i].land_object = new PIXI.Container();
       this.voronoi_metadata[i].land_object.cx = this.voronoi_metadata[i].cx;
       this.voronoi_metadata[i].land_object.cy = this.voronoi_metadata[i].cy;
 
-      let ground = new PIXI.Graphics();
+      // let grass_polygon = this.voronoi_metadata[i].grass_polygon.flat();
 
-      let filled = false;
+      // let grass = new PIXI.Graphics();
+      // grass.beginFill(grass_color);
+      // grass.drawPolygon(grass_polygon);
+      // grass.endFill();
+      // grass.true_color = grass_color;
+      // grass.grey_color = grass_color;
+      // this.voronoi_metadata[i].land_object.addChild(grass);
+
+      let polygon = this.voronoi_metadata[i].polygon.flat();
+
+      let ground = new PIXI.Graphics();
+      ground.beginFill(0xFFFFFF);
+      ground.drawPolygon(polygon);
+      ground.endFill();
+
+      ground.grey_color = 0xFFFFFF;
+
       if (this.voronoi_metadata[i].land == null || this.voronoi_metadata[i].land == "grass") {
-        ground.beginFill(grass_color);
+        ground.true_color = grass_color;
       } else if (this.voronoi_metadata[i].land == "water") {
-        ground.beginFill(water_color);
+        ground.true_color = water_color;
       } else if (this.voronoi_metadata[i].land == "sand") {
-        ground.beginFill(sand_color);
-      } else if (this.voronoi_metadata[i].land == "watergrass" || this.voronoi_metadata[i].land == "waterice") {
-        ground.beginFill(water_color);
-        let polygon_right = this.voronoi_metadata[i].polygon.flat();
-        ground.drawPolygon(polygon_right);
-        if (this.voronoi_metadata[i].land == "watergrass") {
-          ground.beginFill(grass_color);
-        } else if (this.voronoi_metadata[i].land == "waterice") {
-          ground.beginFill(ice_color);
-        }
+        ground.true_color = sand_color;
+      } else if (this.voronoi_metadata[i].land == "watergrass") {
+        ground.true_color = water_color;
+      } else if (this.voronoi_metadata[i].land == "waterice") {
+        ground.true_color = water_color;
+      }
+
+      ground.tint = ground.true_color;
+      this.voronoi_metadata[i].land_object.addChild(ground);
+
+      if (this.voronoi_metadata[i].land == "watergrass" || this.voronoi_metadata[i].land == "waterice") {
+        let super_ground = new PIXI.Graphics();
+        super_ground.beginFill(0xFFFFFF);
+
         let polygon_left = [];
         for (let k = 0; k < this.voronoi_metadata[i].polygon.length; k++) {
           if (this.voronoi_metadata[i].polygon[k][0] <= this.voronoi_metadata[i].cx) {
             polygon_left.push(this.voronoi_metadata[i].polygon[k][0])
             polygon_left.push(this.voronoi_metadata[i].polygon[k][1]);
-            //ground.beginFill(PIXI.utils.rgb2hex([k / 10, k / 10, k / 10]));
-            //ground.drawCircle(this.voronoi_metadata[i].polygon[k][0], this.voronoi_metadata[i].polygon[k][1], 10);
           }
         }
         polygon_left.push(polygon_left[0])
         polygon_left.push(polygon_left[1]);
-        ground.drawPolygon(polygon_left);
-        filled = true;
+        super_ground.drawPolygon(polygon_left);
+        super_ground.endFill();
+
+        super_ground.grey_color = 0xFEFEFE;
+        if (this.voronoi_metadata[i].land == "watergrass") {
+          super_ground.true_color = grass_color;
+        } else if (this.voronoi_metadata[i].land == "waterice") {
+          super_ground.true_color = ice_color;
+        }
+
+        super_ground.tint = super_ground.true_color;
+        this.voronoi_metadata[i].land_object.addChild(super_ground);
       }
 
-      let polygon = this.voronoi_metadata[i].polygon.flat();
-      if (!filled) {
-        // console.log(polygon);
-        ground.drawPolygon(polygon);
-      }
-      ground.endFill();
 
-      this.voronoi_metadata[i].land_object.addChild(ground);
+      // let filled = false;
+      // if (this.voronoi_metadata[i].land == null || this.voronoi_metadata[i].land == "grass") {
+      //   ground.beginFill(grass_color);
+      // } else if (this.voronoi_metadata[i].land == "water") {
+      //   ground.beginFill(water_color);
+      // } else if (this.voronoi_metadata[i].land == "sand") {
+      //   ground.beginFill(sand_color);
+      // } else if (this.voronoi_metadata[i].land == "watergrass" || this.voronoi_metadata[i].land == "waterice") {
+      //   ground.beginFill(water_color);
+      //   let polygon_right = this.voronoi_metadata[i].polygon.flat();
+      //   ground.drawPolygon(polygon_right);
+      //   if (this.voronoi_metadata[i].land == "watergrass") {
+      //     ground.beginFill(grass_color);
+      //   } else if (this.voronoi_metadata[i].land == "waterice") {
+      //     ground.beginFill(ice_color);
+      //   }
+      //   let polygon_left = [];
+      //   for (let k = 0; k < this.voronoi_metadata[i].polygon.length; k++) {
+      //     if (this.voronoi_metadata[i].polygon[k][0] <= this.voronoi_metadata[i].cx) {
+      //       polygon_left.push(this.voronoi_metadata[i].polygon[k][0])
+      //       polygon_left.push(this.voronoi_metadata[i].polygon[k][1]);
+      //       //ground.beginFill(PIXI.utils.rgb2hex([k / 10, k / 10, k / 10]));
+      //       //ground.drawCircle(this.voronoi_metadata[i].polygon[k][0], this.voronoi_metadata[i].polygon[k][1], 10);
+      //     }
+      //   }
+      //   polygon_left.push(polygon_left[0])
+      //   polygon_left.push(polygon_left[1]);
+      //   ground.drawPolygon(polygon_left);
+      //   filled = true;
+      // }
+
+      // let polygon = this.voronoi_metadata[i].polygon.flat();
+      // if (!filled) {
+      //   // console.log(polygon);
+      //   ground.drawPolygon(polygon);
+      // }
+      // ground.endFill();
+
+      // this.voronoi_metadata[i].land_object.addChild(ground);
 
       let border = new PIXI.Graphics();
-      border.lineStyle(12, pen_color, 1); //width, color, alpha
+      border.lineStyle(12, 0xFFFFFF, 1); //width, color, alpha
       let border_polygon = this.voronoi_metadata[i].polygon.flat();
       border.drawPolygon(border_polygon);
       let border_depth_1 = border.clone();
       border_depth_1.position.set(0,12);
-      border_depth_1.tint = 0xAAAAAA;
       let border_depth_2 = border.clone();
       border_depth_2.position.set(0,24);
-      border_depth_2.tint = 0xAAAAAA;
+
+      border.true_color = pen_color;
+      border_depth_1.true_color = pen_shadow_color;
+      border_depth_2.true_color = pen_shadow_color;
+
+      border.grey_color = greyscale_pen_color;
+      border_depth_1.grey_color = greyscale_pen_shadow_color;
+      border_depth_2.grey_color = greyscale_pen_shadow_color;
+
+      border.tint = border.true_color;
+      border_depth_1.tint = border_depth_1.true_color;
+      border_depth_2.tint = border_depth_2.true_color;
+
       this.voronoi_metadata[i].land_object.addChild(border_depth_1);
       this.voronoi_metadata[i].land_object.addChild(border_depth_2);
       this.voronoi_metadata[i].land_object.addChild(border);
-
 
 
       this.terrain.push(this.voronoi_metadata[i].land_object)
@@ -1243,36 +1328,39 @@ Game.prototype.hideDisplayText = function() {
 
 Game.prototype.grey = function(cell_number) {
   this.voronoi_metadata[cell_number].state = "grey";
-  this.voronoi_metadata[cell_number].land_object.alpha = 0.35;
-  // this.voronoi_metadata[cell_number].land_object.filters  = [this.greyscale_filter];
   if (this.voronoi_metadata[cell_number].animal_objects != null) {
     for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
-      this.voronoi_metadata[cell_number].animal_objects[j].alpha = 0.35;
-      // this.voronoi_metadata[cell_number].animal_objects[j].filters = [this.greyscale_filter];
+      this.voronoi_metadata[cell_number].animal_objects[j].alpha = 0.4;
+      if (j > 0) this.voronoi_metadata[cell_number].animal_objects[j].visible = false;
+    }
+    for (let j = 0; j < this.voronoi_metadata[cell_number].land_object.children.length; j++) {
+      let land = this.voronoi_metadata[cell_number].land_object.children[j];
+      land.tint = land.grey_color;
     }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
-    this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 0.35;
-    // this.voronoi_metadata[cell_number].decoration_objects[j].filters = [this.greyscale_filter];
+    this.voronoi_metadata[cell_number].decoration_objects[j].visible = false;
   }
 }
 
 
 Game.prototype.ungrey = function(cell_number) {
 
-  // this.voronoi_metadata[cell_number].land_object.filters  = [];
+  this.voronoi_metadata[cell_number].land_object.filters  = [];
 
   this.voronoi_metadata[cell_number].state = "ungrey";
-  this.voronoi_metadata[cell_number].land_object.alpha = 1;
   if (this.voronoi_metadata[cell_number].animal_objects != null) {
     for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
       this.voronoi_metadata[cell_number].animal_objects[j].alpha  = 1;
-      // this.voronoi_metadata[cell_number].animal_objects[j].filters  = [];
+      this.voronoi_metadata[cell_number].animal_objects[j].visible = true;
+    }
+    for (let j = 0; j < this.voronoi_metadata[cell_number].land_object.children.length; j++) {
+      let land = this.voronoi_metadata[cell_number].land_object.children[j];
+      land.tint = land.true_color;
     }
   }
   for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
-    this.voronoi_metadata[cell_number].decoration_objects[j].alpha = 1;
-    // this.voronoi_metadata[cell_number].decoration_objects[j].filters = [];
+    this.voronoi_metadata[cell_number].decoration_objects[j].visible = true;
   }
 }
 
@@ -1612,12 +1700,17 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  // this.map.position.set((320 * pen_scale/2)-this.player.x - 4500, (240 * pen_scale/2)-this.player.y - 3200);
-  if (this.timeSince(this.start_time) < 2000) {
-    this.map.position.set(640 - this.player.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y);
+  if(true) {
+    if (this.timeSince(this.start_time) < 2000) {
+      this.map.position.set(640 - this.player.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y);
+    } else {
+      this.map.position.set(640 - this.player.x, 580 - this.player.y);  
+    }
   } else {
-    this.map.position.set(640 - this.player.x, 580 - this.player.y);  
+    this.map.scale.set(0.1, 0.1);
   }
+
+  
   
 
   for (let i = 0; i < this.animals.length; i++) {

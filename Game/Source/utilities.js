@@ -219,5 +219,18 @@ function flicker(item, duration, color_1, color_2) {
     .start();
 }
 
+// https://scottmcdonnell.github.io/pixi-examples/index.html
+function CustomFilter(fragmentSource)
+{
 
+    PIXI.Filter.call(this,
+        // vertex shader
+        null,
+        // fragment shader
+        fragmentSource
+    );
+}
+
+CustomFilter.prototype = Object.create(PIXI.Filter.prototype);
+CustomFilter.prototype.constructor = CustomFilter;
 

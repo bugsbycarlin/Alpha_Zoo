@@ -1,6 +1,6 @@
 'use strict';
 
-var use_music = true;
+var use_music = false;
 var use_sound = true;
 var use_scores = false;
 var log_performance = true;
@@ -8,12 +8,8 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-// var first_screen = "1p_base_capture";
-// var first_screen = "1p_launch_code";
-var first_screen = "zoo";
-// var first_screen = "1p_lobby";
-// var first_screen = "title";
-// var first_screen = "cutscene";
+var first_screen = "alt_gen";
+// var first_screen = "zoo";
 
 var performance_result = null;
 
@@ -61,8 +57,11 @@ class Game {
 
     this.pause_time = 0;
 
-    use_music = true;
-    use_sound = true;
+    // use_music = true;
+    // use_sound = true;
+
+    //var greyscale_shader_code = document.getElementById("greyscale_shader").innerHTML
+    //this.greyscale_filter = new CustomFilter(greyscale_shader_code);
 
     this.initializeScreens();
 
@@ -80,8 +79,10 @@ class Game {
             families: ['Bebas Neue']
           },
           active:e=>{
-            self.initializeZoo();
-            self.current_screen = "zoo";
+            // self.initializeZoo();
+            // self.current_screen = "zoo";
+            self.initializeScreen(first_screen);
+            self.current_screen = first_screen;
           }
         });
     });
@@ -188,14 +189,20 @@ class Game {
 
 
   initializeScreen(screen_name, reset = false) {
+    console.log(screen_name);
     if (screen_name == "zoo") {
+      console.log("here");
       this.initializeZoo();
+    } else if (screen_name == "alt_gen") {
+      this.initializeAltGen();
     }
   }
 
   update(diff) {
     if (this.current_screen == "zoo") {
       this.updateZoo(diff);
+    } else if (this.current_screen == "alt_gen") {
+      this.updateAltGen(diff);
     }
   }
 

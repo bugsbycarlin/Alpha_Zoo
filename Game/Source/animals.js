@@ -144,6 +144,11 @@ animals = {
     mouth: [316, 352],
     butt: [175, 344],
   },
+  "CAPYBARA": {
+    land: "sand",
+    mouth: [281, 342],
+    butt: [183, 376],
+  },
   "PIG": {
     land: "sand",
     mouth: [313, 354],
