@@ -199,6 +199,17 @@ function addDedupeSort(some_list, other_list) {
 }
 
 
+// points and weights should match length and be nonzero length
+function blendPoints(points, weights) {
+  let new_point = [0,0];
+  for (let i = 0; i < points.length; i++) {
+    new_point[0] += points[i][0] * weights[i];
+    new_point[1] += points[i][1] * weights[i];
+  }
+  return new_point;
+}
+
+
 function flicker(item, duration, color_1, color_2) {
   item.flicker_junker = 0
   let color_counter = 0;

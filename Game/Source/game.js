@@ -1,6 +1,6 @@
 'use strict';
 
-var use_music = false;
+var use_music = true;
 var use_sound = true;
 var use_scores = false;
 var log_performance = true;
@@ -8,8 +8,8 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "alt_gen";
-// var first_screen = "zoo";
+// var first_screen = "alt_gen";
+var first_screen = "zoo";
 
 var performance_result = null;
 

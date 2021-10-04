@@ -15,19 +15,26 @@ Game.prototype.initializeZoo = function() {
 
   this.keymap = {};
 
+  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
+  this.dropshadow_filter.blur  = 2;
+  this.dropshadow_filter.quality = 3;
+  this.dropshadow_filter.alpha = 0.55;
+  this.dropshadow_filter.distance = 8;
+  this.dropshadow_filter.rotation = 45;
+
   this.resetZooScreen();
 }
 
-let zoo_size = 40;
+// let zoo_size = 40;
 
-let voronoi_size = 200;
-let relaxation_number = 10;
-let ellipse_size = 100;
-let pen_scale = 30;
-let ellipse_eccentricity = 1.7;
-let shrink_factor = 0.7;
-let shrink_distance = 20;
-let tree_frequency = 0.35;
+// let voronoi_size = 200;
+// let relaxation_number = 10;
+// let ellipse_size = 100;
+// let pen_scale = 30;
+// let ellipse_eccentricity = 1.7;
+// let shrink_factor = 0.7;
+// let shrink_distance = 20;
+// let tree_frequency = 0.35;
 
 let background_color = 0x318115;
 let path_color = 0xf9e6bb;
@@ -55,32 +62,14 @@ Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  let background = PIXI.Sprite.from(PIXI.Texture.WHITE);
-  background.width = this.width;
-  background.height = this.height;
-  background.tint = background_color;
-  screen.addChild(background);
 
-  this.dot_filter = new PIXI.filters.DotFilter();
-  this.dot_filter.scale  = 1;
-  this.dot_filter.angle   = 5;
-
-  this.sepia_filter = new PIXI.filters.ColorMatrixFilter();
-  this.sepia_filter.sepia(true);
-
-  this.greyscale_filter = new PIXI.filters.ColorMatrixFilter();
-  this.greyscale_filter.greyscale(0.6, true);
-
-  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
-  this.dropshadow_filter.blur  = 2;
-  this.dropshadow_filter.quality = 3;
-  this.dropshadow_filter.alpha = 0.55;
-  this.dropshadow_filter.distance = 8;
-  this.dropshadow_filter.rotation = 45;
+  // The zoo is an NxN grid of square pens. Small is 5, leading to at most 25 pens.
+  // Large is 8, leading to at most 64 pens.
+  // Note some squares may be snipped, meaning less pens.
+  this.zoo_size = 8;
 
   this.map = new PIXI.Container();
   this.map.position.set(640,480)
-  // this.map.scale.set(map_scale, map_scale);
   screen.addChild(this.map);
 
   this.map.background_layer = new PIXI.Container();
@@ -104,21 +93,24 @@ Game.prototype.resetZooScreen = function() {
   this.makeUI();
 
   // Make the map
-  this.makeVoronoiDiagram(zoo_size);
-  this.makeInnerGroups();
-  this.scaleGroups();
-  this.deleteOverlaps();
-  this.smoothCells();
-  this.smoothCells();
-  this.computeBounds();
+  this.initializeMap();
+  this.makeMapGroups();
+  this.makeMapPath();
+  this.makeMapPens();
 
+  // Make the map
+  // this.makeVoronoiDiagram(zoo_size);
+  // this.makeInnerGroups();
+  // this.scaleGroups();
+  // this.deleteOverlaps();
+  // this.smoothCells();
+  // this.smoothCells();
   this.designatePens();
 
   this.drawMap();
 
-  this.player = this.makeCharacter();
-
   this.populateZoo();
+  this.playerAndBoundaries();
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAnimalPens();
 
@@ -155,34 +147,8 @@ Game.prototype.makeUI = function() {
   this.typing_allowed = false;
   this.display_typing_allowed = false;
 
-
   this.display_ui = new PIXI.Container();
   this.ui_layer.addChild(this.display_ui);
-
-  // this.display_action_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
-  // this.display_action_backing.anchor.set(0, 0);
-  // this.display_action_backing.scale.set(0.5, 0.5);
-  // this.display_action_backing.position.set(-200, 810);
-  // this.display_action_backing.filters = [this.dropshadow_filter];
-  // this.display_ui.addChild(this.display_action_backing);
-
-  // this.display_food_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/Food/food.png"));
-  // this.display_food_glyph.anchor.set(0.5,0.75);
-  // this.display_food_glyph.position.set(70, 855);
-  // this.display_food_glyph.scale.set(0.75, 0.75)
-  // this.display_ui.addChild(this.display_food_glyph);
-
-  // this.display_food_grey_text = new PIXI.Text("FEED", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
-  // this.display_food_grey_text.anchor.set(0,1);
-  // this.display_food_grey_text.position.set(130, 900);
-  // this.display_ui.addChild(this.display_food_grey_text);
-
-  // this.display_food_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
-  // this.display_food_typing_text.tint = 0x000000;
-  // this.display_food_typing_text.anchor.set(0,1);
-  // this.display_food_typing_text.position.set(130, 900);
-  // this.display_ui.addChild(this.display_food_typing_text);
-
 
   this.display_action_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
   this.display_action_backing.anchor.set(0, 1);
@@ -241,439 +207,790 @@ Game.prototype.makeUI = function() {
   this.display_ui.visible = false;
 }
 
-Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
-  var self = this;
 
-  this.voronoi_points = [];
-  this.voronoi_metadata = [];
+Game.prototype.initializeMap = function() {
 
-  for (let i = 0; i < voronoi_size; i++) {
-    this.voronoi_points.push([Math.floor(Math.random() * 320), Math.floor(Math.random() * 240)]);
-  }
-  for (let i = 0; i < voronoi_size; i++) {
-    this.voronoi_metadata.push({
-      use: false,
-      outer: false,
-      group: null,
-      polygon: null,
-      group_center: null,
-      neighbors: [],
-      cx: null,
-      cy: null,
-      animal: null,
-      land: "grass",
-      decorations: ["grass", "tree", "bush", "rock"],
-      decoration_objects: [],
-      land_object: null,
-      animal_objects: null,
-      sign: null,
-      state: "ungrey",
-      cell_number: i,
-    });
-  }
-
-  for (let r = 0; r < relaxation_number; r++) {
-    lloydRelaxation(this.voronoi_points, 320, 240);
-  }
-
-  for (let i = 0; i < voronoi_size; i++) {
-    // this.voronoi_points[i][0] *= 4;
-    // this.voronoi_points[i][1] *= 4;
-    this.voronoi_points[i][0] *= pen_scale;
-    this.voronoi_points[i][1] *= pen_scale;
-  }
-
-  this.delaunay = d3.Delaunay.from(this.voronoi_points);
-  // this.voronoi_vertices = this.delaunay.voronoi([0, 0, 1280, 960]);
-  this.voronoi_vertices = this.delaunay.voronoi([0, 0, 320*pen_scale, 240*pen_scale]);
-
-  for (let i = 0; i < voronoi_size; i++) {
-    let neighbors = this.voronoi_vertices.neighbors(i);
-    let neighbor = neighbors.next()
-    while(!neighbor.done) {
-      this.voronoi_metadata[i].neighbors.push(neighbor.value);
-      neighbor = neighbors.next();
-    }
-
-    this.voronoi_metadata[i].neighbors.sort(function(a,b) {
-      let v = self.voronoi_points;
-      let d1 = distance(v[i][0], v[i][1], v[a][0], v[a][1]);
-      let d2 = distance(v[i][0], v[i][1], v[b][0], v[b][1]);
-      return d1 - d2;
-    })
-  }
-
-  let cell_count = 0;
-
-  while(cell_count < Math.min(number_of_pens, voronoi_size)) {
-    cell_count = 0;
-
-    for (let i = 0; i < voronoi_size; i++) {
-      let p = this.voronoi_points[i];
-      let px = p[0] - (320 * pen_scale / 2);
-      let py = p[1] - (240 * pen_scale / 2);
-      if (px*px/(ellipse_eccentricity*ellipse_eccentricity) + py*py < ellipse_size*ellipse_size) {
-        cell_count += 1;
-        this.voronoi_metadata[i].use = true;
-      } else {
-        this.voronoi_metadata[i].use = false;
-      }
-    }
-
-    ellipse_size *= 1.1;
-  }
-
-  for (let i = 0; i < voronoi_size; i++) {
-    //if (this.voronoi_metadata[i].use == true) {
-      this.voronoi_metadata[i].polygon = [];
-      for (let p = 0; p < this.voronoi_vertices.cellPolygon(i).length; p++) {
-        let point = this.voronoi_vertices.cellPolygon(i)[p];
-
-        this.voronoi_metadata[i].polygon.push([point[0],point[1]]);
-      }
-
-      let neighbors = this.voronoi_vertices.neighbors(i);
-      let neighbor = neighbors.next()
-      while(!neighbor.done) {
-        if (this.voronoi_metadata[neighbor.value].use == false) {
-          this.voronoi_metadata[i].outer = true;
-          this.voronoi_metadata[i].group = 0;
+  // Vertices (crossroads in the path)
+  this.zoo_vertices = {};
+  for (let i = 0; i <= this.zoo_size; i++) {
+    this.zoo_vertices[i] = {};
+    for (let j = 0; j <= this.zoo_size; j++) {
+      this.zoo_vertices[i][j] = {
+        use: false,
+        n_path: false,
+        s_path: false,
+        w_path: false,
+        e_path: false,
+        vertex: [1000 * i, 1000 * j],
+        halo: {
+          nw: [1000 * i - 130 - 70 * Math.random(), 1000 * j - 130 - 70 * Math.random()],
+          ne: [1000 * i + 130 + 70 * Math.random(), 1000 * j - 130 - 70 * Math.random()],
+          sw: [1000 * i - 130 - 70 * Math.random(), 1000 * j + 130 + 70 * Math.random()],
+          se: [1000 * i + 130 + 70 * Math.random(), 1000 * j + 130 + 70 * Math.random()],
+          n: [1000 * i - 40 + 80 * Math.random(), 1000 * j - 140 - 70 * Math.random()],
+          s: [1000 * i - 40 + 80 * Math.random(), 1000 * j + 140 + 70 * Math.random()],
+          e: [1000 * i + 140 + 70 * Math.random(), 1000 * j - 40 + 80 * Math.random()],
+          w: [1000 * i - 140 - 70 * Math.random(), 1000 * j - 40 + 80 * Math.random()],
         }
-        neighbor = neighbors.next();
-      }
-    //}
+      };
+    }
   }
+
+  // The square faces between vertices.
+  // The (0,0) vertex lies above and to the left of the (0,0) square.
+  // The (1,1) vertex lies below and to the right of the (1,1) square.
+  // Obviously coords are x,y.
+  this.zoo_squares = {};
+  for (let i = 0; i < this.zoo_size; i++) {
+    this.zoo_squares[i] = {};
+    for (let j = 0; j < this.zoo_size; j++) {
+      this.zoo_squares[i][j] = {
+        group: -1,
+        new_group: null,
+        reachable: false,
+        outer: (i == 0 || i == this.zoo_size - 1 || j == 0 || j == this.zoo_size - 1),
+        n_edge: false,
+        s_edge: false,
+        w_edge: false,
+        e_edge: false,
+      };
+    }
+  }
+
+  this.zoo_pens = [];
 }
 
 
-Game.prototype.makeInnerGroups = function() {
+
+
+
+// Game.prototype.makeVoronoiDiagram = function(number_of_pens) {
+//   var self = this;
+
+//   this.voronoi_points = [];
+//   this.voronoi_metadata = [];
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     this.voronoi_points.push([Math.floor(Math.random() * 320), Math.floor(Math.random() * 240)]);
+//   }
+//   for (let i = 0; i < voronoi_size; i++) {
+//     this.voronoi_metadata.push({
+//       use: false,
+//       outer: false,
+//       group: null,
+//       polygon: null,
+//       group_center: null,
+//       neighbors: [],
+//       cx: null,
+//       cy: null,
+//       animal: null,
+//       land: "grass",
+//       decorations: ["grass", "tree", "bush", "rock"],
+//       decoration_objects: [],
+//       land_object: null,
+//       animal_objects: null,
+//       sign: null,
+//       state: "ungrey",
+//       cell_number: i,
+//     });
+//   }
+
+//   for (let r = 0; r < relaxation_number; r++) {
+//     lloydRelaxation(this.voronoi_points, 320, 240);
+//   }
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     // this.voronoi_points[i][0] *= 4;
+//     // this.voronoi_points[i][1] *= 4;
+//     this.voronoi_points[i][0] *= pen_scale;
+//     this.voronoi_points[i][1] *= pen_scale;
+//   }
+
+//   this.delaunay = d3.Delaunay.from(this.voronoi_points);
+//   // this.voronoi_vertices = this.delaunay.voronoi([0, 0, 1280, 960]);
+//   this.voronoi_vertices = this.delaunay.voronoi([0, 0, 320*pen_scale, 240*pen_scale]);
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     let neighbors = this.voronoi_vertices.neighbors(i);
+//     let neighbor = neighbors.next()
+//     while(!neighbor.done) {
+//       this.voronoi_metadata[i].neighbors.push(neighbor.value);
+//       neighbor = neighbors.next();
+//     }
+
+//     this.voronoi_metadata[i].neighbors.sort(function(a,b) {
+//       let v = self.voronoi_points;
+//       let d1 = distance(v[i][0], v[i][1], v[a][0], v[a][1]);
+//       let d2 = distance(v[i][0], v[i][1], v[b][0], v[b][1]);
+//       return d1 - d2;
+//     })
+//   }
+
+//   let cell_count = 0;
+
+//   while(cell_count < Math.min(number_of_pens, voronoi_size)) {
+//     cell_count = 0;
+
+//     for (let i = 0; i < voronoi_size; i++) {
+//       let p = this.voronoi_points[i];
+//       let px = p[0] - (320 * pen_scale / 2);
+//       let py = p[1] - (240 * pen_scale / 2);
+//       if (px*px/(ellipse_eccentricity*ellipse_eccentricity) + py*py < ellipse_size*ellipse_size) {
+//         cell_count += 1;
+//         this.voronoi_metadata[i].use = true;
+//       } else {
+//         this.voronoi_metadata[i].use = false;
+//       }
+//     }
+
+//     ellipse_size *= 1.1;
+//   }
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     //if (this.voronoi_metadata[i].use == true) {
+//       this.voronoi_metadata[i].polygon = [];
+//       for (let p = 0; p < this.voronoi_vertices.cellPolygon(i).length; p++) {
+//         let point = this.voronoi_vertices.cellPolygon(i)[p];
+
+//         this.voronoi_metadata[i].polygon.push([point[0],point[1]]);
+//       }
+
+//       let neighbors = this.voronoi_vertices.neighbors(i);
+//       let neighbor = neighbors.next()
+//       while(!neighbor.done) {
+//         if (this.voronoi_metadata[neighbor.value].use == false) {
+//           this.voronoi_metadata[i].outer = true;
+//           this.voronoi_metadata[i].group = 0;
+//         }
+//         neighbor = neighbors.next();
+//       }
+//     //}
+//   }
+// }
+
+
+// Game.prototype.makeInnerGroups = function() {
+//   let group_num = 1;
+//   let group_count = 0;
+
+//   //walk and recursively mark groups until they reach a certain size (typically 3)
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == null) {
+//       this.markGroup(i, group_num, group_count);
+//       group_num += 1;
+//       group_count = 0;
+//     }
+//   }
+
+//   // compute centers of each group
+//   group_centers = {};
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+//       group_centers[this.voronoi_metadata[i].group] = [0, 0, 0];
+//     }
+//   }
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+//       // for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+//       //   group_centers[this.voronoi_metadata[i].group][0] += this.voronoi_metadata[i].polygon[j][0];
+//       //   group_centers[this.voronoi_metadata[i].group][1] += this.voronoi_metadata[i].polygon[j][1];
+//       //   group_centers[this.voronoi_metadata[i].group][2] += 1;
+//       // }
+//       group_centers[this.voronoi_metadata[i].group][0] += this.voronoi_points[i][0];
+//       group_centers[this.voronoi_metadata[i].group][1] += this.voronoi_points[i][1];
+//       group_centers[this.voronoi_metadata[i].group][2] += 1;
+//     }
+//   }
+
+//   for (const [key, value] of Object.entries(group_centers)) {
+//     if(value[2] != 0) {
+//       value[0] /= value[2];
+//       value[1] /= value[2];
+//     }
+//   }
+
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+//       let gp = group_centers[this.voronoi_metadata[i].group];
+//       this.voronoi_metadata[i].group_center = [gp[0], gp[1]];
+//     }
+//   }
+
+//   this.zoo_center = group_centers[0];
+// }
+
+
+// Game.prototype.markGroup = function(number, group_num, group_count) {
+//   if (group_count >= 3) return group_count;
+
+//   this.voronoi_metadata[number].group = group_num;
+//   group_count += 1;
+
+//   let neighbors = this.voronoi_vertices.neighbors(number);
+//   let neighbor = neighbors.next()
+//   while(!neighbor.done) {
+//     if (this.voronoi_metadata[neighbor.value].use == true && this.voronoi_metadata[neighbor.value].group == null) {
+//       group_count = this.markGroup(neighbor.value, group_num, group_count);
+//     }
+//     neighbor = neighbors.next();
+//   }
+
+//   return group_count;
+// }
+
+
+Game.prototype.makeMapGroups = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  // Mark groups using a random search
   let group_num = 1;
   let group_count = 0;
+  let max_group_count = Math.floor(2 + Math.random() * 5);
+  this.group_colors = {};
+  this.group_counts = {};
 
-  //walk and recursively mark groups until they reach a certain size (typically 3)
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == null) {
-      this.markGroup(i, group_num, group_count);
-      group_num += 1;
-      group_count = 0;
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      if (this.zoo_squares[i][j].group == -1) {
+        let new_group_count = this.markGroup(i, j, group_num, group_count, max_group_count);
+        this.group_colors[group_num] = PIXI.utils.rgb2hex([Math.random(), Math.random(), Math.random()]);
+        this.group_counts[group_num] = new_group_count;
+        group_num += 1;
+        group_count = 0;
+        max_group_count = Math.floor(2 + Math.random() * 5);
+      }
     }
   }
 
-  // compute centers of each group
-  group_centers = {};
+  console.log(group_num);
 
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      group_centers[this.voronoi_metadata[i].group] = [0, 0, 0];
+  // TO DO: Attach singletons to larger groups
+  // ALSO MAYBE DON'T DO THIS!
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      let cell = this.zoo_squares[i][j];
+      if (this.group_counts[cell.group] == 1) {
+        console.log("Singleton at " + i + " " + j);
+        let neighbors = [];
+        if (i > 0) neighbors.push(this.zoo_squares[i-1][j].group);
+        if (i < this.zoo_size - 1) neighbors.push(this.zoo_squares[i+1][j].group);
+        if (j > 0) neighbors.push(this.zoo_squares[i][j-1].group);
+        if (j < this.zoo_size - 1) neighbors.push(this.zoo_squares[i][j+1].group);
+        shuffleArray(neighbors);
+        cell.new_group = neighbors[0];
+      }
+    }
+  }
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      let cell = this.zoo_squares[i][j];
+      if (this.group_counts[cell.group] == 1) {
+        cell.group = cell.new_group;
+        cell.new_group = null;
+      }
     }
   }
 
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      // for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-      //   group_centers[this.voronoi_metadata[i].group][0] += this.voronoi_metadata[i].polygon[j][0];
-      //   group_centers[this.voronoi_metadata[i].group][1] += this.voronoi_metadata[i].polygon[j][1];
-      //   group_centers[this.voronoi_metadata[i].group][2] += 1;
-      // }
-      group_centers[this.voronoi_metadata[i].group][0] += this.voronoi_points[i][0];
-      group_centers[this.voronoi_metadata[i].group][1] += this.voronoi_points[i][1];
-      group_centers[this.voronoi_metadata[i].group][2] += 1;
-    }
-  }
-
-  for (const [key, value] of Object.entries(group_centers)) {
-    if(value[2] != 0) {
-      value[0] /= value[2];
-      value[1] /= value[2];
-    }
-  }
-
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      let gp = group_centers[this.voronoi_metadata[i].group];
-      this.voronoi_metadata[i].group_center = [gp[0], gp[1]];
-    }
-  }
-
-  this.zoo_center = group_centers[0];
 }
 
 
-Game.prototype.markGroup = function(number, group_num, group_count) {
-  if (group_count >= 3) return group_count;
+Game.prototype.markGroup = function(i, j, group_num, group_count, max_group_count) {
+  if (group_count >= max_group_count) return group_count;
 
-  this.voronoi_metadata[number].group = group_num;
+  this.zoo_squares[i][j].group = group_num;
   group_count += 1;
 
-  let neighbors = this.voronoi_vertices.neighbors(number);
-  let neighbor = neighbors.next()
-  while(!neighbor.done) {
-    if (this.voronoi_metadata[neighbor.value].use == true && this.voronoi_metadata[neighbor.value].group == null) {
-      group_count = this.markGroup(neighbor.value, group_num, group_count);
-    }
-    neighbor = neighbors.next();
+  let neighbors = [];
+  if (i > 0 && this.zoo_squares[i-1][j].group == -1) {
+    neighbors.push([i-1,j]);
+  }
+  if (i < this.zoo_size - 1 && this.zoo_squares[i+1][j].group == -1) {
+    neighbors.push([i+1,j]);
+  }
+  if (j > 0 && this.zoo_squares[i][j-1].group == -1) {
+    neighbors.push([i,j-1]);
+  }
+  if (j < this.zoo_size - 1 && this.zoo_squares[i][j+1].group == -1) {
+    neighbors.push([i,j+1]);
+  }
+  
+  if (neighbors.length > 0) {
+    shuffleArray(neighbors);
+    group_count = this.markGroup(neighbors[0][0], neighbors[0][1], group_num, group_count, max_group_count);
   }
 
   return group_count;
 }
 
 
-Game.prototype.scaleGroups = function() {
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      let gcx = this.voronoi_metadata[i].group_center[0];
-      let gcy = this.voronoi_metadata[i].group_center[1];
 
-      // if (this.voronoi_metadata[i].group == 0) {
-      //   // precompute group so we can use it to check inner and outer points on the outer groups
-      //   let cx = 0;
-      //   let cy = 0;
-      //   let count = 0;
-      //   for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-      //     let point = this.voronoi_metadata[i].polygon[j];
-      //     cx += point[0];
-      //     cy += point[1];
-      //     count += 1;
-      //   }
-      //   this.voronoi_metadata[i].cx = cx / count;
-      //   this.voronoi_metadata[i].cy = cy / count;
-      // }
+Game.prototype.makeMapPath = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
 
-      // this.voronoi_metadata[i].grass_polygon = [];
+  for (let i = 1; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      if (this.zoo_squares[i][j].group != this.zoo_squares[i-1][j].group) {
+          
+        this.zoo_squares[i][j].w_edge = true;
+        this.zoo_squares[i-1][j].e_edge = true;
 
-      for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-        let point = this.voronoi_metadata[i].polygon[j];
+        this.zoo_squares[i][j].reachable = true;
+        this.zoo_squares[i-1][j].reachable = true;
 
-        // percentage scale version
-        if (this.voronoi_metadata[i].group == 0) {
-          // // scale inner and outer points differently
-          if (distance(point[0], point[1], this.zoo_center[0], this.zoo_center[1]) <= distance(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy, this.zoo_center[0], this.zoo_center[1])) {
-            point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
-            point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
+        this.zoo_vertices[i][j].s_path = true;
+        this.zoo_vertices[i][j+1].n_path = true;
+      }
+    }
+  }
+
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 1; j < this.zoo_size; j++) {
+      if (this.zoo_squares[i][j].group != this.zoo_squares[i][j-1].group) {
+        this.zoo_squares[i][j].n_edge = true;
+        this.zoo_squares[i][j-1].s_edge = true;
+
+        this.zoo_squares[i][j].reachable = true;
+        this.zoo_squares[i][j-1].reachable = true;
+
+        this.zoo_vertices[i][j].e_path = true;
+        this.zoo_vertices[i+1][j].w_path = true;
+      }
+    }
+  }
+}
+
+
+Game.prototype.makeMapPens = function() {
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+
+      if (this.zoo_squares[i][j].reachable) {
+
+        let polygon = [];
+
+        // northwest corner
+        let nw_vertex = this.zoo_vertices[i][j];
+        if (nw_vertex.s_path || nw_vertex.n_path || nw_vertex.e_path || nw_vertex.w_path) {
+          // pre corner
+          if (nw_vertex.s_path == false) polygon.push(nw_vertex.halo.s);
+          
+          // corner
+          polygon.push(nw_vertex.halo.se);
+          if (nw_vertex.e_path == true && nw_vertex.s_path == true) polygon[polygon.length - 1].push("s");
+          
+          // post corner
+          if (nw_vertex.e_path == false) polygon.push(nw_vertex.halo.e);
+        } else {
+          polygon.push(nw_vertex.vertex);
+        }
+
+        // northeast corner
+        let ne_vertex = this.zoo_vertices[i+1][j];
+        if (ne_vertex.s_path || ne_vertex.n_path || ne_vertex.e_path || ne_vertex.w_path) {
+          // pre corner
+          if (ne_vertex.w_path == false) polygon.push(ne_vertex.halo.w);
+          
+          // corner
+          polygon.push(ne_vertex.halo.sw)
+          if (ne_vertex.s_path == true && ne_vertex.w_path == true) polygon[polygon.length - 1].push("s");
+
+          // post corner
+          if (ne_vertex.s_path == false) polygon.push(ne_vertex.halo.s);
+        } else {
+          polygon.push(ne_vertex.vertex);
+        }
+
+        // southeast corner
+        let se_vertex = this.zoo_vertices[i+1][j+1];
+        if (se_vertex.s_path || se_vertex.n_path || se_vertex.e_path || se_vertex.w_path) {
+          // pre corner
+          if (se_vertex.n_path == false) polygon.push(se_vertex.halo.n);
+          
+          // corner
+          polygon.push(se_vertex.halo.nw);
+          if (se_vertex.w_path == true && se_vertex.n_path == true) polygon[polygon.length - 1].push("s");
+          
+          // post corner
+          if (se_vertex.w_path == false) polygon.push(se_vertex.halo.w);
+        } else {
+          polygon.push(se_vertex.vertex);
+        }
+        
+        // southwest corner
+        let sw_vertex = this.zoo_vertices[i][j+1];
+        if (sw_vertex.s_path || sw_vertex.n_path || sw_vertex.e_path || sw_vertex.w_path) {
+          // pre corner
+          if (sw_vertex.e_path == false) polygon.push(sw_vertex.halo.e);
+          
+          // corner
+          polygon.push(sw_vertex.halo.ne);
+          if (sw_vertex.n_path == true && sw_vertex.e_path == true) polygon[polygon.length - 1].push("s");
+          
+          // post corner
+          if (sw_vertex.n_path == false) polygon.push(sw_vertex.halo.n);
+        } else {
+          polygon.push(sw_vertex.vertex);
+        }
+
+
+        // Push a duplicate of the first point.
+        // polygon.push([polygon[0][0],polygon[0][1]]);
+        
+
+        // Now do smoothing on any corner with an "s" in it.
+        let smooth_polygon = [];
+        let smoothing_factor = 0.7;
+        let l = polygon.length;
+        for (let m = 0; m < l; m++) {
+          let point = polygon[m];
+          if (polygon[m].length > 2 && polygon[m][2] == "s") {
+            // pre could go to l - 2 and post could go to 0 instead.
+            let pre_point = m > 0 ? polygon[m - 1] : polygon[l - 1];
+            let post_point = m < l - 1 ? polygon[m + 1] : polygon[0];
+
+            let start_point = blendPoints([point, pre_point], [smoothing_factor, 1 - smoothing_factor]);
+            let end_point = blendPoints([point, post_point], [smoothing_factor, 1 - smoothing_factor]);
+
+            smooth_polygon.push(start_point);
+            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.5, 0.25, 0.25]));
+            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.333, 0.333, 0.333]));
+            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.25, 0.25, 0.5]));
+            smooth_polygon.push(end_point);
+
           } else {
-            point[0] = 1.05 * point[0] + (1 - 1.05) * gcx;
-            point[1] = 1.05 * point[1] + (1 - 1.05) * gcy;
+            smooth_polygon.push(point);
           }
+        }
+
+        this.zoo_pens.push({
+          use: false,
+          outer: false,
+          polygon: smooth_polygon,
+          polygon_flat: smooth_polygon.flat(),
+          cx: 1000 * i + 500,
+          cy: 1000 * j + 500,
+          animal: null,
+          land: "grass",
+          decorations: ["grass", "tree", "bush", "rock"],
+          decoration_objects: [],
+          land_object: null,
+          animal_objects: null,
+          state: "ungrey",
+          location: [i,j],
+        });
+      }
+    }
+  }
+
+  console.log(this.zoo_pens);
+  shuffleArray(this.zoo_pens);
+}
+
+
+
+
+// Game.prototype.scaleGroups = function() {
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+//       let gcx = this.voronoi_metadata[i].group_center[0];
+//       let gcy = this.voronoi_metadata[i].group_center[1];
+
+//       // if (this.voronoi_metadata[i].group == 0) {
+//       //   // precompute group so we can use it to check inner and outer points on the outer groups
+//       //   let cx = 0;
+//       //   let cy = 0;
+//       //   let count = 0;
+//       //   for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+//       //     let point = this.voronoi_metadata[i].polygon[j];
+//       //     cx += point[0];
+//       //     cy += point[1];
+//       //     count += 1;
+//       //   }
+//       //   this.voronoi_metadata[i].cx = cx / count;
+//       //   this.voronoi_metadata[i].cy = cy / count;
+//       // }
+
+//       // this.voronoi_metadata[i].grass_polygon = [];
+
+//       for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+//         let point = this.voronoi_metadata[i].polygon[j];
+
+//         // percentage scale version
+//         if (this.voronoi_metadata[i].group == 0) {
+//           // // scale inner and outer points differently
+//           if (distance(point[0], point[1], this.zoo_center[0], this.zoo_center[1]) <= distance(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy, this.zoo_center[0], this.zoo_center[1])) {
+//             point[0] = 1.1 * point[0] + (1 - 1.1) * gcx;
+//             point[1] = 1.1 * point[1] + (1 - 1.1) * gcy;
+//           } else {
+//             point[0] = 1.05 * point[0] + (1 - 1.05) * gcx;
+//             point[1] = 1.05 * point[1] + (1 - 1.05) * gcy;
+//           }
 
           
-        } else {
-          point[0] = shrink_factor * point[0] + (1 - shrink_factor) * gcx;
-          point[1] = shrink_factor * point[1] + (1 - shrink_factor) * gcy;
-        }
+//         } else {
+//           point[0] = shrink_factor * point[0] + (1 - shrink_factor) * gcx;
+//           point[1] = shrink_factor * point[1] + (1 - shrink_factor) * gcy;
+//         }
 
 
-        // this.voronoi_metadata[i].grass_polygon.push(
-        //   [1.05 * point[0] + (1 - 1.05) * gcx - (320 * pen_scale / 2),
-        //   1.05 * point[1] + (1 - 1.05) * gcy - (240 * pen_scale / 2)
-        // ]);
+//         // this.voronoi_metadata[i].grass_polygon.push(
+//         //   [1.05 * point[0] + (1 - 1.05) * gcx - (320 * pen_scale / 2),
+//         //   1.05 * point[1] + (1 - 1.05) * gcy - (240 * pen_scale / 2)
+//         // ]);
         
 
-        point[0] -= (320 * pen_scale / 2);
-        point[1] -= (240 * pen_scale / 2);
+//         point[0] -= (320 * pen_scale / 2);
+//         point[1] -= (240 * pen_scale / 2);
 
 
 
-        // fixed distance shrink version
-        // bring the point closer to the center by a fixed shrink_distance.
-        // let d = distance(point[0], point[1], cx, cy);
+//         // fixed distance shrink version
+//         // bring the point closer to the center by a fixed shrink_distance.
+//         // let d = distance(point[0], point[1], cx, cy);
 
-        // let factor = (d - shrink_distance) / d;
-        // if (this.voronoi_metadata[i].group == 0) factor = (d + 4 * shrink_distance) / d;
-        // point[0] = factor * point[0] + (1 - factor) * cx;
-        // point[1] = factor * point[1] + (1 - factor) * cy;
-      }
+//         // let factor = (d - shrink_distance) / d;
+//         // if (this.voronoi_metadata[i].group == 0) factor = (d + 4 * shrink_distance) / d;
+//         // point[0] = factor * point[0] + (1 - factor) * cx;
+//         // point[1] = factor * point[1] + (1 - factor) * cy;
+//       }
       
-      let cx = 0;
-      let cy = 0;
-      let count = 0;
-      for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-        let point = this.voronoi_metadata[i].polygon[j];
-        cx += point[0];
-        cy += point[1];
-        count += 1;
-      }
-      this.voronoi_metadata[i].cx = cx / count;
-      this.voronoi_metadata[i].cy = cy / count;
-    } else {
-      for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-        let point = this.voronoi_metadata[i].polygon[j];
+//       let cx = 0;
+//       let cy = 0;
+//       let count = 0;
+//       for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+//         let point = this.voronoi_metadata[i].polygon[j];
+//         cx += point[0];
+//         cy += point[1];
+//         count += 1;
+//       }
+//       this.voronoi_metadata[i].cx = cx / count;
+//       this.voronoi_metadata[i].cy = cy / count;
+//     } else {
+//       for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+//         let point = this.voronoi_metadata[i].polygon[j];
 
-        point[0] = 1.05 * point[0] + (1 - 1.05) * this.zoo_center[0];
-        point[1] = 1.05 * point[1] + (1 - 1.05) * this.zoo_center[1];
+//         point[0] = 1.05 * point[0] + (1 - 1.05) * this.zoo_center[0];
+//         point[1] = 1.05 * point[1] + (1 - 1.05) * this.zoo_center[1];
 
-        point[0] -= (320 * pen_scale / 2);
-        point[1] -= (240 * pen_scale / 2);
-      }
+//         point[0] -= (320 * pen_scale / 2);
+//         point[1] -= (240 * pen_scale / 2);
+//       }
 
-      let cx = 0;
-      let cy = 0;
-      let count = 0;
-      for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-        let point = this.voronoi_metadata[i].polygon[j];
-        cx += point[0];
-        cy += point[1];
-        count += 1;
-      }
-      this.voronoi_metadata[i].cx = cx / count;
-      this.voronoi_metadata[i].cy = cy / count;
-    }
-  }
+//       let cx = 0;
+//       let cy = 0;
+//       let count = 0;
+//       for (let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+//         let point = this.voronoi_metadata[i].polygon[j];
+//         cx += point[0];
+//         cy += point[1];
+//         count += 1;
+//       }
+//       this.voronoi_metadata[i].cx = cx / count;
+//       this.voronoi_metadata[i].cy = cy / count;
+//     }
+//   }
 
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == false) {
-      for (let j = 0; j < this.voronoi_metadata[i].neighbors.length; j++) {
-        let n = this.voronoi_metadata[i].neighbors[j];
-        if (this.voronoi_metadata[n].use == true && this.voronoi_metadata[n].group == 0) {
-          this.voronoi_metadata[i].group = 5001;
-        }
-      }
-    }
-  }
-}
-
-
-Game.prototype.deleteOverlaps = function() {
-  // Delete any outer cell that doesn't have inner cell neighbors, to prevent lockout.
-   for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == 0) {
-      has_nonzero_neighbor = false;
-
-      for (let j = 0; j < this.voronoi_metadata[i].neighbors.length; j++) {
-        let cell = this.voronoi_metadata[this.voronoi_metadata[i].neighbors[j]];
-        if (cell.use == true && cell.group != 5000 && cell.group > 0) {
-          has_nonzero_neighbor = true;
-        }
-      }
-
-      if (!has_nonzero_neighbor) {
-        // console.log("Deleting outer cell because it has no inner neighbors");
-        this.voronoi_metadata[i].use = false;
-        this.voronoi_metadata[i].group = null;
-      }
-    }
-  }
-
-  // Delete any cell that overlaps a cell from a lower numbered group
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      for (let j = 0; j < voronoi_size; j++) {
-        if (this.voronoi_metadata[j].use == true && this.voronoi_metadata[j].group != null) {
-          if (this.voronoi_metadata[j].group > this.voronoi_metadata[i].group) {
-            for (let k = 0; k < this.voronoi_metadata[j].polygon.length; k++) {
-              let point = this.voronoi_metadata[j].polygon[k];
-              if (pointInsidePolygon(point, this.voronoi_metadata[i].polygon) == true) {
-                // console.log("deleting an overlap cell");
-                this.voronoi_metadata[j].use = false;
-                this.voronoi_metadata[j].group = null;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == false) {
+//       for (let j = 0; j < this.voronoi_metadata[i].neighbors.length; j++) {
+//         let n = this.voronoi_metadata[i].neighbors[j];
+//         if (this.voronoi_metadata[n].use == true && this.voronoi_metadata[n].group == 0) {
+//           this.voronoi_metadata[i].group = 5001;
+//         }
+//       }
+//     }
+//   }
+// }
 
 
-smoothing_factor = 0.9;
-Game.prototype.smoothCells = function() {
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      let new_polygon = [];
-      let l = this.voronoi_metadata[i].polygon.length;
-      // could be to l - 1
-      for (let j = 0; j < l - 1; j++) {
+// Game.prototype.deleteOverlaps = function() {
+//   // Delete any outer cell that doesn't have inner cell neighbors, to prevent lockout.
+//    for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == 0) {
+//       has_nonzero_neighbor = false;
+
+//       for (let j = 0; j < this.voronoi_metadata[i].neighbors.length; j++) {
+//         let cell = this.voronoi_metadata[this.voronoi_metadata[i].neighbors[j]];
+//         if (cell.use == true && cell.group != 5000 && cell.group > 0) {
+//           has_nonzero_neighbor = true;
+//         }
+//       }
+
+//       if (!has_nonzero_neighbor) {
+//         // console.log("Deleting outer cell because it has no inner neighbors");
+//         this.voronoi_metadata[i].use = false;
+//         this.voronoi_metadata[i].group = null;
+//       }
+//     }
+//   }
+
+//   // Delete any cell that overlaps a cell from a lower numbered group
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+//       for (let j = 0; j < voronoi_size; j++) {
+//         if (this.voronoi_metadata[j].use == true && this.voronoi_metadata[j].group != null) {
+//           if (this.voronoi_metadata[j].group > this.voronoi_metadata[i].group) {
+//             for (let k = 0; k < this.voronoi_metadata[j].polygon.length; k++) {
+//               let point = this.voronoi_metadata[j].polygon[k];
+//               if (pointInsidePolygon(point, this.voronoi_metadata[i].polygon) == true) {
+//                 // console.log("deleting an overlap cell");
+//                 this.voronoi_metadata[j].use = false;
+//                 this.voronoi_metadata[j].group = null;
+//               }
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+
+
+// smoothing_factor = 0.9;
+// Game.prototype.smoothCells = function() {
+//   for (let i = 0; i < voronoi_size; i++) {
+//     if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+//       let new_polygon = [];
+//       let l = this.voronoi_metadata[i].polygon.length;
+//       // could be to l - 1
+//       for (let j = 0; j < l - 1; j++) {
         
-        // pre could go to l - 2 and post could go to 0 instead.
-        let pre_point = j > 0 ? this.voronoi_metadata[i].polygon[j - 1] : this.voronoi_metadata[i].polygon[l - 2];
-        let point = this.voronoi_metadata[i].polygon[j];
-        let post_point = j < l - 1 ? this.voronoi_metadata[i].polygon[j + 1] : this.voronoi_metadata[i].polygon[1];
+//         // pre could go to l - 2 and post could go to 0 instead.
+//         let pre_point = j > 0 ? this.voronoi_metadata[i].polygon[j - 1] : this.voronoi_metadata[i].polygon[l - 2];
+//         let point = this.voronoi_metadata[i].polygon[j];
+//         let post_point = j < l - 1 ? this.voronoi_metadata[i].polygon[j + 1] : this.voronoi_metadata[i].polygon[1];
 
-        let new_pre = [
-          smoothing_factor * point[0] + (1 - smoothing_factor) * pre_point[0],
-          smoothing_factor * point[1] + (1 - smoothing_factor) * pre_point[1]
-        ];
+//         let new_pre = [
+//           smoothing_factor * point[0] + (1 - smoothing_factor) * pre_point[0],
+//           smoothing_factor * point[1] + (1 - smoothing_factor) * pre_point[1]
+//         ];
 
-        let new_post = [
-          smoothing_factor * point[0] + (1 - smoothing_factor) * post_point[0],
-          smoothing_factor * point[1] + (1 - smoothing_factor) * post_point[1]
-        ];
+//         let new_post = [
+//           smoothing_factor * point[0] + (1 - smoothing_factor) * post_point[0],
+//           smoothing_factor * point[1] + (1 - smoothing_factor) * post_point[1]
+//         ];
 
-        new_polygon.push(new_pre);
-        new_polygon.push(new_post);
-      }
-      let last = [new_polygon[0][0], new_polygon[0][1]];
-      new_polygon.push(last);
-      this.voronoi_metadata[i].polygon = new_polygon;
-    }
-  }
-}
+//         new_polygon.push(new_pre);
+//         new_polygon.push(new_post);
+//       }
+//       let last = [new_polygon[0][0], new_polygon[0][1]];
+//       new_polygon.push(last);
+//       this.voronoi_metadata[i].polygon = new_polygon;
+//     }
+//   }
+// }
 
 
-Game.prototype.computeBounds = function() {
+Game.prototype.playerAndBoundaries = function() {
   
   this.upper_bound = 0;
   this.lower_bound = 0;
   this.left_bound = 0;
   this.right_bound = 0;
 
-  center_most_lower = -1;
-  center_x = 9000000;
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == 0) {
-      if (Math.abs(this.voronoi_metadata[i].cx) < center_x && this.voronoi_metadata[i].cy > 0) {
-        center_x = Math.abs(this.voronoi_metadata[i].cx);
-        center_most_lower = i;
-      }
-    }
 
-    if (this.voronoi_metadata[i].use == true) {
-      for(let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
-        let point = this.voronoi_metadata[i].polygon[j];
-        if (point[0] < this.left_bound) this.left_bound = point[0];
-        if (point[0] > this.right_bound) this.right_bound = point[0];
-        if (point[1] < this.upper_bound) this.upper_bound = point[1];
-        if (point[1] > this.lower_bound) this.lower_bound = point[1];
+  this.upper_bound = -2000;
+  this.lower_bound = 1000 * (this.zoo_size + 4);
+  this.left_bound = -2000;
+  this.right_bound = 1000 * (this.zoo_size + 4);
+
+  min_location = [-1000,-1000];
+
+  for (let i = 0; i <= this.zoo_size; i++) {
+    for (let j = 0; j <= this.zoo_size; j++) {
+      if (this.zoo_vertices[i][j].n_path == true && 1000 * j + 500 > min_location[1]) {
+        min_location = [1000 * i, 1000 * j];
       }
     }
   }
 
-  this.left_bound -= 300;
-  this.right_bound += 300;
-  this.upper_bound -= 300;
-  this.lower_bound += 300;
+  this.player = this.makeCharacter();
+  this.player.position.set(min_location[0], min_location[1]);
+  this.decorations.push(this.player);
 
-  if (center_most_lower == -1) {
-    console.log("failed to find the bottom of the zoo!");
-  } else {
-    this.voronoi_metadata[center_most_lower].use = false;
-    this.voronoi_metadata[center_most_lower].group = 5000;
+  // center_most_lower = -1;
+  // center_x = 9000000;
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group == 0) {
+  //     if (Math.abs(this.voronoi_metadata[i].cx) < center_x && this.voronoi_metadata[i].cy > 0) {
+  //       center_x = Math.abs(this.voronoi_metadata[i].cx);
+  //       center_most_lower = i;
+  //     }
+  //   }
 
-    this.entrance = this.voronoi_metadata[center_most_lower];
-  }
+  //   if (this.voronoi_metadata[i].use == true) {
+  //     for(let j = 0; j < this.voronoi_metadata[i].polygon.length; j++) {
+  //       let point = this.voronoi_metadata[i].polygon[j];
+  //       if (point[0] < this.left_bound) this.left_bound = point[0];
+  //       if (point[0] > this.right_bound) this.right_bound = point[0];
+  //       if (point[1] < this.upper_bound) this.upper_bound = point[1];
+  //       if (point[1] > this.lower_bound) this.lower_bound = point[1];
+  //     }
+  //   }
+  // }
+
+  // this.left_bound -= 300;
+  // this.right_bound += 300;
+  // this.upper_bound -= 300;
+  // this.lower_bound += 300;
+
+  // if (center_most_lower == -1) {
+  //   console.log("failed to find the bottom of the zoo!");
+  // } else {
+  //   this.voronoi_metadata[center_most_lower].use = false;
+  //   this.voronoi_metadata[center_most_lower].group = 5000;
+
+  //   this.entrance = this.voronoi_metadata[center_most_lower];
+  // }
 }
 
 
 Game.prototype.designatePens = function() {
   this.number_of_pens = 0;
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
-      this.number_of_pens += 1;
-    }
-  }
-  console.log("There are " + this.number_of_pens + " pens.");
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
+  //     this.number_of_pens += 1;
+  //   }
+  // }
+  console.log("There are " + this.zoo_pens.length + " pens.");
 
   ams = Object.keys(animals);
   shuffleArray(ams);
   
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    //if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
       if (ams.length > 0) {
         new_animal = ams.pop();
-        this.voronoi_metadata[i].animal = new_animal;
-        this.voronoi_metadata[i].land = animals[new_animal].land;
-        this.voronoi_metadata[i].decorations = animals[new_animal].decorations;
+        this.zoo_pens[i].animal = new_animal;
+        this.zoo_pens[i].land = animals[new_animal].land;
+        this.zoo_pens[i].decorations = animals[new_animal].decorations;
       }
+    //}
+  }
+}
+
+Game.prototype.debugDrawMapGroups = function() {
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      let group = this.zoo_squares[i][j].group;
+      let color = this.group_colors[group];
+      let cell = new PIXI.Graphics();
+      cell.beginFill(color);
+      let polygon = [
+        1000 * i, 1000 * j,
+        1000 * i, 1000 * (j+1),
+        1000 * (i+1), 1000 * (j+1),
+        1000 * (i+1), 1000 * j,
+        1000 * i, 1000 * j,
+      ]
+      cell.drawPolygon(polygon);
+      cell.endFill();
+      if (!this.zoo_squares[i][j].reachable) cell.alpha = 0.5;
+      this.map.background_layer.addChild(cell);
     }
   }
 }
@@ -683,38 +1000,59 @@ Game.prototype.drawMap = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  // Draw the path background
-  let path_background = new PIXI.Graphics();
-  path_background.beginFill(path_color);
-  path_background.drawEllipse(0, 0, ellipse_size * ellipse_eccentricity, ellipse_size);
-  path_background.endFill();
-  this.map.background_layer.addChild(path_background);
 
-  let new_path_background = new PIXI.TilingSprite(PIXI.Texture.from("Art/path_art_2.png"));
-  new_path_background.position.set(0, 0);
-  this.map.background_layer.addChild(new_path_background);
+
+  // Map background
+  let background = new PIXI.Sprite(PIXI.Texture.from("Art/zoo_gradient.png"));
+  background.width = 1000 * (this.zoo_size + 4);
+  background.height = 1000 * (this.zoo_size + 4);
+  background.anchor.set(0, 0);
+  background.position.set(-2000, -2000);
+  this.map.background_layer.addChild(background);
+
+
+
+  // this.debugDrawMapGroups();
+
+
+
+  // Draw the path background
+  // let path_background = new PIXI.Graphics();
+  // path_background.beginFill(path_color);
+  // path_background.drawEllipse(0, 0, ellipse_size * ellipse_eccentricity, ellipse_size);
+  // path_background.endFill();
+  // this.map.background_layer.addChild(path_background);
+
+  // let new_path_background = new PIXI.TilingSprite(PIXI.Texture.from("Art/path_art_2.png"));
+  // new_path_background.position.set(0, 0);
+  // this.map.background_layer.addChild(new_path_background);
 
   // Draw the land background, using the unused voronoi cells to partially cover
   // the elliptical edges of the path background.
-  let land_background = new PIXI.Graphics();
-  land_background.lineStyle(0, 0x000000, 0);
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == false && this.voronoi_metadata[i].group != 5000) {
-      land_background.beginFill(background_color);
-      let polygon = this.voronoi_metadata[i].polygon.flat();
-      land_background.drawPolygon(polygon);
-      land_background.endFill();
-    }
-  }
-  this.map.background_layer.addChild(land_background);
+  // let land_background = new PIXI.Graphics();
+  // land_background.lineStyle(0, 0x000000, 0);
+  // //for (let i = 0; i < voronoi_size; i++) {
+  //   //if (this.voronoi_metadata[i].use == false && this.voronoi_metadata[i].group != 5000) {
+  // for (let i = 0; i < this.zoo_pens.length; i++) {
+  //   land_background.beginFill(background_color);
+  //   let polygon = this.zoo_pens[i].polygon_flat;
+  //   land_background.drawPolygon(polygon);
+  //   land_background.endFill();
+  // }
+  // this.map.background_layer.addChild(land_background);
 
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
-      this.voronoi_metadata[i].land_object = new PIXI.Container();
-      this.voronoi_metadata[i].land_object.cx = this.voronoi_metadata[i].cx;
-      this.voronoi_metadata[i].land_object.cy = this.voronoi_metadata[i].cy;
 
-      // let grass_polygon = this.voronoi_metadata[i].grass_polygon.flat();
+  this.drawMapPath();
+
+
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+      this.zoo_pens[i].land_object = new PIXI.Container();
+      this.zoo_pens[i].land_object.cx = this.zoo_pens[i].cx;
+      this.zoo_pens[i].land_object.cy = this.zoo_pens[i].cy;
+
+      // let grass_polygon = this.zoo_pens[i].grass_polygon.flat();
 
       // let grass = new PIXI.Graphics();
       // grass.beginFill(grass_color);
@@ -722,9 +1060,9 @@ Game.prototype.drawMap = function() {
       // grass.endFill();
       // grass.true_color = grass_color;
       // grass.grey_color = grass_color;
-      // this.voronoi_metadata[i].land_object.addChild(grass);
+      // this.zoo_pens[i].land_object.addChild(grass);
 
-      let polygon = this.voronoi_metadata[i].polygon.flat();
+      let polygon = this.zoo_pens[i].polygon.flat();
 
       let ground = new PIXI.Graphics();
       ground.beginFill(0xFFFFFF);
@@ -733,30 +1071,30 @@ Game.prototype.drawMap = function() {
 
       ground.grey_color = 0xFFFFFF;
 
-      if (this.voronoi_metadata[i].land == null || this.voronoi_metadata[i].land == "grass") {
+      if (this.zoo_pens[i].land == null || this.zoo_pens[i].land == "grass") {
         ground.true_color = grass_color;
-      } else if (this.voronoi_metadata[i].land == "water") {
+      } else if (this.zoo_pens[i].land == "water") {
         ground.true_color = water_color;
-      } else if (this.voronoi_metadata[i].land == "sand") {
+      } else if (this.zoo_pens[i].land == "sand") {
         ground.true_color = sand_color;
-      } else if (this.voronoi_metadata[i].land == "watergrass") {
+      } else if (this.zoo_pens[i].land == "watergrass") {
         ground.true_color = water_color;
-      } else if (this.voronoi_metadata[i].land == "waterice") {
+      } else if (this.zoo_pens[i].land == "waterice") {
         ground.true_color = water_color;
       }
 
       ground.tint = ground.true_color;
-      this.voronoi_metadata[i].land_object.addChild(ground);
+      this.zoo_pens[i].land_object.addChild(ground);
 
-      if (this.voronoi_metadata[i].land == "watergrass" || this.voronoi_metadata[i].land == "waterice") {
+      if (this.zoo_pens[i].land == "watergrass" || this.zoo_pens[i].land == "waterice") {
         let super_ground = new PIXI.Graphics();
         super_ground.beginFill(0xFFFFFF);
 
         let polygon_left = [];
-        for (let k = 0; k < this.voronoi_metadata[i].polygon.length; k++) {
-          if (this.voronoi_metadata[i].polygon[k][0] <= this.voronoi_metadata[i].cx) {
-            polygon_left.push(this.voronoi_metadata[i].polygon[k][0])
-            polygon_left.push(this.voronoi_metadata[i].polygon[k][1]);
+        for (let k = 0; k < this.zoo_pens[i].polygon.length; k++) {
+          if (this.zoo_pens[i].polygon[k][0] <= this.zoo_pens[i].cx) {
+            polygon_left.push(this.zoo_pens[i].polygon[k][0])
+            polygon_left.push(this.zoo_pens[i].polygon[k][1]);
           }
         }
         polygon_left.push(polygon_left[0])
@@ -765,60 +1103,20 @@ Game.prototype.drawMap = function() {
         super_ground.endFill();
 
         super_ground.grey_color = 0xFEFEFE;
-        if (this.voronoi_metadata[i].land == "watergrass") {
+        if (this.zoo_pens[i].land == "watergrass") {
           super_ground.true_color = grass_color;
-        } else if (this.voronoi_metadata[i].land == "waterice") {
+        } else if (this.zoo_pens[i].land == "waterice") {
           super_ground.true_color = ice_color;
         }
 
         super_ground.tint = super_ground.true_color;
-        this.voronoi_metadata[i].land_object.addChild(super_ground);
+        this.zoo_pens[i].land_object.addChild(super_ground);
       }
 
 
-      // let filled = false;
-      // if (this.voronoi_metadata[i].land == null || this.voronoi_metadata[i].land == "grass") {
-      //   ground.beginFill(grass_color);
-      // } else if (this.voronoi_metadata[i].land == "water") {
-      //   ground.beginFill(water_color);
-      // } else if (this.voronoi_metadata[i].land == "sand") {
-      //   ground.beginFill(sand_color);
-      // } else if (this.voronoi_metadata[i].land == "watergrass" || this.voronoi_metadata[i].land == "waterice") {
-      //   ground.beginFill(water_color);
-      //   let polygon_right = this.voronoi_metadata[i].polygon.flat();
-      //   ground.drawPolygon(polygon_right);
-      //   if (this.voronoi_metadata[i].land == "watergrass") {
-      //     ground.beginFill(grass_color);
-      //   } else if (this.voronoi_metadata[i].land == "waterice") {
-      //     ground.beginFill(ice_color);
-      //   }
-      //   let polygon_left = [];
-      //   for (let k = 0; k < this.voronoi_metadata[i].polygon.length; k++) {
-      //     if (this.voronoi_metadata[i].polygon[k][0] <= this.voronoi_metadata[i].cx) {
-      //       polygon_left.push(this.voronoi_metadata[i].polygon[k][0])
-      //       polygon_left.push(this.voronoi_metadata[i].polygon[k][1]);
-      //       //ground.beginFill(PIXI.utils.rgb2hex([k / 10, k / 10, k / 10]));
-      //       //ground.drawCircle(this.voronoi_metadata[i].polygon[k][0], this.voronoi_metadata[i].polygon[k][1], 10);
-      //     }
-      //   }
-      //   polygon_left.push(polygon_left[0])
-      //   polygon_left.push(polygon_left[1]);
-      //   ground.drawPolygon(polygon_left);
-      //   filled = true;
-      // }
-
-      // let polygon = this.voronoi_metadata[i].polygon.flat();
-      // if (!filled) {
-      //   // console.log(polygon);
-      //   ground.drawPolygon(polygon);
-      // }
-      // ground.endFill();
-
-      // this.voronoi_metadata[i].land_object.addChild(ground);
-
       let border = new PIXI.Graphics();
       border.lineStyle(12, 0xFFFFFF, 1); //width, color, alpha
-      let border_polygon = this.voronoi_metadata[i].polygon.flat();
+      let border_polygon = this.zoo_pens[i].polygon.flat();
       border.drawPolygon(border_polygon);
       let border_depth_1 = border.clone();
       border_depth_1.position.set(0,12);
@@ -837,56 +1135,162 @@ Game.prototype.drawMap = function() {
       border_depth_1.tint = border_depth_1.true_color;
       border_depth_2.tint = border_depth_2.true_color;
 
-      this.voronoi_metadata[i].land_object.addChild(border_depth_1);
-      this.voronoi_metadata[i].land_object.addChild(border_depth_2);
-      this.voronoi_metadata[i].land_object.addChild(border);
+      this.zoo_pens[i].land_object.addChild(border_depth_1);
+      this.zoo_pens[i].land_object.addChild(border_depth_2);
+      this.zoo_pens[i].land_object.addChild(border);
 
 
-      this.terrain.push(this.voronoi_metadata[i].land_object)
-    }
+      this.terrain.push(this.zoo_pens[i].land_object)
+    //}
   }
 
   this.sortLayer(this.map.terrain_layer, this.terrain, true);
 }
 
 
+
+Game.prototype.drawMapPath = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      let cell = this.zoo_squares[i][j];
+      if (cell.e_edge == true) {
+        // draw the eastern edge section
+        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_v1.png"));
+        section.anchor.set(0.5, 0.5);
+        section.position.set(1000 * i + 1000, 1000 * j + 500);
+        section.angle = 90;
+        this.map.background_layer.addChild(section);
+      }
+
+      if (cell.s_edge == true) {
+        // draw the southern edge section
+        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_v1.png"));
+        section.anchor.set(0.5, 0.5);
+        section.position.set(1000 * i + 500, 1000 * j + 1000);
+        section.angle = 0;
+        this.map.background_layer.addChild(section);
+      }
+    }
+  }
+
+
+  for (let i = 0; i <= this.zoo_size; i++) {
+    for (let j = 0; j <= this.zoo_size; j++) {
+      let vertex = this.zoo_vertices[i][j];
+
+      let intersection = null;
+      if (vertex.s_path && vertex.e_path && vertex.n_path && vertex.w_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_cross_v1.png"));
+      }
+      else if (vertex.s_path && vertex.e_path && !vertex.n_path && !vertex.w_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
+      }
+      else if (vertex.s_path && vertex.w_path && !vertex.n_path && !vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
+        intersection.scale.set(-1,1);
+      }
+      else if (!vertex.s_path && !vertex.e_path && vertex.n_path && vertex.w_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
+        intersection.angle = 180;
+      }
+      else if (!vertex.s_path && !vertex.w_path && vertex.n_path && vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
+        intersection.scale.set(-1,1);
+        intersection.angle = 180;
+      }
+      else if (vertex.s_path && vertex.w_path && !vertex.n_path && vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_flat_t_v1.png"));
+        intersection.angle = 0;
+      }
+      else if (!vertex.s_path && vertex.w_path && vertex.n_path && vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_flat_t_v1.png"));
+        intersection.angle = 180;
+      }
+      else if (vertex.s_path && !vertex.w_path && vertex.n_path && vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_t_v1.png"));
+        intersection.angle = 0;
+      }
+      else if (vertex.s_path && vertex.w_path && vertex.n_path && !vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_t_v1.png"));
+        intersection.angle = 180;
+      }
+      else if (!vertex.s_path && vertex.w_path && !vertex.n_path && vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_span_v1.png"));
+      }
+      else if (vertex.s_path && !vertex.w_path && vertex.n_path && !vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_span_v1.png"));
+        intersection.angle = 90;
+      }
+      else if (!vertex.s_path && !vertex.w_path && !vertex.n_path && vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
+        intersection.angle = 180;
+      }
+      else if (!vertex.s_path && vertex.w_path && !vertex.n_path && !vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
+        intersection.angle = 0;
+      }
+      else if (!vertex.s_path && !vertex.w_path && vertex.n_path && !vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
+        intersection.angle = 90;
+      }
+      else if (vertex.s_path && !vertex.w_path && !vertex.n_path && !vertex.e_path) {
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
+        intersection.angle = 270;
+      }
+
+      if (intersection) {
+        intersection.anchor.set(0.5, 0.5);
+        intersection.position.set(1000 * i, 1000 * j);
+        this.map.background_layer.addChild(intersection);
+      }
+
+      
+    }
+  }
+}
+
+
 Game.prototype.populateZoo = function() {
 
   this.decorations = [];
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
-      if (this.voronoi_metadata[i].decorations != null) {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+  // for (let i = 0; i < voronoi_size; i++) {
+    // if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
+      if (this.zoo_pens[i].decorations != null) {
         decoration_number = Math.random();
         for (let t = 0; t < 5; t++) {
           if (Math.random() > 0.3) {
-            let decoration_type = pick(this.voronoi_metadata[i].decorations);
+            let decoration_type = pick(this.zoo_pens[i].decorations);
             let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
-            let edge = pick(this.voronoi_metadata[i].polygon);
+            let edge = pick(this.zoo_pens[i].polygon);
             let fraction = 0.3 + 0.5 * Math.random();
             decoration.position.set(
-              (1-fraction) * this.voronoi_metadata[i].cx + (fraction) * edge[0],
-              (1-fraction) * this.voronoi_metadata[i].cy + (fraction) * edge[1]);
+              (1-fraction) * this.zoo_pens[i].cx + (fraction) * edge[0],
+              (1-fraction) * this.zoo_pens[i].cy + (fraction) * edge[1]);
             decoration.scale.set(1.2, 1.2);
             decoration.anchor.set(0.5,0.9);
             this.decorations.push(decoration);
-            this.voronoi_metadata[i].decoration_objects.push(decoration);
+            this.zoo_pens[i].decoration_objects.push(decoration);
           }
         }
 
-        if (this.voronoi_metadata[i].animal != null) {
-          this.voronoi_metadata[i].animal_objects = [];
-          let animal_name = this.voronoi_metadata[i].animal;
+        if (this.zoo_pens[i].animal != null) {
+          this.zoo_pens[i].animal_objects = [];
+          let animal_name = this.zoo_pens[i].animal;
           let num_animals_here = Math.ceil(2 * Math.random());
           if (animal_name == "OTTER") num_animals_here = 2;
           for (let n = 0; n < num_animals_here; n++) {
-            let animal = this.makeAnimal(animal_name, this.voronoi_metadata[i]);
-            animal.position.set(this.voronoi_metadata[i].cx - 36 + 72 * n, this.voronoi_metadata[i].cy - 36 + 72 * Math.random());
-            // animal.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
+            let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
+            animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
+            // animal.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
             this.decorations.push(animal);
-            this.voronoi_metadata[i].animal_objects.push(animal);
+            this.zoo_pens[i].animal_objects.push(animal);
             this.animals.push(animal);
             this.shakers.push(animal);
-            this.shakers.push(this.voronoi_metadata[i].land_object);
+            this.shakers.push(this.zoo_pens[i].land_object);
           }
           
           // if (animal_name != "LION") animal_name = "RHINO";
@@ -894,38 +1298,38 @@ Game.prototype.populateZoo = function() {
         }
 
       }
-    } else if (this.voronoi_metadata[i].use == false && this.voronoi_metadata[i].group == 5001) {
-      // Add lots of trees just outside the perimeter
-      for (let t = 0; t < 12; t++) {
-        if (Math.random() > 0.4) {
-          let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-          let x = this.voronoi_metadata[i].cx - 300 + 600 * Math.random();
-          let y = this.voronoi_metadata[i].cy - 300 + 600 * Math.random();
-          if (this.testMove(x, y, false, "blah") == true) {
-            decoration.position.set(x, y);
-            decoration.scale.set(1.2, 1.2);
-            decoration.anchor.set(0.5,0.9);
-            this.decorations.push(decoration);
-          }
-        }
-      }
-    }
+    // } else if (this.voronoi_metadata[i].use == false && this.voronoi_metadata[i].group == 5001) {
+    //   // Add lots of trees just outside the perimeter
+    //   for (let t = 0; t < 12; t++) {
+    //     if (Math.random() > 0.4) {
+    //       let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+    //       let x = this.voronoi_metadata[i].cx - 300 + 600 * Math.random();
+    //       let y = this.voronoi_metadata[i].cy - 300 + 600 * Math.random();
+    //       if (this.testMove(x, y, false, "blah") == true) {
+    //         decoration.position.set(x, y);
+    //         decoration.scale.set(1.2, 1.2);
+    //         decoration.anchor.set(0.5,0.9);
+    //         this.decorations.push(decoration);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   // Add zoo sign
-  for (let i = 0; i < voronoi_size; i++) {
-    if(this.voronoi_metadata[i].group == 5000) {
-      let zoo = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo.png"));
-      zoo.scale.set(1.2, 1.2);
-      zoo.anchor.set(0.5, 0.8);
-      zoo.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
-      this.decorations.push(zoo);
-      // this.map.addChild(zoo);
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if(this.voronoi_metadata[i].group == 5000) {
+  //     let zoo = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo.png"));
+  //     zoo.scale.set(1.2, 1.2);
+  //     zoo.anchor.set(0.5, 0.8);
+  //     zoo.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
+  //     this.decorations.push(zoo);
+  //     // this.map.addChild(zoo);
 
-      this.player.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
-      this.decorations.push(this.player);
-    }
-  }
+  //     this.player.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
+  //     this.decorations.push(this.player);
+  //   }
+  // }
 }
 
 
@@ -996,7 +1400,7 @@ Game.prototype.addType = function(letter) {
     let animal_pen_to_fix = this.animal_pen_to_fix;
 
     delay(function() {
-      self.ungrey(animal_pen_to_fix.cell_number);
+      self.ungrey(animal_pen_to_fix);
       self.soundEffect("build");
       animal_pen_to_fix.land_object.shake = self.markTime();
 
@@ -1326,69 +1730,74 @@ Game.prototype.hideDisplayText = function() {
 }
 
 
-Game.prototype.grey = function(cell_number) {
-  this.voronoi_metadata[cell_number].state = "grey";
-  if (this.voronoi_metadata[cell_number].animal_objects != null) {
-    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
-      this.voronoi_metadata[cell_number].animal_objects[j].alpha = 0.4;
-      if (j > 0) this.voronoi_metadata[cell_number].animal_objects[j].visible = false;
+Game.prototype.grey = function(pen) {
+  pen.state = "grey";
+  if (pen.animal_objects != null) {
+    for (let j = 0; j < pen.animal_objects.length; j++) {
+      pen.animal_objects[j].alpha = 0.4;
+      if (j > 0) pen.animal_objects[j].visible = false;
     }
-    for (let j = 0; j < this.voronoi_metadata[cell_number].land_object.children.length; j++) {
-      let land = this.voronoi_metadata[cell_number].land_object.children[j];
+    for (let j = 0; j < pen.land_object.children.length; j++) {
+      let land = pen.land_object.children[j];
       land.tint = land.grey_color;
     }
   }
-  for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
-    this.voronoi_metadata[cell_number].decoration_objects[j].visible = false;
+  for (let j = 0; j < pen.decoration_objects.length; j++) {
+    pen.decoration_objects[j].visible = false;
   }
 }
 
 
-Game.prototype.ungrey = function(cell_number) {
+Game.prototype.ungrey = function(pen) {
 
-  this.voronoi_metadata[cell_number].land_object.filters  = [];
+  pen.land_object.filters = [];
 
-  this.voronoi_metadata[cell_number].state = "ungrey";
-  if (this.voronoi_metadata[cell_number].animal_objects != null) {
-    for (let j = 0; j < this.voronoi_metadata[cell_number].animal_objects.length; j++) {
-      this.voronoi_metadata[cell_number].animal_objects[j].alpha  = 1;
-      this.voronoi_metadata[cell_number].animal_objects[j].visible = true;
+  pen.state = "ungrey";
+  if (pen.animal_objects != null) {
+    for (let j = 0; j < pen.animal_objects.length; j++) {
+      pen.animal_objects[j].alpha  = 1;
+      pen.animal_objects[j].visible = true;
     }
-    for (let j = 0; j < this.voronoi_metadata[cell_number].land_object.children.length; j++) {
-      let land = this.voronoi_metadata[cell_number].land_object.children[j];
+    for (let j = 0; j < pen.land_object.children.length; j++) {
+      let land = pen.land_object.children[j];
       land.tint = land.true_color;
     }
   }
-  for (let j = 0; j < this.voronoi_metadata[cell_number].decoration_objects.length; j++) {
-    this.voronoi_metadata[cell_number].decoration_objects[j].visible = true;
+  for (let j = 0; j < pen.decoration_objects.length; j++) {
+    pen.decoration_objects[j].visible = true;
   }
 }
 
 
 Game.prototype.greyAll = function() {
-  for (let i = 0; i < voronoi_size; i++) {
-    if(this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
-      this.grey(i);
-    }
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    //if(this.zoo_pens[i].use == true && this.zoo_pens[i].group != 5000) {
+      this.grey(this.zoo_pens[i]);
+    //}
   }
 }
 
 
 Game.prototype.ungreyAll = function() {
-  for (let i = 0; i < voronoi_size; i++) {
-    if(this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
-      this.ungrey(i);
-    }
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    //if(this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
+      this.ungrey(this.zoo_pens[i]);
+    //}
   }
 }
 
 
 Game.prototype.greyAnimalPens = function() {
-  for (let i = 0; i < voronoi_size; i++) {
-    if(this.voronoi_metadata[i].use == true 
-      && this.voronoi_metadata[i].group != 5000
-      && this.voronoi_metadata[i].animal != null) {
-      this.grey(i);
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if(this.voronoi_metadata[i].use == true 
+  //     && this.voronoi_metadata[i].group != 5000
+  //     && this.voronoi_metadata[i].animal != null) {
+  //     this.grey(i);
+  //   }
+  // }
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    if (this.zoo_pens[i].animal != null) {
+      this.grey(this.zoo_pens[i]);
     }
   }
 }
@@ -1596,12 +2005,13 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
   }
 
   // if (direction == "up")
-  for (let i = 0; i < voronoi_size; i++) {
-    if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
-      if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+      if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
         return false;
       }
-    }
+    // }
   }
 
   return true;
@@ -1637,12 +2047,13 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       ty -= 42*r;
     }
 
-    for (let i = 0; i < voronoi_size; i++) {
-      if (this.voronoi_metadata[i].use == true
-        && this.voronoi_metadata[i].group != null
-        && this.voronoi_metadata[i].animal_objects != null) {
-        if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
-          found_pen = this.voronoi_metadata[i];
+    // for (let i = 0; i < voronoi_size; i++) {
+    //   if (this.voronoi_metadata[i].use == true
+    //     && this.voronoi_metadata[i].group != null
+    for (let i = 0; i < this.zoo_pens.length; i++) {
+      if (this.zoo_pens[i].animal_objects != null) {
+        if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
+          found_pen = this.zoo_pens[i];
 
           break;
         }
@@ -1656,12 +2067,13 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       let tx = x + 120 * Math.cos(Math.PI / 180 * a);
       let ty = y + 120 * Math.sin(Math.PI / 180 * a);
 
-      for (let i = 0; i < voronoi_size; i++) {
-        if (this.voronoi_metadata[i].use == true
-          && this.voronoi_metadata[i].group != null
-          && this.voronoi_metadata[i].animal_objects != null) {
-          if (pointInsidePolygon([tx, ty], this.voronoi_metadata[i].polygon)) {
-            found_pen = this.voronoi_metadata[i];
+      // for (let i = 0; i < voronoi_size; i++) {
+      //   if (this.voronoi_metadata[i].use == true
+      //     && this.voronoi_metadata[i].group != null
+      for (let i = 0; i < this.zoo_pens.length; i++) {
+        if (this.zoo_pens[i].animal_objects != null) {
+          if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
+            found_pen = this.zoo_pens[i];
             break;
           }
         }
@@ -1700,15 +2112,17 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  if(true) {
-    if (this.timeSince(this.start_time) < 2000) {
-      this.map.position.set(640 - this.player.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y);
-    } else {
-      this.map.position.set(640 - this.player.x, 580 - this.player.y);  
-    }
-  } else {
-    this.map.scale.set(0.1, 0.1);
-  }
+  // this.map.scale.set(0.1, 0.1);
+  this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y); 
+  // if(false) {
+  //   if (this.timeSince(this.start_time) < 2000) {
+  //     this.map.position.set(640 - this.player.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y);
+  //   } else {
+  //     this.map.position.set(640 - this.player.x, 580 - this.player.y);  
+  //   }
+  // } else {
+  //   this.map.scale.set(0.1, 0.1);
+  // }
 
   
   

@@ -370,7 +370,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     }
 
     if (animals[animal.type].last_sound == null || self.timeSince(animals[animal.type].last_sound) > animals[animal.type].sound_delay) {
-      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 480) {
+      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 1000) {
         if (Math.random() > 0.65) {
           self.soundEffect(animals[animal.type].sound);
           animals[animal.type].sound_delay = 2000 + Math.random() * 10000;
