@@ -14,10 +14,7 @@ Game.prototype.initializeAltGen = function() {
   this.zoo_square_size = 8;
   this.view_scale = 0.1;
 
-  let background = new PIXI.Sprite(PIXI.Texture.from("Art/zoo_gradient.png"));
-  background.width = this.width;
-  background.height = this.height;
-  screen.addChild(background);
+
 
   this.map = new PIXI.Container();
   this.map.position.set(
@@ -26,6 +23,15 @@ Game.prototype.initializeAltGen = function() {
   );
   this.map.scale.set(this.view_scale, this.view_scale);
   screen.addChild(this.map);
+
+
+  let background = new PIXI.Sprite(PIXI.Texture.from("Art/zoo_gradient.png"));
+  background.width = 1000 * (this.zoo_square_size + 4);
+  background.height = 1000 * (this.zoo_square_size + 4);
+  background.anchor.set(0, 0);
+  background.position.set(-2000, -2000);
+  this.map.addChild(background);
+
 
   this.zoo_vertices = {};
   for (let i = 0; i <= this.zoo_square_size; i++) {
@@ -37,6 +43,17 @@ Game.prototype.initializeAltGen = function() {
         s_path: false,
         w_path: false,
         e_path: false,
+        vertex: [1000 * i, 1000 * j],
+        halo: {
+          nw: [1000 * i - 130 - 70 * Math.random(), 1000 * j - 130 - 70 * Math.random()],
+          ne: [1000 * i + 130 + 70 * Math.random(), 1000 * j - 130 - 70 * Math.random()],
+          sw: [1000 * i - 130 - 70 * Math.random(), 1000 * j + 130 + 70 * Math.random()],
+          se: [1000 * i + 130 + 70 * Math.random(), 1000 * j + 130 + 70 * Math.random()],
+          n: [1000 * i - 40 + 80 * Math.random(), 1000 * j - 140 - 70 * Math.random()],
+          s: [1000 * i - 40 + 80 * Math.random(), 1000 * j + 140 + 70 * Math.random()],
+          e: [1000 * i + 140 + 70 * Math.random(), 1000 * j - 40 + 80 * Math.random()],
+          w: [1000 * i - 140 - 70 * Math.random(), 1000 * j - 40 + 80 * Math.random()],
+        }
       };
     }
   }
@@ -47,6 +64,8 @@ Game.prototype.initializeAltGen = function() {
     for (let j = 0; j < this.zoo_square_size; j++) {
       this.zoo_grid[i][j] = {
         group: -1,
+        new_group: null,
+        reachable: false,
         n_edge: false,
         s_edge: false,
         w_edge: false,
@@ -55,15 +74,17 @@ Game.prototype.initializeAltGen = function() {
     }
   }
 
-  // this.drawGrid();
+  // this.debugDrawGrid();
   this.makeGroups();
-  // this.drawGroups();
   this.markPath();
+  // TO DO: test connectedness of the path and either regenerate or fix it if it's not simply connected.
+  this.debugDrawGroups();
   this.drawPath();
+  this.debugDrawHalo();
 }
 
 
-// Game.prototype.drawGrid = function() {
+// Game.prototype.debugDrawGrid = function() {
 //   var self = this;
 //   var screen = this.screens["alt_gen"];
 
@@ -108,9 +129,30 @@ Game.prototype.makeGroups = function() {
   console.log(group_num);
 
   // TO DO: Attach singletons to larger groups
-  for (let i = 0; i < group_num; i++) {
-    // TO DO: Attach singletons to larger groups
-
+  // ALSO MAYBE DON'T DO THIS!
+  for (let i = 0; i < this.zoo_square_size; i++) {
+    for (let j = 0; j < this.zoo_square_size; j++) {
+      let cell = this.zoo_grid[i][j];
+      if (this.group_counts[cell.group] == 1) {
+        console.log("Singleton at " + i + " " + j);
+        let neighbors = [];
+        if (i > 0) neighbors.push(this.zoo_grid[i-1][j].group);
+        if (i < this.zoo_square_size - 1) neighbors.push(this.zoo_grid[i+1][j].group);
+        if (j > 0) neighbors.push(this.zoo_grid[i][j-1].group);
+        if (j < this.zoo_square_size - 1) neighbors.push(this.zoo_grid[i][j+1].group);
+        shuffleArray(neighbors);
+        cell.new_group = neighbors[0];
+      }
+    }
+  }
+  for (let i = 0; i < this.zoo_square_size; i++) {
+    for (let j = 0; j < this.zoo_square_size; j++) {
+      let cell = this.zoo_grid[i][j];
+      if (this.group_counts[cell.group] == 1) {
+        cell.group = cell.new_group;
+        cell.new_group = null;
+      }
+    }
   }
 
 }
@@ -160,6 +202,9 @@ Game.prototype.markPath = function() {
         this.zoo_grid[i][j].w_edge = true;
         this.zoo_grid[i-1][j].e_edge = true;
 
+        this.zoo_grid[i][j].reachable = true;
+        this.zoo_grid[i-1][j].reachable = true;
+
         this.zoo_vertices[i][j].s_path = true;
         this.zoo_vertices[i][j+1].n_path = true;
 
@@ -180,6 +225,9 @@ Game.prototype.markPath = function() {
         this.zoo_grid[i][j].n_edge = true;
         this.zoo_grid[i][j-1].s_edge = true;
 
+        this.zoo_grid[i][j].reachable = true;
+        this.zoo_grid[i][j-1].reachable = true;
+
         this.zoo_vertices[i][j].e_path = true;
         this.zoo_vertices[i+1][j].w_path = true;
 
@@ -194,7 +242,7 @@ Game.prototype.markPath = function() {
 }
 
 
-Game.prototype.drawGroups = function() {
+Game.prototype.debugDrawGroups = function() {
   for (let i = 0; i < this.zoo_square_size; i++) {
     for (let j = 0; j < this.zoo_square_size; j++) {
       let group = this.zoo_grid[i][j].group;
@@ -210,6 +258,7 @@ Game.prototype.drawGroups = function() {
       ]
       cell.drawPolygon(polygon);
       cell.endFill();
+      if (!this.zoo_grid[i][j].reachable) cell.alpha = 0.5;
       this.map.addChild(cell);
     }
   }
@@ -317,6 +366,42 @@ Game.prototype.drawPath = function() {
       
     }
   }
+}
+
+
+Game.prototype.debugDrawHalo = function() {
+  var self = this;
+  var screen = this.screens["alt_gen"];
+
+  path = new PIXI.Graphics();
+  path.lineStyle(1 / this.view_scale, 0x000000, 1);
+
+  let vertex = this.zoo_vertices[5][5];
+  for (const direction of Object.keys(vertex.halo)) {
+    console.log(direction);
+    console.log(vertex.halo[direction][0] + "," + vertex.halo[direction][1]);
+
+    let vertical_line = [vertex.halo[direction][0], vertex.halo[direction][1] - 20, vertex.halo[direction][0], vertex.halo[direction][1] + 20];
+    path.drawPolygon(vertical_line);
+
+    let horizontal_line = [vertex.halo[direction][0] - 20, vertex.halo[direction][1], vertex.halo[direction][0] + 20, vertex.halo[direction][1]];
+    path.drawPolygon(horizontal_line);
+  }
+
+  this.map.addChild(path);
+
+  // let path = new PIXI.Graphics();
+  // path.lineStyle(1 / this.view_scale, 0xFFFFFF, 1); //width, color, alpha
+  // for (let i = 0; i <= this.zoo_square_size; i++) {
+  //   let vertical_line = [800 * i, 0, 800 * i, 800 * this.zoo_square_size];
+  //   path.drawPolygon(vertical_line);
+
+  //   let horizontal_line = [0, 800 * i, 800 * this.zoo_square_size, 800 * i];
+  //   path.drawPolygon(horizontal_line);
+  // }
+  // this.map.addChild(path);
+
+
 }
 
 
