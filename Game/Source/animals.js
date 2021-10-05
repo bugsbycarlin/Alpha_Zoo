@@ -209,6 +209,7 @@ animated_animals = {
 
 for (const [name, data] of Object.entries(animals)) {
   if (!("land" in data)) data["land"] = "grass";
+  // if (!("land" in data)) data["land"] = "waterice";
   if (!("decorations" in data)) data["decorations"] = ["grass", "grass", "rock", "grass", "tree", "bush", "rock"];
   if (!("movement" in data)) data["movement"] = "bounce";
   if (!("last_sound" in data)) data["last_sound"] = null;
@@ -370,10 +371,10 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     }
 
     if (animals[animal.type].last_sound == null || self.timeSince(animals[animal.type].last_sound) > animals[animal.type].sound_delay) {
-      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 1000) {
+      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 1200) {
         if (Math.random() > 0.65) {
           self.soundEffect(animals[animal.type].sound);
-          animals[animal.type].sound_delay = 2000 + Math.random() * 10000;
+          animals[animal.type].sound_delay = 3000 + Math.random() * 11000;
           animals[animal.type].last_sound = self.markTime();
         }
       }

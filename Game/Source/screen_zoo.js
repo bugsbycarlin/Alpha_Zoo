@@ -22,19 +22,17 @@ Game.prototype.initializeZoo = function() {
   this.dropshadow_filter.distance = 8;
   this.dropshadow_filter.rotation = 45;
 
+  // this.path_shadow_filter = new PIXI.filters.DropShadowFilter();
+  // this.path_shadow_filter.blur  = 0;
+  // this.path_shadow_filter.alpha = 1;
+  // this.path_shadow_filter.color = 0xb2aca8;
+  // this.path_shadow_filter.distance = 8;
+  // this.path_shadow_filter.rotation = 90;
+
   this.resetZooScreen();
+
+  this.map.scale.set(0.2, 0.2);
 }
-
-// let zoo_size = 40;
-
-// let voronoi_size = 200;
-// let relaxation_number = 10;
-// let ellipse_size = 100;
-// let pen_scale = 30;
-// let ellipse_eccentricity = 1.7;
-// let shrink_factor = 0.7;
-// let shrink_distance = 20;
-// let tree_frequency = 0.35;
 
 let background_color = 0x318115;
 let path_color = 0xf9e6bb;
@@ -55,13 +53,53 @@ let greyscale_pen_shadow_color = 0x5b5b5b;
 
 let poop_color = 0x644b38;
 
-// this should be 6. it looks good at 6.
-// let map_scale = 6;
+let square_width = 900;
+let total_ents = 150;
 
 Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
+  // Make the map
+  this.initializeMap();
+  this.makeMapGroups();
+  this.makeMapPath();
+  this.makeMapPens();
+
+  // Make the title image
+  this.title_image = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo_title.png"));
+  this.title_image.width = this.width;
+  this.title_image.height = this.height;
+  screen.addChild(this.title_image);
+
+  // Make the ui layer
+  this.makeUI();
+
+  // Make the map
+  // this.makeVoronoiDiagram(zoo_size);
+  // this.makeInnerGroups();
+  // this.scaleGroups();
+  // this.deleteOverlaps();
+  // this.smoothCells();
+  // this.smoothCells();
+  this.designatePens();
+
+  this.drawMap();
+
+  this.populateZoo();
+  this.playerAndBoundaries();
+  this.sortLayer(this.map.decoration_layer, this.decorations);
+  this.greyAnimalPens();
+
+  this.start_time = this.markTime();
+
+  this.setMusic("background_music");
+}
+
+
+Game.prototype.initializeMap = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
 
   // The zoo is an NxN grid of square pens. Small is 5, leading to at most 25 pens.
   // Large is 8, leading to at most 64 pens.
@@ -84,39 +122,55 @@ Game.prototype.resetZooScreen = function() {
   this.map.decoration_layer = new PIXI.Container();
   this.map.addChild(this.map.decoration_layer);
 
-  this.title_image = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo_title.png"));
-  this.title_image.width = this.width;
-  this.title_image.height = this.height;
-  screen.addChild(this.title_image);
 
-  // Make the ui layer
-  this.makeUI();
+  // Vertices (crossroads in the path)
+  this.zoo_vertices = {};
+  for (let i = 0; i <= this.zoo_size; i++) {
+    this.zoo_vertices[i] = {};
+    for (let j = 0; j <= this.zoo_size; j++) {
+      this.zoo_vertices[i][j] = {
+        use: false,
+        n_path: false,
+        s_path: false,
+        w_path: false,
+        e_path: false,
+        vertex: [square_width * i, square_width * j],
+        halo: {
+          nw: [square_width * i - 180 - 60 * Math.random(), square_width * j - 180 - 60 * Math.random()],
+          ne: [square_width * i + 180 + 60 * Math.random(), square_width * j - 180 - 60 * Math.random()],
+          sw: [square_width * i - 180 - 60 * Math.random(), square_width * j + 180 + 60 * Math.random()],
+          se: [square_width * i + 180 + 60 * Math.random(), square_width * j + 180 + 60 * Math.random()],
+          n: [square_width * i - 30 + 60 * Math.random(), square_width * j - 180 - 60 * Math.random()],
+          s: [square_width * i - 30 + 60 * Math.random(), square_width * j + 180 + 60 * Math.random()],
+          e: [square_width * i + 180 + 60 * Math.random(), square_width * j - 30 + 60 * Math.random()],
+          w: [square_width * i - 180 - 60 * Math.random(), square_width * j - 30 + 60 * Math.random()],
+        }
+      };
+    }
+  }
 
-  // Make the map
-  this.initializeMap();
-  this.makeMapGroups();
-  this.makeMapPath();
-  this.makeMapPens();
+  // The square faces between vertices.
+  // The (0,0) vertex lies above and to the left of the (0,0) square.
+  // The (1,1) vertex lies below and to the right of the (1,1) square.
+  // Obviously coords are x,y.
+  this.zoo_squares = {};
+  for (let i = 0; i < this.zoo_size; i++) {
+    this.zoo_squares[i] = {};
+    for (let j = 0; j < this.zoo_size; j++) {
+      this.zoo_squares[i][j] = {
+        group: -1,
+        new_group: null,
+        reachable: false,
+        outer: (i == 0 || i == this.zoo_size - 1 || j == 0 || j == this.zoo_size - 1),
+        n_edge: false,
+        s_edge: false,
+        w_edge: false,
+        e_edge: false,
+      };
+    }
+  }
 
-  // Make the map
-  // this.makeVoronoiDiagram(zoo_size);
-  // this.makeInnerGroups();
-  // this.scaleGroups();
-  // this.deleteOverlaps();
-  // this.smoothCells();
-  // this.smoothCells();
-  this.designatePens();
-
-  this.drawMap();
-
-  this.populateZoo();
-  this.playerAndBoundaries();
-  this.sortLayer(this.map.decoration_layer, this.decorations);
-  this.greyAnimalPens();
-
-  this.start_time = this.markTime();
-
-  this.setMusic("background_music");
+  this.zoo_pens = [];
 }
 
 
@@ -205,59 +259,6 @@ Game.prototype.makeUI = function() {
   this.display_ui.addChild(this.display_text);
 
   this.display_ui.visible = false;
-}
-
-
-Game.prototype.initializeMap = function() {
-
-  // Vertices (crossroads in the path)
-  this.zoo_vertices = {};
-  for (let i = 0; i <= this.zoo_size; i++) {
-    this.zoo_vertices[i] = {};
-    for (let j = 0; j <= this.zoo_size; j++) {
-      this.zoo_vertices[i][j] = {
-        use: false,
-        n_path: false,
-        s_path: false,
-        w_path: false,
-        e_path: false,
-        vertex: [1000 * i, 1000 * j],
-        halo: {
-          nw: [1000 * i - 130 - 70 * Math.random(), 1000 * j - 130 - 70 * Math.random()],
-          ne: [1000 * i + 130 + 70 * Math.random(), 1000 * j - 130 - 70 * Math.random()],
-          sw: [1000 * i - 130 - 70 * Math.random(), 1000 * j + 130 + 70 * Math.random()],
-          se: [1000 * i + 130 + 70 * Math.random(), 1000 * j + 130 + 70 * Math.random()],
-          n: [1000 * i - 40 + 80 * Math.random(), 1000 * j - 140 - 70 * Math.random()],
-          s: [1000 * i - 40 + 80 * Math.random(), 1000 * j + 140 + 70 * Math.random()],
-          e: [1000 * i + 140 + 70 * Math.random(), 1000 * j - 40 + 80 * Math.random()],
-          w: [1000 * i - 140 - 70 * Math.random(), 1000 * j - 40 + 80 * Math.random()],
-        }
-      };
-    }
-  }
-
-  // The square faces between vertices.
-  // The (0,0) vertex lies above and to the left of the (0,0) square.
-  // The (1,1) vertex lies below and to the right of the (1,1) square.
-  // Obviously coords are x,y.
-  this.zoo_squares = {};
-  for (let i = 0; i < this.zoo_size; i++) {
-    this.zoo_squares[i] = {};
-    for (let j = 0; j < this.zoo_size; j++) {
-      this.zoo_squares[i][j] = {
-        group: -1,
-        new_group: null,
-        reachable: false,
-        outer: (i == 0 || i == this.zoo_size - 1 || j == 0 || j == this.zoo_size - 1),
-        n_edge: false,
-        s_edge: false,
-        w_edge: false,
-        e_edge: false,
-      };
-    }
-  }
-
-  this.zoo_pens = [];
 }
 
 
@@ -572,74 +573,123 @@ Game.prototype.makeMapPens = function() {
 
         let polygon = [];
 
+        let no_north_neighbor = (j <= 0 || this.zoo_squares[i][j-1].group != this.zoo_squares[i][j].group || !this.zoo_squares[i][j-1].reachable);
+        let no_south_neighbor = (j >= this.zoo_size - 1 || this.zoo_squares[i][j+1].group != this.zoo_squares[i][j].group || !this.zoo_squares[i][j+1].reachable);
+        let no_west_neighbor = (i <= 0 || this.zoo_squares[i-1][j].group != this.zoo_squares[i][j].group || !this.zoo_squares[i-1][j].reachable);
+        let no_east_neighbor = (i >= this.zoo_size - 1 || this.zoo_squares[i+1][j].group != this.zoo_squares[i][j].group || !this.zoo_squares[i+1][j].reachable);
+        if (i == 4 && j == 4) {
+          console.log(no_north_neighbor);
+          console.log(no_south_neighbor);
+          console.log(no_west_neighbor);
+          console.log(no_east_neighbor);
+        }
+
         // northwest corner
         let nw_vertex = this.zoo_vertices[i][j];
         if (nw_vertex.s_path || nw_vertex.n_path || nw_vertex.e_path || nw_vertex.w_path) {
           // pre corner
-          if (nw_vertex.s_path == false) polygon.push(nw_vertex.halo.s);
+          if (nw_vertex.s_path == false) {
+            polygon.push(nw_vertex.halo.s);
+            if (no_north_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
+          }
           
           // corner
           polygon.push(nw_vertex.halo.se);
-          if (nw_vertex.e_path == true && nw_vertex.s_path == true) polygon[polygon.length - 1].push("s");
+          if (no_north_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
           
           // post corner
-          if (nw_vertex.e_path == false) polygon.push(nw_vertex.halo.e);
+          if (nw_vertex.e_path == false) {
+            polygon.push(nw_vertex.halo.e);
+            if (no_north_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
+          }
         } else {
           polygon.push(nw_vertex.vertex);
+          if (no_north_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
         }
+
+        // halfsies for the hybrid lands
+        polygon.push([square_width * i + square_width / 2 - 50 * Math.random(), polygon[polygon.length - 1][1]]);
 
         // northeast corner
         let ne_vertex = this.zoo_vertices[i+1][j];
         if (ne_vertex.s_path || ne_vertex.n_path || ne_vertex.e_path || ne_vertex.w_path) {
           // pre corner
-          if (ne_vertex.w_path == false) polygon.push(ne_vertex.halo.w);
+          if (ne_vertex.w_path == false) {
+            polygon.push(ne_vertex.halo.w);
+            if (no_north_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
+          }
           
           // corner
           polygon.push(ne_vertex.halo.sw)
-          if (ne_vertex.s_path == true && ne_vertex.w_path == true) polygon[polygon.length - 1].push("s");
+          if (no_north_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
 
           // post corner
-          if (ne_vertex.s_path == false) polygon.push(ne_vertex.halo.s);
+          if (ne_vertex.s_path == false) {
+            polygon.push(ne_vertex.halo.s);
+            if (no_north_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
+          }
         } else {
           polygon.push(ne_vertex.vertex);
+          if (no_north_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
         }
 
         // southeast corner
         let se_vertex = this.zoo_vertices[i+1][j+1];
         if (se_vertex.s_path || se_vertex.n_path || se_vertex.e_path || se_vertex.w_path) {
           // pre corner
-          if (se_vertex.n_path == false) polygon.push(se_vertex.halo.n);
+          if (se_vertex.n_path == false) {
+            polygon.push(se_vertex.halo.n);
+            if (no_south_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
+          }
           
           // corner
           polygon.push(se_vertex.halo.nw);
-          if (se_vertex.w_path == true && se_vertex.n_path == true) polygon[polygon.length - 1].push("s");
+          if (no_south_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
           
           // post corner
-          if (se_vertex.w_path == false) polygon.push(se_vertex.halo.w);
+          if (se_vertex.w_path == false) {
+            polygon.push(se_vertex.halo.w);
+            if (no_south_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
+          }
         } else {
           polygon.push(se_vertex.vertex);
+          if (no_south_neighbor && no_east_neighbor) polygon[polygon.length - 1].push("s");
         }
+
+        // halfsies for the hybrid lands
+        polygon.push([square_width * i + square_width / 2 - 50 * Math.random(), polygon[polygon.length - 1][1]]);
         
         // southwest corner
         let sw_vertex = this.zoo_vertices[i][j+1];
         if (sw_vertex.s_path || sw_vertex.n_path || sw_vertex.e_path || sw_vertex.w_path) {
           // pre corner
-          if (sw_vertex.e_path == false) polygon.push(sw_vertex.halo.e);
+          if (sw_vertex.e_path == false) {
+            polygon.push(sw_vertex.halo.e);
+            if (no_south_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
+          }
           
           // corner
           polygon.push(sw_vertex.halo.ne);
-          if (sw_vertex.n_path == true && sw_vertex.e_path == true) polygon[polygon.length - 1].push("s");
+          if (no_south_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
           
           // post corner
-          if (sw_vertex.n_path == false) polygon.push(sw_vertex.halo.n);
+          if (sw_vertex.n_path == false) {
+            polygon.push(sw_vertex.halo.n);
+            if (no_south_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
+          }
         } else {
           polygon.push(sw_vertex.vertex);
+          if (no_south_neighbor && no_west_neighbor) polygon[polygon.length - 1].push("s");
         }
 
-
-        // Push a duplicate of the first point.
-        // polygon.push([polygon[0][0],polygon[0][1]]);
-        
+        let s_count = 0;
+        for (let m = 0; m < polygon.length; m++) {
+          let point = polygon[m];
+          if (polygon[m].length > 2 && polygon[m][2] == "s") {
+            s_count += 1;
+          }
+        }
+        console.log(i +"," + j+": " + s_count);
 
         // Now do smoothing on any corner with an "s" in it.
         let smooth_polygon = [];
@@ -656,23 +706,26 @@ Game.prototype.makeMapPens = function() {
             let end_point = blendPoints([point, post_point], [smoothing_factor, 1 - smoothing_factor]);
 
             smooth_polygon.push(start_point);
-            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.5, 0.25, 0.25]));
+            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.5, 0.3, 0.2]));
             smooth_polygon.push(blendPoints([start_point, point, end_point], [0.333, 0.333, 0.333]));
-            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.25, 0.25, 0.5]));
+            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.2, 0.3, 0.5]));
             smooth_polygon.push(end_point);
 
           } else {
             smooth_polygon.push(point);
           }
         }
+        // Push a duplicate of the first point.
+        smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
+        
 
         this.zoo_pens.push({
           use: false,
           outer: false,
           polygon: smooth_polygon,
           polygon_flat: smooth_polygon.flat(),
-          cx: 1000 * i + 500,
-          cy: 1000 * j + 500,
+          cx: square_width * i + square_width / 2,
+          cy: square_width * j + square_width / 2,
           animal: null,
           land: "grass",
           decorations: ["grass", "tree", "bush", "rock"],
@@ -893,17 +946,17 @@ Game.prototype.playerAndBoundaries = function() {
   this.right_bound = 0;
 
 
-  this.upper_bound = -2000;
-  this.lower_bound = 1000 * (this.zoo_size + 4);
-  this.left_bound = -2000;
-  this.right_bound = 1000 * (this.zoo_size + 4);
+  this.upper_bound = -0.5 * square_width;
+  this.lower_bound = square_width * (this.zoo_size + 0.5);
+  this.left_bound = -0.5 * square_width;
+  this.right_bound = square_width * (this.zoo_size + 0.5);
 
-  min_location = [-1000,-1000];
+  min_location = [-square_width,-square_width];
 
   for (let i = 0; i <= this.zoo_size; i++) {
     for (let j = 0; j <= this.zoo_size; j++) {
-      if (this.zoo_vertices[i][j].n_path == true && 1000 * j + 500 > min_location[1]) {
-        min_location = [1000 * i, 1000 * j];
+      if (this.zoo_vertices[i][j].n_path == true && square_width * j + square_width / 2 > min_location[1]) {
+        min_location = [square_width * i, square_width * j];
       }
     }
   }
@@ -911,6 +964,8 @@ Game.prototype.playerAndBoundaries = function() {
   this.player = this.makeCharacter();
   this.player.position.set(min_location[0], min_location[1]);
   this.decorations.push(this.player);
+
+  this.updateEnts();
 
   // center_most_lower = -1;
   // center_x = 9000000;
@@ -949,6 +1004,25 @@ Game.prototype.playerAndBoundaries = function() {
 }
 
 
+Game.prototype.updateEnts = function() {
+  for (let k = 0; k < total_ents; k++) {
+    this.ents[k].visible = false;
+  }
+  ent_count = 0;
+  for (let e = 0; e < this.ent_positions.length; e++) {
+    let pos = this.ent_positions[e];
+
+    if(Math.abs(this.player.x - pos[0]) < 800 && Math.abs(this.player.y - pos[1]) < 700) {
+      if (ent_count < total_ents) {
+        this.ents[ent_count].visible = true;
+        this.ents[ent_count].position.set(pos[0], pos[1]);
+        ent_count += 1;
+      }
+    }
+  }
+}
+
+
 Game.prototype.designatePens = function() {
   this.number_of_pens = 0;
   // for (let i = 0; i < voronoi_size; i++) {
@@ -981,11 +1055,11 @@ Game.prototype.debugDrawMapGroups = function() {
       let cell = new PIXI.Graphics();
       cell.beginFill(color);
       let polygon = [
-        1000 * i, 1000 * j,
-        1000 * i, 1000 * (j+1),
-        1000 * (i+1), 1000 * (j+1),
-        1000 * (i+1), 1000 * j,
-        1000 * i, 1000 * j,
+        square_width * i, square_width * j,
+        square_width * i, square_width * (j+1),
+        square_width * (i+1), square_width * (j+1),
+        square_width * (i+1), square_width * j,
+        square_width * i, square_width * j,
       ]
       cell.drawPolygon(polygon);
       cell.endFill();
@@ -1004,10 +1078,10 @@ Game.prototype.drawMap = function() {
 
   // Map background
   let background = new PIXI.Sprite(PIXI.Texture.from("Art/zoo_gradient.png"));
-  background.width = 1000 * (this.zoo_size + 4);
-  background.height = 1000 * (this.zoo_size + 4);
+  background.width = square_width * (this.zoo_size + 4);
+  background.height = square_width * (this.zoo_size + 4);
   background.anchor.set(0, 0);
-  background.position.set(-2000, -2000);
+  background.position.set(-2 * square_width, -2 * square_width);
   this.map.background_layer.addChild(background);
 
 
@@ -1158,18 +1232,24 @@ Game.prototype.drawMapPath = function() {
       let cell = this.zoo_squares[i][j];
       if (cell.e_edge == true) {
         // draw the eastern edge section
-        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_v1.png"));
+        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_vertical_v4.png"));
         section.anchor.set(0.5, 0.5);
-        section.position.set(1000 * i + 1000, 1000 * j + 500);
-        section.angle = 90;
+        section.position.set(square_width * i + square_width, square_width * j + square_width / 2);
+        // section.angle = 90;
         this.map.background_layer.addChild(section);
       }
 
       if (cell.s_edge == true) {
         // draw the southern edge section
-        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_v1.png"));
+        // let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_horizontal_v3.png"));
+        // shadow.anchor.set(0.5, 0.5);
+        // shadow.position.set(square_width * i + square_width / 2, square_width * j + square_width);
+        // shadow.angle = 0;
+        // this.map.background_layer.addChild(shadow);
+
+        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_horizontal_v4.png"));
         section.anchor.set(0.5, 0.5);
-        section.position.set(1000 * i + 500, 1000 * j + 1000);
+        section.position.set(square_width * i + square_width / 2, square_width * j + square_width);
         section.angle = 0;
         this.map.background_layer.addChild(section);
       }
@@ -1183,67 +1263,67 @@ Game.prototype.drawMapPath = function() {
 
       let intersection = null;
       if (vertex.s_path && vertex.e_path && vertex.n_path && vertex.w_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_cross_v1.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_cross_v4.png"));
       }
       else if (vertex.s_path && vertex.e_path && !vertex.n_path && !vertex.w_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_south_to_east_v3.png"));
       }
       else if (vertex.s_path && vertex.w_path && !vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
-        intersection.scale.set(-1,1);
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_south_to_west_v3.png"));
+        // intersection.scale.set(-1,1);
       }
       else if (!vertex.s_path && !vertex.e_path && vertex.n_path && vertex.w_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
-        intersection.angle = 180;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_north_to_west_v3.png"));
+        // intersection.angle = 180;
       }
       else if (!vertex.s_path && !vertex.w_path && vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_v1.png"));
-        intersection.scale.set(-1,1);
-        intersection.angle = 180;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_north_to_east_v3.png"));
+        // intersection.scale.set(-1,1);
+        // intersection.angle = 180;
       }
       else if (vertex.s_path && vertex.w_path && !vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_flat_t_v1.png"));
-        intersection.angle = 0;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_flat_t_down_v4.png"));
+        // intersection.angle = 0;
       }
       else if (!vertex.s_path && vertex.w_path && vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_flat_t_v1.png"));
-        intersection.angle = 180;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_flat_t_up_v4.png"));
+        // intersection.angle = 180;
       }
       else if (vertex.s_path && !vertex.w_path && vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_t_v1.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_east_v3.png"));
         intersection.angle = 0;
       }
       else if (vertex.s_path && vertex.w_path && vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_t_v1.png"));
-        intersection.angle = 180;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_west_v3.png"));
+        // intersection.angle = 180;
       }
       else if (!vertex.s_path && vertex.w_path && !vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_span_v1.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_span_horizontal_v4.png"));
       }
       else if (vertex.s_path && !vertex.w_path && vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_span_v1.png"));
-        intersection.angle = 90;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_span_vertical_v4.png"));
+        // intersection.angle = 90;
       }
       else if (!vertex.s_path && !vertex.w_path && !vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
-        intersection.angle = 180;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_west_v4.png"));
+        // intersection.angle = 180;
       }
       else if (!vertex.s_path && vertex.w_path && !vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
-        intersection.angle = 0;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_east_v4.png"));
+        // intersection.angle = 0;
       }
       else if (!vertex.s_path && !vertex.w_path && vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
-        intersection.angle = 90;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_south_v4.png"));
+        // intersection.angle = 90;
       }
       else if (vertex.s_path && !vertex.w_path && !vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_v1.png"));
-        intersection.angle = 270;
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_terminus_north_v4.png"));
+        // intersection.angle = 270;
       }
 
       if (intersection) {
         intersection.anchor.set(0.5, 0.5);
-        intersection.position.set(1000 * i, 1000 * j);
+        intersection.position.set(square_width * i, square_width * j);
         this.map.background_layer.addChild(intersection);
       }
 
@@ -1280,8 +1360,8 @@ Game.prototype.populateZoo = function() {
         if (this.zoo_pens[i].animal != null) {
           this.zoo_pens[i].animal_objects = [];
           let animal_name = this.zoo_pens[i].animal;
-          let num_animals_here = Math.ceil(2 * Math.random());
-          if (animal_name == "OTTER") num_animals_here = 2;
+          let num_animals_here = Math.ceil(3 * Math.random());
+          if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
           for (let n = 0; n < num_animals_here; n++) {
             let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
             animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
@@ -1297,24 +1377,105 @@ Game.prototype.populateZoo = function() {
           
         }
 
-      }
-    // } else if (this.voronoi_metadata[i].use == false && this.voronoi_metadata[i].group == 5001) {
-    //   // Add lots of trees just outside the perimeter
-    //   for (let t = 0; t < 12; t++) {
-    //     if (Math.random() > 0.4) {
-    //       let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-    //       let x = this.voronoi_metadata[i].cx - 300 + 600 * Math.random();
-    //       let y = this.voronoi_metadata[i].cy - 300 + 600 * Math.random();
-    //       if (this.testMove(x, y, false, "blah") == true) {
-    //         decoration.position.set(x, y);
-    //         decoration.scale.set(1.2, 1.2);
-    //         decoration.anchor.set(0.5,0.9);
-    //         this.decorations.push(decoration);
-    //       }
-    //     }
-    //   }
-    // }
+      }    
   }
+
+  // Add lots of trees just outside the perimeter.
+  // But not a thousand trees.
+  // Just a hundred trees. They move around with the player.
+  // HA HA HA HA HA HA HA HA HA HA HA.
+  this.ent_positions = [];
+  for (let i = -1; i <= this.zoo_size; i++) {
+    for (let j = -1; j <= this.zoo_size; j++) {
+      if (i == -1 || j == -1 || i == this.zoo_size || j == this.zoo_size
+        || (i >= 0 && j >= 0 && i < this.zoo_size && j < this.zoo_size && this.zoo_squares[i][j].reachable == false)) {
+        for (let t = 0; t < 70; t++) {
+          if (Math.random() > 0.4) {
+            let x = square_width * i + square_width * Math.random();
+            let y = square_width * j + square_width * Math.random();
+            this.ent_positions.push([x,y]);
+          }
+        }
+      }
+    }
+  }
+  
+  this.ents = [];
+  for (let k = 0; k < total_ents; k++) {
+    let ent = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+    ent.position.set(0, 0);
+    ent.scale.set(1.2, 1.2);
+    ent.anchor.set(0.5, 0.9);
+    ent.visible = false;
+    this.ents.push(ent);
+    this.decorations.push(ent);
+  }
+
+
+  // Add a few trees around the edges of the pens
+  let inner_trees = 0;
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge) {
+        for (let t = 0; t < 4; t++) {
+          if (Math.random() > 0.4) {
+            let x = square_width * i + 120 + 20 * Math.random();
+            let y = square_width * j + 200 + (square_width - 400) * Math.random();
+            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+            tree.position.set(x, y);
+            tree.scale.set(1.2, 1.2);
+            tree.anchor.set(0.5, 0.9);
+            this.decorations.push(tree);
+            inner_trees += 1;
+          }
+        }
+      }
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].e_edge) {
+        for (let t = 0; t < 4; t++) {
+          if (Math.random() > 0.4) {
+            let x = square_width * i + square_width - 120 - 20 * Math.random();
+            let y = square_width * j + 200 + (square_width - 400) * Math.random();
+            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+            tree.position.set(x, y);
+            tree.scale.set(1.2, 1.2);
+            tree.anchor.set(0.5, 0.9);
+            this.decorations.push(tree);
+            inner_trees += 1;
+          }
+        }
+      }
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].n_edge) {
+        for (let t = 0; t < 3; t++) {
+          if (Math.random() > 0.3) {
+            let x = square_width * i + 200 + (square_width - 400) * Math.random();
+            let y = square_width * j + 120 + 20 * Math.random();
+            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+            tree.position.set(x, y);
+            tree.scale.set(1.2, 1.2);
+            tree.anchor.set(0.5, 0.9);
+            this.decorations.push(tree);
+            inner_trees += 1;
+          }
+        }
+      }
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].n_edge) {
+        for (let t = 0; t < 3; t++) {
+          if (Math.random() > 0.3) {
+            let x = square_width * i + 200 + (square_width - 400) * Math.random();
+            let y = square_width * j + square_width - 120 - 20 * Math.random();
+            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+            tree.position.set(x, y);
+            tree.scale.set(1.2, 1.2);
+            tree.anchor.set(0.5, 0.9);
+            this.decorations.push(tree);
+            inner_trees += 1;
+          }
+        }
+      }
+    }
+  }
+  console.log(inner_trees);
+
 
   // Add zoo sign
   // for (let i = 0; i < voronoi_size; i++) {
@@ -1963,6 +2124,8 @@ Game.prototype.updatePlayer = function() {
 
     player.move();
 
+    this.updateEnts();
+
     if (player.direction != null) {
       this.checkPenProximity(player.x, player.y, player.direction);
     }
@@ -2112,7 +2275,6 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  // this.map.scale.set(0.1, 0.1);
   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y); 
   // if(false) {
   //   if (this.timeSince(this.start_time) < 2000) {
