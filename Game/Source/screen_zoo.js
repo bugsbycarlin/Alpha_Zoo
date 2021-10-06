@@ -31,7 +31,7 @@ Game.prototype.initializeZoo = function() {
 
   this.resetZooScreen();
 
-  this.map.scale.set(0.2, 0.2);
+  this.map.scale.set(1,1);
 }
 
 let background_color = 0x318115;
@@ -104,7 +104,7 @@ Game.prototype.initializeMap = function() {
   // The zoo is an NxN grid of square pens. Small is 5, leading to at most 25 pens.
   // Large is 8, leading to at most 64 pens.
   // Note some squares may be snipped, meaning less pens.
-  this.zoo_size = 8;
+  this.zoo_size = 6;
 
   this.map = new PIXI.Container();
   this.map.position.set(640,480)
@@ -1266,18 +1266,18 @@ Game.prototype.drawMapPath = function() {
         intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_cross_v4.png"));
       }
       else if (vertex.s_path && vertex.e_path && !vertex.n_path && !vertex.w_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_south_to_east_v3.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_south_to_east_v4.png"));
       }
       else if (vertex.s_path && vertex.w_path && !vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_south_to_west_v3.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_south_to_west_v4.png"));
         // intersection.scale.set(-1,1);
       }
       else if (!vertex.s_path && !vertex.e_path && vertex.n_path && vertex.w_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_north_to_west_v3.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_north_to_west_v4.png"));
         // intersection.angle = 180;
       }
       else if (!vertex.s_path && !vertex.w_path && vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_north_to_east_v3.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_arc_north_to_east_v4.png"));
         // intersection.scale.set(-1,1);
         // intersection.angle = 180;
       }
@@ -1290,11 +1290,11 @@ Game.prototype.drawMapPath = function() {
         // intersection.angle = 180;
       }
       else if (vertex.s_path && !vertex.w_path && vertex.n_path && vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_east_v3.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_east_v4.png"));
         intersection.angle = 0;
       }
       else if (vertex.s_path && vertex.w_path && vertex.n_path && !vertex.e_path) {
-        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_west_v3.png"));
+        intersection = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_curve_west_v4.png"));
         // intersection.angle = 180;
       }
       else if (!vertex.s_path && vertex.w_path && !vertex.n_path && vertex.e_path) {
@@ -2275,7 +2275,13 @@ Game.prototype.updateZoo = function(diff) {
 
   this.updatePlayer();
 
-  this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y); 
+  this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+  // if (this.timeSince(this.start_time) < 5000) {
+  //     let scale = Math.max(0.1, (this.timeSince(this.start_time) / 5000));
+  //     this.map.scale.set(scale, scale);
+  //   } else {
+  //     this.map.scale.set(1, 1);  
+  //   }
   // if(false) {
   //   if (this.timeSince(this.start_time) < 2000) {
   //     this.map.position.set(640 - this.player.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y);
