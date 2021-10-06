@@ -75,6 +75,11 @@ animals = {
     mouth: [292, 328],
     butt: [204, 348],
   },
+  "WOLF": {
+    mouth: [297, 320],
+    butt: [200, 351],
+    land: "forest",
+  },
   "CAT": {
     mouth: [292, 321],
     butt: [204, 342],
@@ -87,11 +92,13 @@ animals = {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
+    land: "forest",
   },
   "BLACK_BEAR": {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
+    land: "forest",
   },
   "POLAR_BEAR": {
     land: "waterice",
@@ -99,6 +106,12 @@ animals = {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
+  },
+  "PENGUIN": {
+    land: "waterice",
+    decorations: ["rock", "rock"],
+    mouth: [258, 341],
+    butt: [257, 392],
   },
   "SEAL": {
     land: "waterice",
@@ -161,6 +174,7 @@ animals = {
   "DEER": {
     mouth: [317, 327],
     butt: [192, 332],
+    land: "forest",
   },
   "GAZELLE": {
     mouth: [317, 327],
@@ -170,10 +184,12 @@ animals = {
     sound: "deer",
     mouth: [314, 324],
     butt: [174, 333],
+    land: "forest",
   },
   "MOOSE": {
     mouth: [325, 332],
     butt: [158, 312],
+    land: "forest",
   },
   "RED_PANDA": {
     mouth: [272, 333],
@@ -182,13 +198,66 @@ animals = {
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
+console.log(Object.keys(animals));
+
+section_savannah = [
+  "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE"
+]
+
+section_cats = [
+  "LION", "TIGER", "CHEETAH", "LYNX", "PANTHER", 
+]
+
+section_primates = [
+  "GORILLA", "BABOON",
+]
+
+
+section_north_and_water = [
+  "POLAR_BEAR", "SEAL", "BLACK_BEAR", "BROWN_BEAR", "MOOSE", "ELK", "DEER", "YAK", "OTTER", "WOLF", "FOX", "PENGUIN",
+] // 11
+
+section_starter_and_farm = [
+  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE"
+]
+
+section_china = [
+  "PANDA_BEAR", "RED_PANDA", 
+]
+
+section_birds_reptiles_rodents = [
+  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", 
+]
+
+
+// Current sections
+section = [];
+section[0] = section_savannah.concat(section_cats, section_primates);
+section[1] = section_north_and_water.concat(section_china);
+section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
+
+
+
+
+//
+// Diet is a complicated thing to portray.
+// While broadly all animals can be sorted into the Carnivore, Herbivore and Omnivore buckets,
+// in reality there are some edge cases, as well as some strong tendencies that create tension
+// between what's technically correct and what looks realistic. I'm choosing to err on the side
+// of realism for now. So, for instance, while the Polar Bear is technically an omnivore,
+// in practice it eats a mostly meat diet, and I'm putting it in Carnivore for now.
+//
+
+// TO DO: fish eaters, bamboo eaters. maybe even custom eats section.
 
 omnivores = [
-  "BROWN_BEAR", "BLACK_BEAR", "POLAR_BEAR", "FOX", "TURTLE",
+  "BROWN_BEAR", "BLACK_BEAR", "FOX", "TURTLE",
   "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
 ]
 carnivores = [
-  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE", "PANTHER", "CAT", "SEAL", "OWL",
+  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE",
+  "PANTHER", "CAT", "SEAL", "OWL", "LYNX", "POLAR_BEAR",
+  "WOLF", "PENGUIN"
 ]
 bamboovores = [
   "PANDA_BEAR"
@@ -198,6 +267,8 @@ animated_animals = {
   "PARROT":0,
   "OWL":0,
 }
+
+
 
 
 //
@@ -313,7 +384,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           // take a bite!
           animal.eating_time = self.markTime();
           self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
-          console.log(food.currentFrame);
           if (food.currentFrame < 2) {
             food.gotoAndStop(food.currentFrame + 1);
           } else if (food.currentFrame == 2) {
@@ -557,14 +627,12 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   }
 
   animal.maybeChangeDirection = function() {
-    console.log("Maybe changing direction");
     let dice = Math.random();
     if ((animal.eating_target == null && dice < 0.5)
       || (animal.eating_target != null && dice < 0.25)) {
       animal.land_angle = (Math.random() * 360) * Math.PI / 180;
     } else if (animal.eating_target != null && dice >= 0.25 && dice < 0.75) {
       animal.land_angle = Math.atan2(animal.eating_target.position.y - animal.y, animal.eating_target.position.x - animal.x);
-      console.log("Seeking the food");
     }
   }
 
