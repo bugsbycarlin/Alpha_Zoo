@@ -643,7 +643,7 @@ Game.prototype.designatePens = function() {
     for (let j = 0; j < this.zoo_size; j++) {
       let x = square_width * (i + 0.5);
       let y = square_width * (j + 0.5);
-      let relative_angle = (Math.atan2(y - center_y, x - center_x) * 180 / Math.PI - section_dividing_angle + 360) % 360;
+      let relative_angle = (Math.atan2(y - center_y, x - center_x) * 180 / Math.PI - section_dividing_angle + 720) % 360;
 
       if (relative_angle >= 0 && relative_angle < 120) {
         this.zoo_squares[i][j].section = section[0]
@@ -995,6 +995,8 @@ Game.prototype.populateZoo = function() {
           let num_animals_here = Math.ceil(3 * Math.random());
           if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
           if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
+          if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
+          if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
           for (let n = 0; n < num_animals_here; n++) {
             let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
             animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());

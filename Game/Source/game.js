@@ -193,17 +193,19 @@ class Game {
     if (screen_name == "zoo") {
       console.log("here");
       this.initializeZoo();
-    } else if (screen_name == "alt_gen") {
-      this.initializeAltGen();
     }
+    // } else if (screen_name == "alt_gen") {
+    //   this.initializeAltGen();
+    // }
   }
 
   update(diff) {
     if (this.current_screen == "zoo") {
       this.updateZoo(diff);
-    } else if (this.current_screen == "alt_gen") {
-      this.updateAltGen(diff);
-    }
+    } 
+    // else if (this.current_screen == "alt_gen") {
+    //   this.updateAltGen(diff);
+    // }
   }
 
 

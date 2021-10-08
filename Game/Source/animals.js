@@ -32,6 +32,10 @@ animals = {
     mouth: [284, 307],
     butt: [191, 345],
   },
+  "CHIMPANZEE": {
+    mouth: [256, 322],
+    butt: [253, 391],
+  },
   "BABOON": {
     land: "sand",
     mouth: [288, 328],
@@ -195,13 +199,28 @@ animals = {
     mouth: [272, 333],
     butt: [222, 396],
   },
+  "KANGAROO": {
+    mouth: [273, 295],
+    butt: [217, 395],
+  },
+  "MEERKAT": {
+    mouth: [266, 330],
+    butt: [240, 398],
+    land: "sand",
+  },
+  "RACCOON": {
+    mouth: [305, 354],
+    butt: [195, 362],
+    land: "forest",
+    sound: "capybara",
+  },
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
 console.log(Object.keys(animals));
 
 section_savannah = [
-  "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE"
+  "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE", "MEERKAT",
 ]
 
 section_cats = [
@@ -209,20 +228,20 @@ section_cats = [
 ]
 
 section_primates = [
-  "GORILLA", "BABOON",
+  "GORILLA", "BABOON", "CHIMPANZEE",
 ]
 
-
 section_north_and_water = [
-  "POLAR_BEAR", "SEAL", "BLACK_BEAR", "BROWN_BEAR", "MOOSE", "ELK", "DEER", "YAK", "OTTER", "WOLF", "FOX", "PENGUIN",
-] // 11
+  "POLAR_BEAR", "SEAL", "BLACK_BEAR", "BROWN_BEAR", "MOOSE", "ELK", "DEER",
+  "YAK", "OTTER", "WOLF", "FOX", "PENGUIN", "RACCOON",
+]
 
 section_starter_and_farm = [
   "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE"
 ]
 
-section_china = [
-  "PANDA_BEAR", "RED_PANDA", 
+section_east_asia_australia = [
+  "PANDA_BEAR", "RED_PANDA", "KANGAROO",
 ]
 
 section_birds_reptiles_rodents = [
@@ -233,7 +252,7 @@ section_birds_reptiles_rodents = [
 // Current sections
 section = [];
 section[0] = section_savannah.concat(section_cats, section_primates);
-section[1] = section_north_and_water.concat(section_china);
+section[1] = section_north_and_water.concat(section_east_asia_australia);
 section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 
 
@@ -253,6 +272,7 @@ section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 omnivores = [
   "BROWN_BEAR", "BLACK_BEAR", "FOX", "TURTLE",
   "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
+  "CHIMPANZEE", "MEERKAT", "RACCOON",
 ]
 carnivores = [
   "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE",
@@ -482,6 +502,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
         if (animal.sprite.y >= 0) {
           animal.vy = -3.6;
+          if (animal.type == "KANGAROO") animal.vy = -5;
           animal.sprite.y = 0;
 
           if(Math.random() < 0.05) {
