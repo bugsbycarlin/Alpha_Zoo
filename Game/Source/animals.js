@@ -214,6 +214,11 @@ animals = {
     land: "forest",
     sound: "capybara",
   },
+  "CAMEL": {
+    mouth: [343, 291],
+    butt: [183, 363],
+    land: "sand",
+  },
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
@@ -221,6 +226,10 @@ console.log(Object.keys(animals));
 
 section_savannah = [
   "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE", "MEERKAT",
+]
+
+section_desert_special = [
+  "CAMEL"
 ]
 
 section_cats = [
@@ -240,7 +249,7 @@ section_starter_and_farm = [
   "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE"
 ]
 
-section_east_asia_australia = [
+section_east_asia = [
   "PANDA_BEAR", "RED_PANDA", "KANGAROO",
 ]
 
@@ -251,8 +260,8 @@ section_birds_reptiles_rodents = [
 
 // Current sections
 section = [];
-section[0] = section_savannah.concat(section_cats, section_primates);
-section[1] = section_north_and_water.concat(section_east_asia_australia);
+section[0] = section_savannah.concat(section_cats, section_primates, section_desert_special);
+section[1] = section_north_and_water.concat(section_east_asia);
 section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 
 
