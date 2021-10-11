@@ -76,17 +76,9 @@ Game.prototype.resetZooScreen = function() {
   // Make the ui layer
   this.makeUI();
 
-  // Make the map
-  // this.makeVoronoiDiagram(zoo_size);
-  // this.makeInnerGroups();
-  // this.scaleGroups();
-  // this.deleteOverlaps();
-  // this.smoothCells();
-  // this.smoothCells();
+  // Populate the map with things
   this.designatePens();
-
   this.drawMap();
-
   this.populateZoo();
   this.playerAndBoundaries();
   this.sortLayer(this.map.decoration_layer, this.decorations);
@@ -402,11 +394,45 @@ Game.prototype.makeMapPath = function() {
 }
 
 
+Game.prototype.isFerrisTile = function(i,j) {
+  if (this.special_ferris_tile == null) return false;
+
+  if (i == this.special_ferris_tile[0] && j == this.special_ferris_tile[1]) return true;
+
+  // if ((i - 1) == this.special_ferris_tile[0] && j == this.special_ferris_tile[1]) return true;
+
+  return false;
+}
+
+
 Game.prototype.makeMapPens = function() {
+
+  // first, choose a special ferris wheel tile pair. hold these out from this process.
+  this.special_ferris_tile = null;
+  if (this.zoo_size >= 6) {
+    let potential_ferris_tiles = [];
+    for (let i = 1; i < this.zoo_size - 2; i++) {
+      for (let j = 2; j < this.zoo_size - 2; j++) {
+        if (this.zoo_squares[i][j].reachable) {
+          console.log(i + "," + j);
+          console.log(this.zoo_squares[i][j].e_edge);
+          if (this.zoo_squares[i][j].e_edge == false && this.zoo_squares[i+1][j].w_edge == false) { // both should always be true or false anyway
+            potential_ferris_tiles.push([i,j]);
+          }
+        }
+      }
+    }
+
+    if (potential_ferris_tiles.length > 0) {
+      shuffleArray(potential_ferris_tiles);
+      this.special_ferris_tile = potential_ferris_tiles[0];
+    }
+  }
+
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
 
-      if (this.zoo_squares[i][j].reachable) {
+      if (this.zoo_squares[i][j].reachable && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
 
         let polygon = [];
 
@@ -557,8 +583,36 @@ Game.prototype.makeMapPens = function() {
           cx: square_width * i + square_width / 2,
           cy: square_width * j + square_width / 2,
           animal: null,
+          special: null,
           land: "grass",
           decorations: ["grass", "tree", "bush", "rock"],
+          decoration_objects: [],
+          land_object: null,
+          animal_objects: null,
+          state: "ungrey",
+          location: this.zoo_squares[i][j],
+        });
+      } else if (this.zoo_squares[i][j].reachable && this.isFerrisTile(i,j)) {
+        let polygon = [];
+        polygon.push(this.zoo_vertices[i][j].halo.se);
+        polygon.push(this.zoo_vertices[i+1][j].halo.s);
+        polygon.push(this.zoo_vertices[i+2][j].halo.sw);
+        polygon.push(this.zoo_vertices[i+2][j+1].halo.nw);
+        polygon.push(this.zoo_vertices[i+1][j+1].halo.n);
+        polygon.push(this.zoo_vertices[i][j+1].halo.ne);
+        polygon.push(this.zoo_vertices[i][j].halo.se);
+
+        this.zoo_pens.push({
+          use: false,
+          outer: false,
+          polygon: polygon,
+          polygon_flat: polygon.flat(),
+          cx: square_width * (i + 1),
+          cy: square_width * j + square_width / 2,
+          animal: null,
+          special: "ferris",
+          land: "grass",
+          decorations: [],
           decoration_objects: [],
           land_object: null,
           animal_objects: null,
@@ -662,13 +716,17 @@ Game.prototype.designatePens = function() {
   }
   
   for (let i = 0; i < this.zoo_pens.length; i++) {
-    let s = this.zoo_pens[i].location.section;
+    if (this.zoo_pens[i].special == null) {
+      let s = this.zoo_pens[i].location.section;
 
-    if (s != null && s.length > 0) {
-      new_animal = s.pop();
-      this.zoo_pens[i].animal = new_animal;
-      this.zoo_pens[i].land = animals[new_animal].land;
-      this.zoo_pens[i].decorations = animals[new_animal].decorations;
+      if (s != null && s.length > 0) {
+        new_animal = s.pop();
+        this.zoo_pens[i].animal = new_animal;
+        this.zoo_pens[i].land = animals[new_animal].land;
+        this.zoo_pens[i].decorations = animals[new_animal].decorations;
+      }
+    } else if (this.zoo_pens[i].special == "ferris") {
+      // do the ferris wheel thing!
     }
   }
 }
@@ -1010,6 +1068,12 @@ Game.prototype.populateZoo = function() {
           
           // if (animal_name != "LION") animal_name = "RHINO";
           
+        }
+
+        if (this.zoo_pens[i].special == "ferris") {
+          this.ferris_wheel = this.makeFerrisWheel(this.zoo_pens[i]);
+          this.ferris_wheel.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy + 180);
+          this.decorations.push(this.ferris_wheel);
         }
 
       }    
@@ -1964,7 +2028,11 @@ Game.prototype.updateZoo = function(diff) {
   }
 
   
-  
+  if (this.player.y < this.ferris_wheel.y) {
+    this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y) / 1000, 0.1);
+  } else {
+    this.ferris_wheel.alpha = 1;
+  }
 
   for (let i = 0; i < this.animals.length; i++) {
     if (this.animals[i].pen.state == "ungrey") {
