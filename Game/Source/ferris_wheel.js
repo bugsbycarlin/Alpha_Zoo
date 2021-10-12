@@ -183,6 +183,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
   
   fw.update = function(fractional) {
     if (fw.moving) {
+      fw.last_angle = fw.wheel_angle;
       fw.wheel_angle += fw.angular_velocity * fractional;
       fw.angular_velocity += fw.angular_acceleration * fractional;
       if (fw.angular_velocity > fw.max_angular_velocity) fw.angular_velocity = fw.max_angular_velocity;
@@ -221,9 +222,31 @@ Game.prototype.makeFerrisWheel = function(pen) {
 
       // fw.sky.x = fw.player.position.x;
 
-      if ((fw.wheel_angle % 360 < 90 || fw.wheel_angle > 300) && self.timeSince(fw.clunk_time) > 1000) {
+      if ((fw.wheel_angle % 360 < 90 || fw.wheel_angle % 360 > 300) && self.timeSince(fw.clunk_time) > 1000) {
         self.soundEffect("clunk");
         fw.clunk_time = self.markTime();
+      }
+
+       if (fw.last_angle % 360 < 100 && fw.wheel_angle % 360 >= 100) {
+        self.music.old_volume = self.music.volume;
+        new TWEEN.Tween(self.music)
+          .to({volume: 0.6 * self.music.old_volume})
+          .duration(4000)
+          .start()
+      }
+
+      if (fw.last_angle % 360 < 120 && fw.wheel_angle % 360 >= 120) {
+        console.log("here");
+        self.soundEffect("breeze");
+      }
+
+      if (fw.last_angle % 360 < 240 && fw.wheel_angle % 360 >= 240) {
+        // self.soundEffect("breeze");
+        // self.music.volume = self.music.old_volume;
+        new TWEEN.Tween(self.music)
+          .to({volume: self.music.old_volume})
+          .duration(4000)
+          .start()
       }
     
     }

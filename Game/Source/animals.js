@@ -219,6 +219,15 @@ animals = {
     butt: [183, 363],
     land: "sand",
   },
+  "GOAT": {
+    mouth: [314, 329],
+    butt: [187, 331],
+    land: "sand",
+  },
+  "RABBIT": {
+    mouth: [248, 343],
+    butt: [249, 406],
+  },
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
@@ -246,7 +255,7 @@ section_north_and_water = [
 ]
 
 section_starter_and_farm = [
-  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE"
+  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE", "GOAT", "RABBIT",
 ]
 
 section_east_asia = [

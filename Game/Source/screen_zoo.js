@@ -1078,6 +1078,7 @@ Game.prototype.populateZoo = function() {
         if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
         if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
         if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
+        if (animal_name == "RABBIT") num_animals_here = 1 + Math.ceil(3 * Math.random());
         for (let n = 0; n < num_animals_here; n++) {
           let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
           animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
@@ -1910,7 +1911,9 @@ Game.prototype.shakeDamage = function() {
       item.position.set(item.permanent_x - 3 + Math.random() * 6, item.permanent_y - 3 + Math.random() * 6)
       if (this.timeSince(item.shake) >= 150) {
         item.shake = null;
-        item.position.set(item.permanent_x, item.permanent_y)
+        item.position.set(item.permanent_x, item.permanent_y);
+        item.permanent_x = null;
+        item.permanent_y = null;
       }
     }
   }
