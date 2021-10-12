@@ -61,6 +61,8 @@ Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
+  this.zoo_mode = "active"; // active, ferris_wheel
+
   // Make the map
   this.initializeMap();
   this.makeMapGroups();
@@ -82,7 +84,7 @@ Game.prototype.resetZooScreen = function() {
   this.populateZoo();
   this.playerAndBoundaries();
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  this.greyAnimalPens();
+  this.greyAllActivePens();
 
   this.start_time = this.markTime();
 
@@ -114,7 +116,6 @@ Game.prototype.initializeMap = function() {
 
   this.map.decoration_layer = new PIXI.Container();
   this.map.addChild(this.map.decoration_layer);
-
 
   // Vertices (crossroads in the path)
   this.zoo_vertices = {};
@@ -222,11 +223,11 @@ Game.prototype.makeUI = function() {
   this.display_food_typing_text.position.set(130, 855);
   this.display_ui.addChild(this.display_food_typing_text);
 
-  this.display_food_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
-  this.display_food_glyph.anchor.set(0.5,0.75);
-  this.display_food_glyph.position.set(70, 905);
-  this.display_food_glyph.scale.set(0.75, 0.75)
-  this.display_ui.addChild(this.display_food_glyph);
+  this.display_poop_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
+  this.display_poop_glyph.anchor.set(0.5,0.75);
+  this.display_poop_glyph.position.set(70, 905);
+  this.display_poop_glyph.scale.set(0.75, 0.75)
+  this.display_ui.addChild(this.display_poop_glyph);
 
   this.display_poop_grey_text = new PIXI.Text("POOP", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
   this.display_poop_grey_text.anchor.set(0,1);
@@ -238,6 +239,26 @@ Game.prototype.makeUI = function() {
   this.display_poop_typing_text.anchor.set(0,1);
   this.display_poop_typing_text.position.set(130, 945);
   this.display_ui.addChild(this.display_poop_typing_text);
+
+  this.display_ride_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/cart_icon.png"));
+  this.display_ride_glyph.anchor.set(0.5,0.75);
+  this.display_ride_glyph.position.set(70, 910);
+  this.display_ride_glyph.scale.set(0.75, 0.75);
+  this.display_ui.addChild(this.display_ride_glyph);
+  this.display_ride_glyph.visible = false;
+
+  this.display_ride_grey_text = new PIXI.Text("RIDE", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+  this.display_ride_grey_text.anchor.set(0,1);
+  this.display_ride_grey_text.position.set(130, 945);
+  this.display_ui.addChild(this.display_ride_grey_text);
+  this.display_ride_grey_text.visible = false;
+
+  this.display_ride_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.display_ride_typing_text.tint = 0x000000;
+  this.display_ride_typing_text.anchor.set(0,1);
+  this.display_ride_typing_text.position.set(130, 945);
+  this.display_ui.addChild(this.display_ride_typing_text);
+  this.display_ride_typing_text.visible = false;
 
   this.display_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
   this.display_backing.anchor.set(0, 1);
@@ -588,6 +609,7 @@ Game.prototype.makeMapPens = function() {
           decorations: ["grass", "tree", "bush", "rock"],
           decoration_objects: [],
           land_object: null,
+          special_object: null,
           animal_objects: null,
           state: "ungrey",
           location: this.zoo_squares[i][j],
@@ -610,9 +632,9 @@ Game.prototype.makeMapPens = function() {
           cx: square_width * (i + 1),
           cy: square_width * j + square_width / 2,
           animal: null,
-          special: "ferris",
+          special: "FERRIS_WHEEL",
           land: "grass",
-          decorations: [],
+          decorations: null,
           decoration_objects: [],
           land_object: null,
           animal_objects: null,
@@ -725,7 +747,7 @@ Game.prototype.designatePens = function() {
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;
       }
-    } else if (this.zoo_pens[i].special == "ferris") {
+    } else if (this.zoo_pens[i].special == "FERRIS_WHEEL") {
       // do the ferris wheel thing!
     }
   }
@@ -1045,38 +1067,35 @@ Game.prototype.populateZoo = function() {
             this.zoo_pens[i].decoration_objects.push(decoration);
           }
         }
+      }
 
-        if (this.zoo_pens[i].animal != null) {
-          this.animals_available += 1;
-          this.zoo_pens[i].animal_objects = [];
-          let animal_name = this.zoo_pens[i].animal;
-          let num_animals_here = Math.ceil(3 * Math.random());
-          if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
-          if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
-          if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
-          if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
-          for (let n = 0; n < num_animals_here; n++) {
-            let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
-            animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
-            // animal.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
-            this.decorations.push(animal);
-            this.zoo_pens[i].animal_objects.push(animal);
-            this.animals.push(animal);
-            this.shakers.push(animal);
-            this.shakers.push(this.zoo_pens[i].land_object);
-          }
-          
-          // if (animal_name != "LION") animal_name = "RHINO";
-          
+      if (this.zoo_pens[i].animal != null) {
+        this.animals_available += 1;
+        this.zoo_pens[i].animal_objects = [];
+        let animal_name = this.zoo_pens[i].animal;
+        let num_animals_here = Math.ceil(3 * Math.random());
+        if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
+        if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
+        if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
+        if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
+        for (let n = 0; n < num_animals_here; n++) {
+          let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
+          animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
+          // animal.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
+          this.decorations.push(animal);
+          this.zoo_pens[i].animal_objects.push(animal);
+          this.animals.push(animal);
+          this.shakers.push(animal);
+          this.shakers.push(this.zoo_pens[i].land_object);
         }
+      }
 
-        if (this.zoo_pens[i].special == "ferris") {
-          this.ferris_wheel = this.makeFerrisWheel(this.zoo_pens[i]);
-          this.ferris_wheel.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy + 180);
-          this.decorations.push(this.ferris_wheel);
-        }
-
-      }    
+      if (this.zoo_pens[i].special == "FERRIS_WHEEL") {
+        this.ferris_wheel = this.makeFerrisWheel(this.zoo_pens[i]);
+        this.ferris_wheel.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy + 180);
+        this.decorations.push(this.ferris_wheel);
+        this.zoo_pens[i].special_object = this.ferris_wheel;
+      }  
   }
 
   // Add lots of trees just outside the perimeter.
@@ -1217,25 +1236,27 @@ Game.prototype.handleKeyDown = function(ev) {
   //   this.player.position.set(this.entrance.cx, this.entrance.cy);
   // }
 
-  if (this.typing_allowed && this.typing_ui.visible) {
-    for (i in lower_array) {
-      if (key === lower_array[i] || key === letter_array[i]) {
-        this.addType(letter_array[i]);
+  if (this.zoo_mode == "active") {
+    if (this.typing_allowed && this.typing_ui.visible) {
+      for (i in lower_array) {
+        if (key === lower_array[i] || key === letter_array[i]) {
+          this.addType(letter_array[i]);
+        }
       }
-    }
 
-    if (key === "Backspace" || key === "Delete") {
-      this.deleteType();
-    }
-  } else if (this.display_typing_allowed && this.display_ui.visible) {
-    for (i in lower_array) {
-      if (key === lower_array[i] || key === letter_array[i]) {
-        this.addDisplayType(letter_array[i]);
+      if (key === "Backspace" || key === "Delete") {
+        this.deleteType();
       }
-    }
+    } else if (this.display_typing_allowed && this.display_ui.visible) {
+      for (i in lower_array) {
+        if (key === lower_array[i] || key === letter_array[i]) {
+          this.addDisplayType(letter_array[i]);
+        }
+      }
 
-    if (key === "Backspace" || key === "Delete") {
-      this.deleteDisplayType();
+      if (key === "Backspace" || key === "Delete") {
+        this.deleteDisplayType();
+      }
     }
   }
 }
@@ -1245,31 +1266,33 @@ Game.prototype.addType = function(letter) {
   var self = this;
   var screen = this.screens["typing"];
 
-  if (this.typing_text.text.length < this.animal_to_type.length) {
-    if (this.animal_to_type[this.typing_text.text.length] == "_") {
+  if (this.typing_text.text.length < this.thing_to_type.length) {
+    if (this.thing_to_type[this.typing_text.text.length] == "_") {
       this.typing_text.text += " ";
     }
     this.typing_text.text += letter;
   }
 
-  if (this.typing_text.text == this.animal_to_type.replace("_", " ")) {
+  if (this.typing_text.text == this.thing_to_type.replace("_", " ")) {
     this.soundEffect("success");
     flicker(this.typing_text, 300, 0x000000, 0xFFFFFF);
     this.typing_allowed = false;
 
-    let animal_to_type = this.animal_to_type;
-    let animal_pen_to_fix = this.animal_pen_to_fix;
+    let thing_to_type = this.thing_to_type;
+    let pen_to_fix = this.pen_to_fix;
 
     delay(function() {
-      self.ungrey(animal_pen_to_fix);
+      self.ungrey(pen_to_fix);
       self.soundEffect("build");
-      self.animals_obtained += 1;
-      self.updateAnimalCount();
-      animal_pen_to_fix.land_object.shake = self.markTime();
+      if (pen_to_fix.animal_objects != null) {
+        self.animals_obtained += 1;
+        self.updateAnimalCount();
+      }
+      pen_to_fix.land_object.shake = self.markTime();
 
-      for (let i = 0; i < self.animal_pen_to_fix.polygon.length; i++) {
-        let x = animal_pen_to_fix.polygon[i][0];
-        let y = animal_pen_to_fix.polygon[i][1];
+      for (let i = 0; i < self.pen_to_fix.polygon.length; i++) {
+        let x = pen_to_fix.polygon[i][0];
+        let y = pen_to_fix.polygon[i][1];
         self.makeSmoke(self.map.build_effect_layer, x, y, 1.8, 1.8);
       }
 
@@ -1281,7 +1304,7 @@ Game.prototype.addType = function(letter) {
 
 
     delay(function() {
-      self.changeDisplayText(animal_to_type, animal_pen_to_fix);
+      self.changeDisplayText(thing_to_type, pen_to_fix);
       self.hideTypingText();
     }, 300);
   }
@@ -1315,103 +1338,182 @@ Game.prototype.deleteType = function() {
 
 Game.prototype.addDisplayType = function(letter) {
   var self = this;
-  var screen = this.screens["typing"];
+  var screen = this.screens["zoo"];
 
-  if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length == 0) {
-    if (letter === "P") {
-      this.display_poop_typing_text.text += letter;
-    } else {
-      this.display_food_typing_text.text += letter;
+  console.log(this.thing_to_display);
+  if (this.thing_to_display == "FERRIS_WHEEL") {
+    if (this.display_ride_typing_text.text.length < 4) {
+      this.display_ride_typing_text.text += letter;
     }
-  } else if (this.display_poop_typing_text.text.length == 0 && this.display_food_typing_text.text.length < 4) {
-    this.display_food_typing_text.text += letter;
-  } else if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length < 4) {
-    this.display_poop_typing_text.text += letter;
-  }
 
-  if (this.display_food_typing_text.text == "FEED" || this.display_poop_typing_text.text == "POOP") {
-    this.soundEffect("success");
-  
-    this.display_typing_allowed = false;
+    if (this.display_ride_typing_text.text == "RIDE") {
+      this.soundEffect("success");
+    
+      this.display_typing_allowed = false;
 
-    delay(function() {
-      self.display_food_typing_text.text = "";
-      self.display_poop_typing_text.text = "";
-      self.display_typing_allowed = true;
-    }, 300);
-  }
+      flicker(this.display_ride_typing_text, 300, 0x000000, 0xFFFFFF);
 
-  if (this.display_food_typing_text.text == "FEED") {
-    flicker(this.display_food_typing_text, 300, 0x000000, 0xFFFFFF);
-
-    let food_types = ["greens"]
-    if (carnivores.includes(this.animal_to_display)) {
-      food_types = ["steak"];
-    } else if (omnivores.includes(this.animal_to_display)) {
-      food_types = ["greens", "steak", "fruit"];
-    }
-    let food_type = pick(food_types);
-
-    let sheet = PIXI.Loader.shared.resources["Art/Food/" + food_type + ".json"].spritesheet
-    let food = new PIXI.AnimatedSprite(sheet.animations[food_type]);
-    food.scale.set(0.75, 0.75);
-    food.type = food_type;
-    food.start_x = this.player.x;
-    food.start_y = this.player.y + 1;
-    food.end_x = this.animal_pen_to_display.cx - 32 + 64 * Math.random();
-    food.end_y = this.animal_pen_to_display.cy - 32 + 64 * Math.random();
-    food.anchor.set(0.5,0.75)
-    food.position.set(food.start_x, food.start_y);
-    food.interpolation = 0;
-    food.state = "flying";
-    food.parent = this.map.decoration_layer;
-    food.animal_target = this.animal_to_display;
-    // this.map.decoration_layer.addChild(food);
-    this.decorations.push(food);
-    this.foods.push(food);
-    console.log(food);
-  } else if (this.display_poop_typing_text.text == "POOP") {
-    flicker(this.display_poop_typing_text, 300, 0x000000, 0xFFFFFF);
-
-    console.log(this.animal_pen_to_display)
-    let current_animal = pick(this.animal_pen_to_display.animal_objects);
-    self.soundEffect("poop_" + Math.ceil(Math.random() * 3));
-    for(let i = 0; i <= 600; i+= 300) {
       delay(function() {
-        let b = current_animal.global_butt_coords();
-      
-        let poop_shard = new PIXI.Graphics();
-        poop_shard.beginFill(poop_color);
-        poop_shard.drawPolygon([
-          -4, -6,
-          2 + 4 * Math.random(), -4 - 4 * Math.random(),
-          6 + 5 * Math.random(), 4 + 4 * Math.random(),
-          -6 - 5 * Math.random(), 4 + 4 * Math.random(),
-          -4, -6,
-        ]);
-        poop_shard.position.set(b[0], b[1]);
-        poop_shard.endFill();
-        // let poop_shard = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
-        // poop_shard.anchor.set(0.5, 0.5);
-        // poop_shard.position.set(x, y);
-        poop_shard.vx = -1 - 1.5 * Math.random();
-        if (current_animal.direction < 0) poop_shard.vx *= -1;
-        poop_shard.vy = 0;
-        poop_shard.gravity = 1;
-        poop_shard.floor = b[1] + 50;
-        poop_shard.parent = self.map.decoration_layer;
-        self.map.decoration_layer.addChild(poop_shard);
-        self.decorations.push(poop_shard);
+        self.display_ride_typing_text.text = "";
+        self.display_typing_allowed = true;
+      }, 300);
 
-        console.log(poop_shard);
-        self.drops.push(poop_shard);
+      this.zoo_mode = "pre_ferris_wheel";
+      // this.fadeScreens("zoo", "zoo", true);
 
+      delay(function() {
+        self.hideDisplayText();
+        self.fadeToBlack(1000);
+      }, 300);
+
+      delay(function() {
+        self.player.old_position = [self.player.position.x, self.player.position.y];
+
+        self.zoo_mode = "ferris_wheel";
+
+        new_decorations = [];
+        for (let i = 0; i < self.decorations.length; i++) {
+          if (self.decorations[i].type != "character") {
+            new_decorations.push(self.decorations[i]);
+          } else {
+          }
+        }
+        self.decorations = new_decorations;
+        self.sortLayer(self.map.decoration_layer, self.decorations);
+
+        self.ferris_wheel.addPlayer(self.player);
+      }, 1400)
+
+      delay(function() {
+        self.fadeFromBlack(1000);
+      }, 1800);
+
+      delay(function() {
+        self.ferris_wheel.startMoving();
+      }, 2800);
+
+      delay(function() {
+        self.ferris_wheel.stopMoving();
+      }, 62800)
+
+      delay(function() {
+        self.fadeToBlack(1000);
+      }, 63100)
+
+      delay(function() {
+        self.ferris_wheel.reset();
+      }, 64200)
+
+      delay(function() {
+        self.decorations.push(self.player);
+        self.sortLayer(self.map.decoration_layer, self.decorations);
+
+        self.fadeFromBlack(1000);
+
+        self.zoo_mode = "active";
+      }, 64600)
+
+
+    }
+  } else {
+
+    // standard animal actions
+    if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length == 0) {
+      if (letter === "P") {
+        this.display_poop_typing_text.text += letter;
+      } else {
+        this.display_food_typing_text.text += letter;
+      }
+    } else if (this.display_poop_typing_text.text.length == 0 && this.display_food_typing_text.text.length < 4) {
+      this.display_food_typing_text.text += letter;
+    } else if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length < 4) {
+      this.display_poop_typing_text.text += letter;
+    }
+
+    if (this.display_food_typing_text.text == "FEED" || this.display_poop_typing_text.text == "POOP") {
+      this.soundEffect("success");
+    
+      this.display_typing_allowed = false;
+
+      delay(function() {
+        self.display_food_typing_text.text = "";
+        self.display_poop_typing_text.text = "";
+        self.display_typing_allowed = true;
+      }, 300);
+    }
+
+    if (this.display_food_typing_text.text == "FEED") {
+      flicker(this.display_food_typing_text, 300, 0x000000, 0xFFFFFF);
+
+      let food_types = ["greens"]
+      if (carnivores.includes(this.thing_to_display)) {
+        food_types = ["steak"];
+      } else if (omnivores.includes(this.thing_to_display)) {
+        food_types = ["greens", "steak", "fruit"];
+      }
+      let food_type = pick(food_types);
+
+      let sheet = PIXI.Loader.shared.resources["Art/Food/" + food_type + ".json"].spritesheet
+      let food = new PIXI.AnimatedSprite(sheet.animations[food_type]);
+      food.scale.set(0.75, 0.75);
+      food.type = food_type;
+      food.start_x = this.player.x;
+      food.start_y = this.player.y + 1;
+      food.end_x = this.pen_to_display.cx - 32 + 64 * Math.random();
+      food.end_y = this.pen_to_display.cy - 32 + 64 * Math.random();
+      food.anchor.set(0.5,0.75)
+      food.position.set(food.start_x, food.start_y);
+      food.interpolation = 0;
+      food.state = "flying";
+      food.parent = this.map.decoration_layer;
+      food.animal_target = this.thing_to_display;
+      // this.map.decoration_layer.addChild(food);
+      this.decorations.push(food);
+      this.foods.push(food);
+      console.log(food);
+    } else if (this.display_poop_typing_text.text == "POOP") {
+      flicker(this.display_poop_typing_text, 300, 0x000000, 0xFFFFFF);
+
+      console.log(this.pen_to_display)
+      let current_animal = pick(this.pen_to_display.animal_objects);
+      self.soundEffect("poop_" + Math.ceil(Math.random() * 3));
+      for(let i = 0; i <= 600; i+= 300) {
         delay(function() {
-          poop_shard.parent.removeChild(poop_shard);
-          poop_shard.status = "dead";
-        }, 2000 + Math.random() * 2000);
+          let b = current_animal.global_butt_coords();
+        
+          let poop_shard = new PIXI.Graphics();
+          poop_shard.beginFill(poop_color);
+          poop_shard.drawPolygon([
+            -4, -6,
+            2 + 4 * Math.random(), -4 - 4 * Math.random(),
+            6 + 5 * Math.random(), 4 + 4 * Math.random(),
+            -6 - 5 * Math.random(), 4 + 4 * Math.random(),
+            -4, -6,
+          ]);
+          poop_shard.position.set(b[0], b[1]);
+          poop_shard.endFill();
+          // let poop_shard = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
+          // poop_shard.anchor.set(0.5, 0.5);
+          // poop_shard.position.set(x, y);
+          poop_shard.vx = -1 - 1.5 * Math.random();
+          if (current_animal.direction < 0) poop_shard.vx *= -1;
+          poop_shard.vy = 0;
+          poop_shard.gravity = 1;
+          poop_shard.floor = b[1] + 50;
+          poop_shard.parent = self.map.decoration_layer;
+          self.map.decoration_layer.addChild(poop_shard);
+          self.decorations.push(poop_shard);
 
-      }, i);
+          console.log(poop_shard);
+          self.drops.push(poop_shard);
+
+          delay(function() {
+            poop_shard.parent.removeChild(poop_shard);
+            poop_shard.status = "dead";
+          }, 2000 + Math.random() * 2000);
+
+        }, i);
+      }
     }
   }
 }
@@ -1447,6 +1549,19 @@ Game.prototype.deleteDisplayType = function() {
 
     this.display_poop_typing_text.text = this.display_poop_typing_text.text.slice(0,-1);
     this.soundEffect("swipe");
+  } else if (this.display_ride_typing_text.text.length > 0) {
+    let l = this.display_ride_typing_text.text.slice(-1,this.display_ride_typing_text.text.length);
+    let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 80, fill: 0x000000, letterSpacing: 3, align: "left"});
+    t.anchor.set(0,1);
+    t.position.set(130 + 28 * (this.display_ride_typing_text.text.length - 1), 945);
+    t.vx = -20 + 40 * Math.random();
+    t.vy = -5 + -20 * Math.random();
+    t.floor = 1200;
+    screen.addChild(t);
+    this.freefalling.push(t);
+
+    this.display_ride_typing_text.text = this.display_ride_typing_text.text.slice(0,-1);
+    this.soundEffect("swipe");
   }
 }
 
@@ -1455,8 +1570,8 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.animal_to_type = new_word;
-  this.animal_pen_to_fix = found_pen;
+  this.thing_to_type = new_word;
+  this.pen_to_fix = found_pen;
   
   if (this.typing_backing != null) {
     this.typing_ui.removeChild(this.typing_backing);
@@ -1468,16 +1583,20 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
     this.typing_picture.destroy();
   }
 
+  console.log(this.thing_to_type);
+
   let measure = new PIXI.TextMetrics.measureText(new_word, this.typing_text.style);
   // sign_backing.width = measure.width + 6;
   // sign_backing.height = measure.height + 6;
 
-  if (!(this.animal_to_type in animated_animals)) {
-    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.animal_to_type.toLowerCase() + ".png"));
+  if (this.thing_to_type == "FERRIS_WHEEL") {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/icon.png"));
+  } else if (!(this.thing_to_type in animated_animals)) {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.thing_to_type.toLowerCase() + ".png"));
   } else {
-    console.log(this.animal_to_type);
-    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + this.animal_to_type.toLowerCase() + ".json"].spritesheet;
-    this.typing_picture = new PIXI.AnimatedSprite(sheet.animations[this.animal_to_type.toLowerCase()]);
+    console.log(this.thing_to_type);
+    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + this.thing_to_type.toLowerCase() + ".json"].spritesheet;
+    this.typing_picture = new PIXI.AnimatedSprite(sheet.animations[this.thing_to_type.toLowerCase()]);
   }
   
   this.typing_picture.anchor.set(0.5, 0.77);
@@ -1525,13 +1644,15 @@ Game.prototype.changeDisplayText = function(new_word, found_pen) {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.animal_to_display = new_word;
-  this.animal_pen_to_display = found_pen;
+  this.thing_to_display = new_word;
+  this.pen_to_display = found_pen;
 
   this.display_food_typing_text.text = "";
+  this.display_poop_typing_text.text = "";
+  this.display_ride_typing_text.text = "";
 
   // if (Math.random() > 0.65) {
-  //   this.soundEffect(this.animal_to_display.toLowerCase());
+  //   this.soundEffect(this.thing_to_display.toLowerCase());
   // }
 
   let measure = new PIXI.TextMetrics.measureText(new_word, this.display_text.style);
@@ -1539,6 +1660,37 @@ Game.prototype.changeDisplayText = function(new_word, found_pen) {
   this.display_backing.position.set(1280 - (measure.width + 50), 960 - 30)
 
   this.display_text.text = new_word.replace("_", " ");
+
+  if (new_word == "FERRIS_WHEEL") {
+    this.display_food_glyph.visible = false;
+    this.display_food_grey_text.visible = false;
+    this.display_food_typing_text.visible = false;
+    this.display_poop_glyph.visible = false;
+    this.display_poop_grey_text.visible = false;
+    this.display_poop_typing_text.visible = false;
+
+    this.display_ride_glyph.visible = true;
+    this.display_ride_grey_text.visible = true;
+    this.display_ride_typing_text.visible = true;
+
+    this.display_action_backing.anchor.set(0, 1);
+    this.display_action_backing.scale.set(0.5, 0.5);
+
+  } else {
+    this.display_food_glyph.visible = true;
+    this.display_food_grey_text.visible = true;
+    this.display_food_typing_text.visible = true;
+    this.display_poop_glyph.visible = true;
+    this.display_poop_grey_text.visible = true;
+    this.display_poop_typing_text.visible = true;
+
+    this.display_ride_glyph.visible = false;
+    this.display_ride_grey_text.visible = false;
+    this.display_ride_typing_text.visible = false;
+
+    this.display_action_backing.anchor.set(0, 1);
+    this.display_action_backing.scale.set(0.5, 1);
+  }
 
   if (!this.display_ui.visible) {
     this.display_ui.visible = true;
@@ -1563,8 +1715,8 @@ Game.prototype.hideTypingText = function() {
   var screen = this.screens["zoo"];
 
   this.typing_allowed = false;
-  this.animal_pen_to_fix = null;
-  this.animal_to_type = "";
+  this.pen_to_fix = null;
+  this.thing_to_type = "";
   new TWEEN.Tween(this.typing_ui)
     .to({y: -300})
     .duration(250)
@@ -1580,9 +1732,9 @@ Game.prototype.hideDisplayText = function() {
   var screen = this.screens["zoo"];
 
   this.display_typing_allowed = false;
-  this.animal_pen_to_display = null;
+  this.pen_to_display = null;
 
-  this.animal_to_display = "";
+  this.thing_to_display = "";
   new TWEEN.Tween(this.display_ui)
     .to({y: 300})
     .duration(250)
@@ -1600,13 +1752,20 @@ Game.prototype.grey = function(pen) {
       pen.animal_objects[j].alpha = 0.4;
       if (j > 0) pen.animal_objects[j].visible = false;
     }
+  }
+  for (let j = 0; j < pen.decoration_objects.length; j++) {
+    pen.decoration_objects[j].visible = false;
+  }
+  if (pen.special_object != null) {
+    for (let j = 0; j < pen.special_object.all_objects.length; j++) {
+      pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].grey_color;
+    }
+  }
+  if (pen.land_object != null) {
     for (let j = 0; j < pen.land_object.children.length; j++) {
       let land = pen.land_object.children[j];
       land.tint = land.grey_color;
     }
-  }
-  for (let j = 0; j < pen.decoration_objects.length; j++) {
-    pen.decoration_objects[j].visible = false;
   }
 }
 
@@ -1621,13 +1780,20 @@ Game.prototype.ungrey = function(pen) {
       pen.animal_objects[j].alpha  = 1;
       pen.animal_objects[j].visible = true;
     }
+  }
+  for (let j = 0; j < pen.decoration_objects.length; j++) {
+    pen.decoration_objects[j].visible = true;
+  }
+  if (pen.special_object != null) {
+    for (let j = 0; j < pen.special_object.all_objects.length; j++) {
+      pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].true_color;
+    }
+  }
+  if (pen.land_object != null) {
     for (let j = 0; j < pen.land_object.children.length; j++) {
       let land = pen.land_object.children[j];
       land.tint = land.true_color;
     }
-  }
-  for (let j = 0; j < pen.decoration_objects.length; j++) {
-    pen.decoration_objects[j].visible = true;
   }
 }
 
@@ -1650,7 +1816,7 @@ Game.prototype.ungreyAll = function() {
 }
 
 
-Game.prototype.greyAnimalPens = function() {
+Game.prototype.greyAllActivePens = function() {
   // for (let i = 0; i < voronoi_size; i++) {
   //   if(this.voronoi_metadata[i].use == true 
   //     && this.voronoi_metadata[i].group != 5000
@@ -1659,7 +1825,7 @@ Game.prototype.greyAnimalPens = function() {
   //   }
   // }
   for (let i = 0; i < this.zoo_pens.length; i++) {
-    if (this.zoo_pens[i].animal != null) {
+    if (this.zoo_pens[i].animal != null || this.zoo_pens[i].special != null) {
       this.grey(this.zoo_pens[i]);
     }
   }
@@ -1948,7 +2114,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
     //   if (this.voronoi_metadata[i].use == true
     //     && this.voronoi_metadata[i].group != null
     for (let i = 0; i < this.zoo_pens.length; i++) {
-      if (this.zoo_pens[i].animal_objects != null) {
+      if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
         if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
           found_pen = this.zoo_pens[i];
 
@@ -1968,7 +2134,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       //   if (this.voronoi_metadata[i].use == true
       //     && this.voronoi_metadata[i].group != null
       for (let i = 0; i < this.zoo_pens.length; i++) {
-        if (this.zoo_pens[i].animal_objects != null) {
+        if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
           if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
             found_pen = this.zoo_pens[i];
             break;
@@ -1979,17 +2145,33 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
   }
 
   if (found_pen != null) {
-    if (found_pen.animal != this.animal_to_type && found_pen.state == "grey") {
-      // console.log("typing");
-      this.changeTypingText(found_pen.animal, found_pen);
-      if (this.display_ui.visible == true) {
-        this.hideDisplayText();
+    if (found_pen.animal_objects != null) {
+      if (found_pen.animal != this.thing_to_type && found_pen.state == "grey") {
+        // console.log("typing");
+        this.changeTypingText(found_pen.animal, found_pen);
+        if (this.display_ui.visible == true) {
+          this.hideDisplayText();
+        }
+      } else if (found_pen.animal != this.thing_to_display && found_pen.state == "ungrey") {
+        // console.log("display");
+        this.changeDisplayText(found_pen.animal, found_pen);
+        if (this.typing_ui.visible == true) {
+          this.hideTypingText();
+        }
       }
-    } else if (found_pen.animal != this.animal_to_display && found_pen.state == "ungrey") {
-      // console.log("display");
-      this.changeDisplayText(found_pen.animal, found_pen);
-      if (this.typing_ui.visible == true) {
-        this.hideTypingText();
+    } else if (found_pen.special_object != null) {
+      if (found_pen.special != this.thing_to_type && found_pen.state == "grey") {
+        // console.log("typing");
+        this.changeTypingText(found_pen.special, found_pen);
+        if (this.display_ui.visible == true) {
+          this.hideDisplayText();
+        }
+      } else if (found_pen.special != this.thing_to_display && found_pen.state == "ungrey") {
+        // console.log("display");
+        this.changeDisplayText(found_pen.special, found_pen);
+        if (this.typing_ui.visible == true) {
+          this.hideTypingText();
+        }
       }
     }
   }
@@ -2005,33 +2187,52 @@ Game.prototype.updateZoo = function(diff) {
   var self = this;
   var screen = this.screens["zoo"];
 
+  let fractional = diff / (1000/30.0);
+
   if(this.player == null) return;
 
-  this.updatePlayer();
+  if (this.zoo_mode == "active") this.updatePlayer();
 
-  
+  if (this.zoo_mode == "ferris_wheel") this.ferris_wheel.update(fractional);
+
   // if (this.timeSince(this.start_time) < 5000) {
   //     let scale = Math.max(0.1, (this.timeSince(this.start_time) / 5000));
   //     this.map.scale.set(scale, scale);
   //   } else {
   //     this.map.scale.set(1, 1);  
   //   }
-  if(true) {
+  // if(true) {
+  //   if (this.timeSince(this.start_time) < 2000) {
+  //     this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
+  //   } else {
+  //     this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+  //   }
+  // } else {
+  //   this.map.scale.set(0.2, 0.2);
+  //   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+  // }
+
+  if (this.zoo_mode == "active") {
     if (this.timeSince(this.start_time) < 2000) {
       this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
     } else {
       this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
     }
-  } else {
-    this.map.scale.set(0.2, 0.2);
+  } else if (this.zoo_mode == "pre_ferris_wheel") {
     this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+  } else if (this.zoo_mode == "ferris_wheel") {
+    let x = this.ferris_wheel.x + this.player.x;
+    let y = this.ferris_wheel.y + this.player.y;
+    this.map.position.set(640 - x * this.map.scale.x, 580 - y * this.map.scale.y);
   }
 
   
-  if (this.player.y < this.ferris_wheel.y) {
-    this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y) / 1000, 0.1);
-  } else {
-    this.ferris_wheel.alpha = 1;
+  if (this.ferris_wheel != null) {
+    if (this.mode == "active" && this.player.y + 150 < this.ferris_wheel.y) {
+      this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y - 150) / 800, 0.0);
+    } else {
+      this.ferris_wheel.alpha = 1;
+    }
   }
 
   for (let i = 0; i < this.animals.length; i++) {
@@ -2041,8 +2242,6 @@ Game.prototype.updateZoo = function(diff) {
   }
 
   this.sortLayer(this.map.decoration_layer, this.decorations);
-
-  let fractional = diff / (1000/30.0);
 
   this.shakeDamage();
   this.freeeeeFreeeeeFalling(fractional);

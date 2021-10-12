@@ -58,73 +58,73 @@ Game.prototype.makeRocketTile = function(parent, letter, word_length, letter_num
 }
 
 
-Game.prototype.makeFire = function(parent, x, y, xScale, yScale) {
-  var sheet = PIXI.Loader.shared.resources["Art/fire.json"].spritesheet;
-  let fire_sprite = new PIXI.AnimatedSprite(sheet.animations["fire"]);
-  fire_sprite.anchor.set(0.5,0.5);
-  fire_sprite.scaleMode = PIXI.SCALE_MODES.NEAREST;
-  fire_sprite.position.set(x, y);
-  parent.addChild(fire_sprite);
-  fire_sprite.animationSpeed = 0.35; 
-  fire_sprite.scale.set(xScale, yScale);
-  fire_sprite.play();
-  return fire_sprite;
-}
+// Game.prototype.makeFire = function(parent, x, y, xScale, yScale) {
+//   var sheet = PIXI.Loader.shared.resources["Art/fire.json"].spritesheet;
+//   let fire_sprite = new PIXI.AnimatedSprite(sheet.animations["fire"]);
+//   fire_sprite.anchor.set(0.5,0.5);
+//   fire_sprite.scaleMode = PIXI.SCALE_MODES.NEAREST;
+//   fire_sprite.position.set(x, y);
+//   parent.addChild(fire_sprite);
+//   fire_sprite.animationSpeed = 0.35; 
+//   fire_sprite.scale.set(xScale, yScale);
+//   fire_sprite.play();
+//   return fire_sprite;
+// }
 
 
-Game.prototype.makeParachute = function(parent, x, y, xScale, yScale) {
-  let parachute_sprite = new PIXI.Sprite(PIXI.Texture.from("Art/parachute.png"));
-  parachute_sprite.anchor.set(0.5, 0.5);
-  parachute_sprite.scale.set(xScale, yScale);
-  parachute_sprite.position.set(x, y);
-  parent.addChild(parachute_sprite);
-  return parachute_sprite;
-}
+// Game.prototype.makeParachute = function(parent, x, y, xScale, yScale) {
+//   let parachute_sprite = new PIXI.Sprite(PIXI.Texture.from("Art/parachute.png"));
+//   parachute_sprite.anchor.set(0.5, 0.5);
+//   parachute_sprite.scale.set(xScale, yScale);
+//   parachute_sprite.position.set(x, y);
+//   parent.addChild(parachute_sprite);
+//   return parachute_sprite;
+// }
 
 
-Game.prototype.makeBomb = function(parent, x, y, xScale, yScale) {
-  let bomb_sprite = new PIXI.Sprite(PIXI.Texture.from("Art/bomb.png"));
-  bomb_sprite.anchor.set(0.5, 0.5);
-  bomb_sprite.scale.set(xScale, yScale);
-  bomb_sprite.position.set(x, y);
-  bomb_sprite.angle = 10;
-  parent.addChild(bomb_sprite);
-  return bomb_sprite;
-}
+// Game.prototype.makeBomb = function(parent, x, y, xScale, yScale) {
+//   let bomb_sprite = new PIXI.Sprite(PIXI.Texture.from("Art/bomb.png"));
+//   bomb_sprite.anchor.set(0.5, 0.5);
+//   bomb_sprite.scale.set(xScale, yScale);
+//   bomb_sprite.position.set(x, y);
+//   bomb_sprite.angle = 10;
+//   parent.addChild(bomb_sprite);
+//   return bomb_sprite;
+// }
 
 
-Game.prototype.makeExplosion = function(parent, x, y, xScale, yScale, action) {
-  let sheet = PIXI.Loader.shared.resources["Art/explosion.json"].spritesheet;
-  let explosion_sprite = new PIXI.AnimatedSprite(sheet.animations["explosion"]);
-  explosion_sprite.anchor.set(0.5,0.5);
-  explosion_sprite.position.set(x, y);
-  parent.addChild(explosion_sprite);
-  explosion_sprite.animationSpeed = 0.5; 
-  explosion_sprite.scale.set(xScale, yScale);
-  explosion_sprite.loop = false;
-  explosion_sprite.play();
-  explosion_sprite.onComplete = function() {
-    action();
-  }
-  return explosion_sprite;
-}
+// Game.prototype.makeExplosion = function(parent, x, y, xScale, yScale, action) {
+//   let sheet = PIXI.Loader.shared.resources["Art/explosion.json"].spritesheet;
+//   let explosion_sprite = new PIXI.AnimatedSprite(sheet.animations["explosion"]);
+//   explosion_sprite.anchor.set(0.5,0.5);
+//   explosion_sprite.position.set(x, y);
+//   parent.addChild(explosion_sprite);
+//   explosion_sprite.animationSpeed = 0.5; 
+//   explosion_sprite.scale.set(xScale, yScale);
+//   explosion_sprite.loop = false;
+//   explosion_sprite.play();
+//   explosion_sprite.onComplete = function() {
+//     action();
+//   }
+//   return explosion_sprite;
+// }
 
 
-Game.prototype.makeElectric = function(parent, x, y, xScale, yScale) {
-  let sheet = PIXI.Loader.shared.resources["Art/electric.json"].spritesheet;
-  let electric_sprite = new PIXI.AnimatedSprite(sheet.animations["electric"]);
-  electric_sprite.anchor.set(0.5,0.5);
-  electric_sprite.position.set(x, y);
-  electric_sprite.angle = Math.random() * 360;
-  parent.addChild(electric_sprite);
-  electric_sprite.animationSpeed = 0.4; 
-  electric_sprite.scale.set(xScale, yScale);
-  electric_sprite.play();
-  electric_sprite.onLoop = function() {
-    this.angle = Math.random() * 360;
-  }
-  return electric_sprite;
-}
+// Game.prototype.makeElectric = function(parent, x, y, xScale, yScale) {
+//   let sheet = PIXI.Loader.shared.resources["Art/electric.json"].spritesheet;
+//   let electric_sprite = new PIXI.AnimatedSprite(sheet.animations["electric"]);
+//   electric_sprite.anchor.set(0.5,0.5);
+//   electric_sprite.position.set(x, y);
+//   electric_sprite.angle = Math.random() * 360;
+//   parent.addChild(electric_sprite);
+//   electric_sprite.animationSpeed = 0.4; 
+//   electric_sprite.scale.set(xScale, yScale);
+//   electric_sprite.play();
+//   electric_sprite.onLoop = function() {
+//     this.angle = Math.random() * 360;
+//   }
+//   return electric_sprite;
+// }
 
 
 Game.prototype.makeSmoke = function(parent, x, y, xScale, yScale) {
@@ -452,6 +452,29 @@ Game.prototype.switchScreens = function(old_screen, new_screen) {
     .easing(TWEEN.Easing.Cubic.InOut)
     .start();
   this.current_screen = new_screen;
+}
+
+
+Game.prototype.fadeToBlack = function(time_to_fade) {
+  pixi.stage.addChild(this.black);
+  this.black.alpha = 0.01;
+  var tween = new TWEEN.Tween(this.black)
+    .to({alpha: 1})
+    .duration(time_to_fade)
+    .onComplete(function() {
+    })
+    .start();
+}
+
+
+Game.prototype.fadeFromBlack = function(time_to_fade) {
+  var tween = new TWEEN.Tween(this.black)
+    .to({alpha: 0})
+    .duration(time_to_fade)
+    .onComplete(function() {
+      pixi.stage.removeChild(this.black);
+    })
+    .start();
 }
 
 

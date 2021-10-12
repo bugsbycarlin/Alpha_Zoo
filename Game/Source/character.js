@@ -9,6 +9,8 @@ Game.prototype.makeCharacter = function() {
   character.position.set(0,0);
   character.scale.set(0.72, 0.72);
   // map.addChild(character);
+
+  character.type = "character";
   
 
   var sheet = PIXI.Loader.shared.resources["Art/bear.json"].spritesheet;
