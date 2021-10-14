@@ -147,6 +147,10 @@ animals = {
     mouth: [261, 297],
     butt: [257, 388],
   },
+  "PEACOCK": {
+    mouth: [252, 308],
+    butt: [253, 402],
+  },
   "SNAKE": {
     land: "sand",
     movement: "undulate",
@@ -228,6 +232,21 @@ animals = {
     mouth: [248, 343],
     butt: [249, 406],
   },
+  "BEAVER": {
+    mouth: [260, 316],
+    butt: [229, 390],
+    land: "forest",
+    sound: "capybara",
+  },
+  "ALPACA": {
+    mouth: [306, 256],
+    butt: [172, 319],
+  },
+  "LLAMA": {
+    mouth: [308, 240],
+    butt: [177, 336],
+    sound: "llama",
+  },
 }
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
@@ -251,11 +270,11 @@ section_primates = [
 
 section_north_and_water = [
   "POLAR_BEAR", "SEAL", "BLACK_BEAR", "BROWN_BEAR", "MOOSE", "ELK", "DEER",
-  "YAK", "OTTER", "WOLF", "FOX", "PENGUIN", "RACCOON",
+  "YAK", "OTTER", "WOLF", "FOX", "PENGUIN", "RACCOON", "BEAVER",
 ]
 
 section_starter_and_farm = [
-  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE", "GOAT", "RABBIT",
+  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE", "GOAT", "RABBIT", "ALPACA", "LLAMA",
 ]
 
 section_east_asia = [
@@ -263,7 +282,7 @@ section_east_asia = [
 ]
 
 section_birds_reptiles_rodents = [
-  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", 
+  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK",
 ]
 
 
@@ -290,7 +309,7 @@ section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 omnivores = [
   "BROWN_BEAR", "BLACK_BEAR", "FOX", "TURTLE",
   "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
-  "CHIMPANZEE", "MEERKAT", "RACCOON",
+  "CHIMPANZEE", "MEERKAT", "RACCOON", "PEACOCK",
 ]
 carnivores = [
   "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE",
@@ -304,6 +323,7 @@ bamboovores = [
 animated_animals = {
   "PARROT":0,
   "OWL":0,
+  "PEACOCK":0,
 }
 
 
@@ -516,6 +536,18 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           animal.x -= animal.land_speed * Math.cos(animal.land_angle);
 
           animal.land_angle = (Math.random() * 360) * Math.PI / 180;          
+        }
+
+        // animation test for bouncers
+        if (self.timeSince(animal.animated) > walk_frame_time) {
+          if (animal.sprite.currentFrame == 0) {
+            animal.sprite.gotoAndStop(1);
+            // animal.vy -= (0.5 + 0.55 * Math.random())
+          } else if (animal.sprite.currentFrame == 1) {
+            animal.sprite.gotoAndStop(0);
+            // animal.vy -= (0.2 + 0.3 * Math.random())
+          }
+          animal.animated = self.markTime();
         }
 
         if (animal.sprite.y >= 0) {

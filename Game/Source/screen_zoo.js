@@ -1341,7 +1341,6 @@ Game.prototype.addDisplayType = function(letter) {
   var self = this;
   var screen = this.screens["zoo"];
 
-  console.log(this.thing_to_display);
   if (this.thing_to_display == "FERRIS_WHEEL") {
     if (this.display_ride_typing_text.text.length < 4) {
       this.display_ride_typing_text.text += letter;
@@ -1583,8 +1582,6 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
     this.typing_ui.removeChild(this.typing_picture);
     this.typing_picture.destroy();
   }
-
-  console.log(this.thing_to_type);
 
   let measure = new PIXI.TextMetrics.measureText(new_word, this.typing_text.style);
   // sign_backing.width = measure.width + 6;
@@ -2231,7 +2228,7 @@ Game.prototype.updateZoo = function(diff) {
 
   
   if (this.ferris_wheel != null) {
-    if (this.mode == "active" && this.player.y + 150 < this.ferris_wheel.y) {
+    if (this.zoo_mode == "active" && this.player.y + 150 < this.ferris_wheel.y) {
       this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y - 150) / 800, 0.0);
     } else {
       this.ferris_wheel.alpha = 1;
