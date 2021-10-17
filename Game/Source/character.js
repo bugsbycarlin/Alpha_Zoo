@@ -4,23 +4,24 @@ var walk_frame_time = 105;
 
 var directions = ["down", "left", "up", "right", "downleft", "upleft", "downright", "upright"]
 
-Game.prototype.makeCharacter = function() {
+Game.prototype.makeCharacter = function(character_name) {
   let character = new PIXI.Container();
   character.position.set(0,0);
   character.scale.set(0.72, 0.72);
   // map.addChild(character);
 
   character.type = "character";
+  character.character_name = character_name;
   
 
-  var sheet = PIXI.Loader.shared.resources["Art/bear.json"].spritesheet;
-  character.bear_sprite = {};
+  var sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;
+  character.character_sprite = {};
   for(let i = 0; i < 8; i++) {
-    character.bear_sprite[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
-    character.bear_sprite[directions[i]].anchor.set(0.5,0.5);
-    character.bear_sprite[directions[i]].position.set(0, 0);
-    character.addChild(character.bear_sprite[directions[i]]);
-    character.bear_sprite[directions[i]].visible = false;
+    character.character_sprite[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+    character.character_sprite[directions[i]].anchor.set(0.5,0.5);
+    character.character_sprite[directions[i]].position.set(0, 0);
+    character.addChild(character.character_sprite[directions[i]]);
+    character.character_sprite[directions[i]].visible = false;
   }
 
   character.direction = "down";
@@ -32,7 +33,7 @@ Game.prototype.makeCharacter = function() {
   character.walk_speed = default_walk_speed;
 
   character.current_image = "down_0";
-  character.bear_sprite["down"].visible = true;
+  character.character_sprite["down"].visible = true;
 
   character.move = function() {
 
@@ -69,9 +70,9 @@ Game.prototype.makeCharacter = function() {
   character.walkAnimation = function() {
     for(let i = 0; i < 8; i++) {
       if (directions[i] == character.direction) {
-        character.bear_sprite[directions[i]].visible = true;
+        character.character_sprite[directions[i]].visible = true;
       } else {
-        character.bear_sprite[directions[i]].visible = false;
+        character.character_sprite[directions[i]].visible = false;
       }
     }
 
@@ -91,10 +92,10 @@ Game.prototype.makeCharacter = function() {
       character.last_image_time = Date.now();
     }
 
-    if (character.bear_sprite[character.direction].currentFrame == 0 && character.current_image == f1) {
-      character.bear_sprite[character.direction].gotoAndStop(1);
-    } else if (character.bear_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
-      character.bear_sprite[character.direction].gotoAndStop(0);
+    if (character.character_sprite[character.direction].currentFrame == 0 && character.current_image == f1) {
+      character.character_sprite[character.direction].gotoAndStop(1);
+    } else if (character.character_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
+      character.character_sprite[character.direction].gotoAndStop(0);
     }
   }
 
@@ -102,13 +103,13 @@ Game.prototype.makeCharacter = function() {
   character.updateDirection = function() {
     for(let i = 0; i < 8; i++) {
       if (directions[i] == character.direction) {
-        character.bear_sprite[directions[i]].visible = true;
+        character.character_sprite[directions[i]].visible = true;
       } else {
-        character.bear_sprite[directions[i]].visible = false;
+        character.character_sprite[directions[i]].visible = false;
       }
     }
 
-    character.bear_sprite[character.direction].gotoAndStop(0);
+    character.character_sprite[character.direction].gotoAndStop(0);
   }
 
   return character;

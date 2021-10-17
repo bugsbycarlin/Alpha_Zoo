@@ -673,9 +673,39 @@ Game.prototype.playerAndBoundaries = function() {
     }
   }
 
-  this.player = this.makeCharacter();
+  let npc_list = [
+    "black_bear", "polar_bear",
+    "rabbit_greenshirt", "rabbit_redshirt", "rabbit_blueshirt",
+    "yellow_cat", "orange_cat", "light_cat"
+  ];
+
+  this.player = this.makeCharacter("brown_bear"); //brown_bear
   this.player.position.set(min_location[0], min_location[1]);
   this.decorations.push(this.player);
+
+  this.npcs = [];
+
+  let count = 0;
+  for (let i = 1; i < this.zoo_size; i++) {
+    for (let j = 1; j < this.zoo_size; j++) {
+      count += 1;
+      if (this.zoo_vertices[i][j].n_path == true 
+        || this.zoo_vertices[i][j].s_path == true
+        || this.zoo_vertices[i][j].e_path == true
+        || this.zoo_vertices[i][j].w_path == true) {
+        if (Math.random() < 0.75) {
+          console.log("Making NPC");
+          let new_npc = this.makeCharacter(pick(npc_list));
+          new_npc.position.set(square_width * i, square_width * j);
+          new_npc.walk_speed = 0.75 * default_walk_speed;
+          new_npc.walk_frame_time = walk_frame_time / 0.75;
+          this.decorations.push(new_npc);
+          this.npcs.push(new_npc);
+        }
+      }
+    }
+  }
+  console.log(count);
 
   this.updateEnts();
 }
@@ -1073,12 +1103,16 @@ Game.prototype.populateZoo = function() {
         this.animals_available += 1;
         this.zoo_pens[i].animal_objects = [];
         let animal_name = this.zoo_pens[i].animal;
-        let num_animals_here = Math.ceil(3 * Math.random());
-        if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
-        if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
-        if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
-        if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
-        if (animal_name == "RABBIT") num_animals_here = 1 + Math.ceil(3 * Math.random());
+
+        let num_animals_here = animals[animal_name].min + Math.floor(Math.random() * (1 + animals[animal_name].max - animals[animal_name].min))
+
+        // let num_animals_here = Math.ceil(3 * Math.random());
+        // if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
+        // if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
+        // if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
+        // if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
+        // if (animal_name == "RABBIT") num_animals_here = 1 + Math.ceil(3 * Math.random());
+        console.log("Animal " + animal_name + " min " + animals[animal_name].min + ", max " + animals[animal_name].max + ", val " + num_animals_here)
         for (let n = 0; n < num_animals_here; n++) {
           let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
           animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
@@ -1373,7 +1407,7 @@ Game.prototype.addDisplayType = function(letter) {
 
         new_decorations = [];
         for (let i = 0; i < self.decorations.length; i++) {
-          if (self.decorations[i].type != "character") {
+          if (self.decorations[i].character_name != "brown_bear") {
             new_decorations.push(self.decorations[i]);
           } else {
           }
@@ -1445,12 +1479,15 @@ Game.prototype.addDisplayType = function(letter) {
     if (this.display_food_typing_text.text == "FEED") {
       flicker(this.display_food_typing_text, 300, 0x000000, 0xFFFFFF);
 
+
+
       let food_types = ["greens"]
-      if (carnivores.includes(this.thing_to_display)) {
-        food_types = ["steak"];
-      } else if (omnivores.includes(this.thing_to_display)) {
-        food_types = ["greens", "steak", "fruit"];
-      }
+      if (this.thing_to_display in animals) food_types = animals[this.thing_to_display].food;
+      // if (carnivores.includes(this.thing_to_display)) {
+      //   food_types = ["steak"];
+      // } else if (omnivores.includes(this.thing_to_display)) {
+      //   food_types = ["greens", "steak", "fruit"];
+      // }
       let food_type = pick(food_types);
 
       let sheet = PIXI.Loader.shared.resources["Art/Food/" + food_type + ".json"].spritesheet
@@ -1459,8 +1496,8 @@ Game.prototype.addDisplayType = function(letter) {
       food.type = food_type;
       food.start_x = this.player.x;
       food.start_y = this.player.y + 1;
-      food.end_x = this.pen_to_display.cx - 32 + 64 * Math.random();
-      food.end_y = this.pen_to_display.cy - 32 + 64 * Math.random();
+      food.end_x = this.pen_to_display.cx - 60 + 120 * Math.random();
+      food.end_y = this.pen_to_display.cy - 60 + 120 * Math.random();
       food.anchor.set(0.5,0.75)
       food.position.set(food.start_x, food.start_y);
       food.interpolation = 0;
@@ -2183,6 +2220,30 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
 }
 
 
+let npc_directions = [
+  "up", "down", "left", "right",
+  "downleft", "downright", "upleft", "upright",
+  "pause", "pause", "pause", "pause"
+]
+Game.prototype.updateNPC = function(npc) {
+  if (npc.change_direction_time == null || this.timeSince(npc.change_direction_time) > 500) {
+    let dice = Math.random();
+    if (dice < 0.5) {
+      // keep the same direction
+    } else {
+      npc.direction = pick(npc_directions);
+    }
+    npc.change_direction_time = this.markTime();
+  }
+
+  if (npc.direction != "pause") {
+    if (this.testMove(npc.x, npc.y, true, npc.direction)) {
+      npc.move();
+    }
+  }
+}
+
+
 Game.prototype.updateZoo = function(diff) {
   var self = this;
   var screen = this.screens["zoo"];
@@ -2239,6 +2300,10 @@ Game.prototype.updateZoo = function(diff) {
     if (this.animals[i].pen.state == "ungrey") {
       this.animals[i].update();
     }
+  }
+
+  for (let i = 0; i < this.npcs.length; i++) {
+    this.updateNPC(this.npcs[i]);
   }
 
   this.sortLayer(this.map.decoration_layer, this.decorations);

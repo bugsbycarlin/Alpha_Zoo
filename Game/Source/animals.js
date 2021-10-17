@@ -4,105 +4,132 @@ animals = {
   "LION": {
     mouth: [304, 326],
     butt: [193, 350],
+    food: "carnivore",
   },
   "HIPPO": {
     land: "watergrass",
     decorations: ["rock", "grass"],
     mouth: [320, 344],
     butt: [166, 335],
+    food: "herbivore",
   },
   "RHINO": {
     land: "sand",
     mouth: [307, 355],
     butt: [179, 337],
+    food: "herbivore",
   },
   "TURTLE": {
     land: "watergrass",
     decorations: ["rock", "grass"],
     mouth: [314, 351],
     butt: [196, 372],
+    speed: 0.6,
+    food: "omnivore",
   },
   "OTTER": {
     land: "water", // should be water rock, with a tiered rock
     decorations: ["rock", "grass"],
     mouth: [303, 333],
     butt: [221, 405],
+    min: 2,
+    food: "carnivore",
   },
   "GORILLA": {
     mouth: [284, 307],
     butt: [191, 345],
+    food: ["greens", "fruit"],
   },
   "CHIMPANZEE": {
     mouth: [256, 322],
     butt: [253, 391],
+    min: 2,
+    max: 4,
+    food: "omnivore",
   },
   "BABOON": {
     land: "sand",
     mouth: [288, 328],
     butt: [192, 350],
+    food: "omnivore",
   },
   "GIRAFFE": {
     mouth: [332, 198],
     butt: [168, 319],
+    food: "herbivore",
   },
   "ZEBRA": {
     mouth: [317, 318],
     butt: [183, 342],
+    food: "herbivore",
   },
   "HORSE": {
     mouth: [316, 347],
     butt: [179, 334],
+    food: "herbivore",
   },
   "ELEPHANT": {
     land: "sand",
     mouth: [311, 307],
     butt: [167, 328],
+    food: "herbivore",
   },
   "TIGER": {
     mouth: [316, 339],
     butt: [192, 354],
+    food: "carnivore",
   },
   "CHEETAH": {
     mouth: [311, 342],
     butt: [194, 356],
+    speed: 2,
+    food: "carnivore",
   },
   "LYNX": {
     sound: "zebra",
     mouth: [307, 345],
     butt: [200, 355],
+    food: "carnivore",
   },
   "PANTHER": {
     mouth: [313, 339],
     butt: [194, 359],
+    food: "carnivore",
   },
   "DOG": {
     mouth: [292, 328],
     butt: [204, 348],
+    food: "omnivore",
   },
   "WOLF": {
     mouth: [297, 320],
     butt: [200, 351],
     land: "forest",
+    food: "carnivore",
   },
   "CAT": {
     mouth: [292, 321],
     butt: [204, 342],
+    food: "carnivore",
   },
   "MOUSE": {
     mouth: [262, 341],
     butt: [242, 392],
+    food: "omnivore",
   },
   "BROWN_BEAR": {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
     land: "forest",
+    food: "omnivore",
   },
   "BLACK_BEAR": {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
     land: "forest",
+    food: "omnivore",
   },
   "POLAR_BEAR": {
     land: "waterice",
@@ -110,144 +137,193 @@ animals = {
     sound: "bear",
     mouth: [314, 327],
     butt: [188, 338],
+    food: ["steak", "fish"],
   },
   "PENGUIN": {
     land: "waterice",
     decorations: ["rock", "rock"],
     mouth: [258, 341],
     butt: [257, 392],
+    min: 3,
+    max: 5,
+    food: ["fish"],
   },
   "SEAL": {
     land: "waterice",
     decorations: ["rock", "rock"],
     mouth: [299, 344],
     butt: [200, 382],
+    food: ["fish"],
   },
   "PANDA_BEAR": {
     mouth: [314, 327],
     butt: [188, 338],
+    food: ["bamboo"],
   },
   "FOX": {
     mouth: [279, 329],
     butt: [226, 395],
+    food: "omnivore",
   },
   "ALLIGATOR": {
     land: "watergrass",
     decorations: ["rock", "grass"],
     mouth: [354, 364],
     butt: [165, 392],
+    speed: 0.6,
+    food: "carnivore",
   },
   "PARROT": {
     movement: "fly",
     mouth: [264, 324],
     butt: [235, 386],
+    food: "omnivore",
   },
   "OWL": {
     movement: "fly",
     mouth: [261, 297],
     butt: [257, 388],
+    food: "carnivore",
   },
   "PEACOCK": {
     mouth: [252, 308],
     butt: [253, 402],
+    food: "omnivore",
   },
   "SNAKE": {
     land: "sand",
     movement: "undulate",
     mouth: [371, 383],
     butt: [191, 392],
+    food: "carnivore",
   },
   "COW": {
     mouth: [316, 351],
     butt: [180, 327],
+    food: "herbivore",
   },
   "YAK": {
     mouth: [316, 352],
     butt: [175, 344],
+    food: "herbivore",
   },
   "CAPYBARA": {
     land: "sand",
     mouth: [281, 342],
     butt: [183, 376],
+    food: "herbivore",
   },
   "PIG": {
     land: "sand",
     mouth: [313, 354],
     butt: [178, 319],
+    food: "omnivore",
   },
   "SHEEP": {
     mouth: [312, 349],
     butt: [181, 334],
+    food: "herbivore",
   },
   "DEER": {
     mouth: [317, 327],
     butt: [192, 332],
     land: "forest",
+    food: "herbivore",
   },
   "GAZELLE": {
     mouth: [317, 327],
     butt: [192, 332],
+    speed: 2,
+    food: "herbivore",
   },
   "ELK": {
     sound: "deer",
     mouth: [314, 324],
     butt: [174, 333],
     land: "forest",
+    food: "herbivore",
   },
   "MOOSE": {
     mouth: [325, 332],
     butt: [158, 312],
     land: "forest",
+    food: "herbivore",
   },
   "RED_PANDA": {
     mouth: [272, 333],
     butt: [222, 396],
+    food: "omnivore",
   },
   "KANGAROO": {
     mouth: [273, 295],
     butt: [217, 395],
+    food: "herbivore",
   },
   "MEERKAT": {
     mouth: [266, 330],
     butt: [240, 398],
     land: "sand",
+    min: 3,
+    max: 5,
+    food: "omnivore",
   },
   "RACCOON": {
     mouth: [305, 354],
     butt: [195, 362],
     land: "forest",
     sound: "capybara",
+    food: "omnivore",
   },
   "CAMEL": {
     mouth: [343, 291],
     butt: [183, 363],
     land: "sand",
+    food: "herbivore",
   },
   "GOAT": {
     mouth: [314, 329],
     butt: [187, 331],
     land: "sand",
+    food: "herbivore",
   },
   "RABBIT": {
     mouth: [248, 343],
     butt: [249, 406],
+    min: 2,
+    max: 4,
+    food: "herbivore",
   },
   "BEAVER": {
     mouth: [260, 316],
     butt: [229, 390],
     land: "forest",
     sound: "capybara",
+    food: "herbivore",
   },
   "ALPACA": {
     mouth: [306, 256],
     butt: [172, 319],
+    food: "herbivore",
   },
   "LLAMA": {
     mouth: [308, 240],
     butt: [177, 336],
     sound: "llama",
+    food: "herbivore",
   },
 }
+
+
+//
+// Diet is a complicated thing to portray.
+// While broadly all animals can be sorted into the Carnivore, Herbivore and Omnivore buckets,
+// in reality there are some edge cases, as well as some strong tendencies that create tension
+// between what's technically correct and what looks realistic. I'm choosing to err on the side
+// of realism for now. So, for instance, while the Polar Bear is technically an omnivore,
+// in practice it eats a mostly meat diet, and I'm putting it in Carnivore for now.
+//
+
+
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
 console.log(Object.keys(animals));
@@ -295,30 +371,22 @@ section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 
 
 
-//
-// Diet is a complicated thing to portray.
-// While broadly all animals can be sorted into the Carnivore, Herbivore and Omnivore buckets,
-// in reality there are some edge cases, as well as some strong tendencies that create tension
-// between what's technically correct and what looks realistic. I'm choosing to err on the side
-// of realism for now. So, for instance, while the Polar Bear is technically an omnivore,
-// in practice it eats a mostly meat diet, and I'm putting it in Carnivore for now.
-//
 
-// TO DO: fish eaters, bamboo eaters. maybe even custom eats section.
+// omnivores = [
+//   "BROWN_BEAR", "BLACK_BEAR", "FOX", "TURTLE",
+//   "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
+//   "CHIMPANZEE", "MEERKAT", "RACCOON", "PEACOCK",
+// ]
+// carnivores = [
+//   "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE",
+//   "PANTHER", "CAT", "SEAL", "OWL", "LYNX", "POLAR_BEAR",
+//   "WOLF", "PENGUIN"
+// ]
+// bamboovores = [
+//   "PANDA_BEAR"
+// ]
 
-omnivores = [
-  "BROWN_BEAR", "BLACK_BEAR", "FOX", "TURTLE",
-  "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
-  "CHIMPANZEE", "MEERKAT", "RACCOON", "PEACOCK",
-]
-carnivores = [
-  "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE",
-  "PANTHER", "CAT", "SEAL", "OWL", "LYNX", "POLAR_BEAR",
-  "WOLF", "PENGUIN"
-]
-bamboovores = [
-  "PANDA_BEAR"
-]
+
 
 animated_animals = {
   "PARROT":0,
@@ -327,13 +395,8 @@ animated_animals = {
 }
 
 
-
-
-//
-// There are three movement types. The standard is to bounce.
-// The first alternate is to fly.
-// The second alternate is to undulate.
-//
+let animal_scale = 0.66;
+let land_speed_factor = 2.4;
 
 
 for (const [name, data] of Object.entries(animals)) {
@@ -344,10 +407,16 @@ for (const [name, data] of Object.entries(animals)) {
   if (!("last_sound" in data)) data["last_sound"] = null;
   if (!("sound_delay" in data)) data["sound_delay"] = 500;
   if (!("sound" in data)) data["sound"] = name.toLowerCase();
+  if (!("speed" in data)) data["speed"] = 1;
+  if (!("min" in data)) data["min"] = 1;
+  if (!("max" in data)) data["max"] = 3;
+  if ("food" in data && data["food"] == "herbivore") data["food"] = ["greens"];
+  if ("food" in data && data["food"] == "omnivore") data["food"] = ["steak", "greens", "fruit"];
+  if ("food" in data && data["food"] == "carnivore") data["food"] = ["steak"]; 
 }
 
 
-let animal_scale = 0.66;
+
 
 
 Game.prototype.makeAnimal = function(animal_type, pen) {
@@ -401,15 +470,17 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.delay = 0;
   animal.delay_time = null;
 
-  animal.vx = 2.4;
+  console.log(animals[animal.type].speed);
+  animal.vx = land_speed_factor * animals[animal.type].speed;
   animal.vy = 0;
   animal.direction = 1;
 
-  animal.land_speed = 2.4;
   animal.land_angle = (Math.random() * 360) * Math.PI / 180;
 
-  if (animal.type == "CHEETAH") animal.land_speed = 4.8;
-  if (animal.type == "GAZELLE") animal.land_speed = 4.8;
+  animal.land_speed = land_speed_factor * animals[animal.type].speed;
+
+  // if (animal.type == "CHEETAH") animal.land_speed = 4.8;
+  // if (animal.type == "GAZELLE") animal.land_speed = 4.8;
 
   animal.undulation_counter = 0;
 
@@ -453,9 +524,9 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           let b = animal.global_mouth_coords();
       
           let food_shard = new PIXI.Graphics();
-          if (food.type == "greens") {
+          if (food.type == "greens" || food.type == "bamboo") {
             food_shard.beginFill(greens_color);
-          } else if (food.type == "steak") {
+          } else if (food.type == "steak" || food.type == "fish") {
             food_shard.beginFill(steak_color);
           } else if (food.type == "fruit") {
             food_shard.beginFill(fruit_color);

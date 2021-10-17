@@ -1,7 +1,7 @@
 'use strict';
 
-var use_music = true;
-var use_sound = true;
+var use_music = false;
+var use_sound = false;
 var use_scores = false;
 var log_performance = true;
 
@@ -66,13 +66,23 @@ class Game {
     this.initializeScreens();
 
     PIXI.Loader.shared
-      .add("Art/bear.json")
+      .add("Art/Characters/brown_bear.json")
+      .add("Art/Characters/polar_bear.json")
+      .add("Art/Characters/black_bear.json")
+      .add("Art/Characters/rabbit_greenshirt.json")
+      .add("Art/Characters/rabbit_redshirt.json")
+      .add("Art/Characters/rabbit_blueshirt.json")
+      .add("Art/Characters/orange_cat.json")
+      .add("Art/Characters/yellow_cat.json")
+      .add("Art/Characters/light_cat.json")
       .add("Art/Animals/parrot.json")
       .add("Art/Animals/owl.json")
       .add("Art/Animals/peacock.json")
       .add("Art/Food/fruit.json")
       .add("Art/Food/steak.json")
       .add("Art/Food/greens.json")
+      .add("Art/Food/fish.json")
+      .add("Art/Food/bamboo.json")
       .add("Art/smoke.json")
       .load(function() {
         WebFont.load({

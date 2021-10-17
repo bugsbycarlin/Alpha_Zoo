@@ -82,14 +82,14 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.carts[i].true_color = fw.carts[i].tint;
     fw.carts[i].fw_sort_depth = 1;
 
-    if (i == 10) {
-      let rider = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/Riders/rider_0.png")); //" + Math.floor(Math.random() * 8) + "
+    if (i == 10 || i == 8) {
+      let rider = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/Riders/rider_" + Math.floor(Math.random() * 6) + ".png")); //" + Math.floor(Math.random() * 8) + "
       rider.anchor.set(0.5,0.5);
       rider.scale.set(0.72, 0.72);
       rider.seat = i;
       rider.position.set(
         0 + 850 * Math.cos(i * 30 * Math.PI / 180),
-        -1346 - 850 * Math.sin(i * 30 * Math.PI / 180) + 162
+        -1346 - 850 * Math.sin(i * 30 * Math.PI / 180) + 158
       );
       rider.visible = false;
       fw.riders.push(rider);
@@ -117,7 +117,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.player.updateDirection();
     fw.player.position.set(
         0 + 850 * Math.cos(270 * Math.PI / 180),
-        -1346 - 850 * Math.sin(270 * Math.PI / 180) + 162
+        -1346 - 850 * Math.sin(270 * Math.PI / 180) + 158
       );
     while(fw.cart_layer.children[0]) {
       fw.cart_layer.removeChild(fw.cart_layer.children[0]);
@@ -201,14 +201,14 @@ Game.prototype.makeFerrisWheel = function(pen) {
       for (let i = 0; i < fw.riders.length; i++) {
         fw.riders[i].position.set(
           0 + 850 * Math.cos((fw.riders[i].seat * 30 + fw.wheel_angle) * Math.PI / 180),
-          -1346 - 850 * Math.sin((fw.riders[i].seat * 30 + fw.wheel_angle) * Math.PI / 180) + 162
+          -1346 - 850 * Math.sin((fw.riders[i].seat * 30 + fw.wheel_angle) * Math.PI / 180) + 158
         );
       }
 
       if (fw.player != null) {
         fw.player.position.set(
           0 + 850 * Math.cos((270 + fw.wheel_angle) * Math.PI / 180),
-          -1346 - 850 * Math.sin((270 + fw.wheel_angle) * Math.PI / 180) + 162
+          -1346 - 850 * Math.sin((270 + fw.wheel_angle) * Math.PI / 180) + 158
         );
 
         if (fw.player.position.x > 30) {
@@ -228,11 +228,13 @@ Game.prototype.makeFerrisWheel = function(pen) {
       }
 
        if (fw.last_angle % 360 < 100 && fw.wheel_angle % 360 >= 100) {
-        self.music.old_volume = self.music.volume;
-        new TWEEN.Tween(self.music)
-          .to({volume: 0.6 * self.music.old_volume})
-          .duration(4000)
-          .start()
+        if (self.music != null) {
+          self.music.old_volume = self.music.volume;
+          new TWEEN.Tween(self.music)
+            .to({volume: 0.6 * self.music.old_volume})
+            .duration(4000)
+            .start()
+        }
       }
 
       if (fw.last_angle % 360 < 120 && fw.wheel_angle % 360 >= 120) {
@@ -243,10 +245,12 @@ Game.prototype.makeFerrisWheel = function(pen) {
       if (fw.last_angle % 360 < 240 && fw.wheel_angle % 360 >= 240) {
         // self.soundEffect("breeze");
         // self.music.volume = self.music.old_volume;
-        new TWEEN.Tween(self.music)
-          .to({volume: self.music.old_volume})
-          .duration(4000)
-          .start()
+        if (self.music != null) {
+          new TWEEN.Tween(self.music)
+            .to({volume: self.music.old_volume})
+            .duration(4000)
+            .start()
+        }
       }
     
     }

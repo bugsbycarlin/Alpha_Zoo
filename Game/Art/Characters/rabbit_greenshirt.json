@@ -141,10 +141,10 @@
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
-	"image": "bear.png",
+	"image": "rabbit_greenshirt.png",
 	"format": "RGBA8888",
 	"size": {"w":1024,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:16f13832886ff02e4d5aef8c733bb588:5cc5ad03faab94eac4c9777302df6b8e:6295e075e3238db0ec40ff984cf0523c$"
+	"smartupdate": "$TexturePacker:SmartUpdate:64814ec20d4667bae4a9509ef109a85f:a95e3800fc57f9eff390ce9cd9154421:cc241f866c0adba7471abdc1514ffdf0$"
 }
 }
