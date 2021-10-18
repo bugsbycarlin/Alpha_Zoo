@@ -1,7 +1,7 @@
 'use strict';
 
 var use_music = false;
-var use_sound = false;
+var use_sound = true;
 var use_scores = false;
 var log_performance = true;
 

@@ -1093,6 +1093,9 @@ Game.prototype.populateZoo = function() {
               (1-fraction) * this.zoo_pens[i].cy + (fraction) * edge[1]);
             decoration.scale.set(1.2, 1.2);
             decoration.anchor.set(0.5,0.9);
+            if (decoration_type == "tree") {
+              decoration.anchor.set(0.5,0.8);
+            }
             this.decorations.push(decoration);
             this.zoo_pens[i].decoration_objects.push(decoration);
           }
@@ -1106,13 +1109,6 @@ Game.prototype.populateZoo = function() {
 
         let num_animals_here = animals[animal_name].min + Math.floor(Math.random() * (1 + animals[animal_name].max - animals[animal_name].min))
 
-        // let num_animals_here = Math.ceil(3 * Math.random());
-        // if (animal_name == "OTTER" && num_animals_here == 1) num_animals_here = 2;
-        // if (animal_name == "PENGUIN") num_animals_here = 2 + Math.ceil(3 * Math.random());
-        // if (animal_name == "MEERKAT") num_animals_here = 2 + Math.ceil(3 * Math.random());
-        // if (animal_name == "CHIMPANZEE") num_animals_here = 1 + Math.ceil(3 * Math.random());
-        // if (animal_name == "RABBIT") num_animals_here = 1 + Math.ceil(3 * Math.random());
-        console.log("Animal " + animal_name + " min " + animals[animal_name].min + ", max " + animals[animal_name].max + ", val " + num_animals_here)
         for (let n = 0; n < num_animals_here; n++) {
           let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
           animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
@@ -1146,7 +1142,21 @@ Game.prototype.populateZoo = function() {
           if (Math.random() > 0.4) {
             let x = square_width * i + square_width * Math.random();
             let y = square_width * j + square_width * Math.random();
-            this.ent_positions.push([x,y]);
+            // let outside_all_pens = true;
+            // for (let k = 0; k < this.zoo_pens.length; k++) {
+            //   if (this.zoo_pens[k].animal_objects != null || this.zoo_pens[k].special_object != null) {
+            //     if (pointInsidePolygon([x, y], this.zoo_pens[k].polygon)) {
+            //       outside_all_pens = false;
+            //       console.log("cancelled a tree");
+            //       break;
+            //     }
+            //   }
+            // }
+            if (this.pointInPen(x, y) == null) {
+              this.ent_positions.push([x,y]);
+            } else {
+              console.log("cancelled a tree");
+            }
           }
         }
       }
@@ -1155,10 +1165,10 @@ Game.prototype.populateZoo = function() {
   
   this.ents = [];
   for (let k = 0; k < total_ents; k++) {
-    let ent = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
+    let ent = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
     ent.position.set(0, 0);
-    ent.scale.set(1.2, 1.2);
-    ent.anchor.set(0.5, 0.9);
+    // ent.scale.set(1.2, 1.2);
+    ent.anchor.set(0.5, 0.75);
     ent.visible = false;
     this.ents.push(ent);
     this.decorations.push(ent);
@@ -1174,12 +1184,14 @@ Game.prototype.populateZoo = function() {
           if (Math.random() > 0.4) {
             let x = square_width * i + 120 + 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
-            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-            tree.position.set(x, y);
-            tree.scale.set(1.2, 1.2);
-            tree.anchor.set(0.5, 0.9);
-            this.decorations.push(tree);
-            inner_trees += 1;
+            if (this.pointInPen(x, y) == null) {
+              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              tree.position.set(x, y);
+              // tree.scale.set(1.2, 1.2);
+              tree.anchor.set(0.5, 0.75);
+              this.decorations.push(tree);
+              inner_trees += 1;
+            }
           }
         }
       }
@@ -1188,12 +1200,14 @@ Game.prototype.populateZoo = function() {
           if (Math.random() > 0.4) {
             let x = square_width * i + square_width - 120 - 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
-            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-            tree.position.set(x, y);
-            tree.scale.set(1.2, 1.2);
-            tree.anchor.set(0.5, 0.9);
-            this.decorations.push(tree);
-            inner_trees += 1;
+            if (this.pointInPen(x, y) == null) {
+              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              tree.position.set(x, y);
+              // tree.scale.set(1.2, 1.2);
+              tree.anchor.set(0.5, 0.75);
+              this.decorations.push(tree);
+              inner_trees += 1;
+            }
           }
         }
       }
@@ -1202,12 +1216,14 @@ Game.prototype.populateZoo = function() {
           if (Math.random() > 0.3) {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + 120 + 20 * Math.random();
-            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-            tree.position.set(x, y);
-            tree.scale.set(1.2, 1.2);
-            tree.anchor.set(0.5, 0.9);
-            this.decorations.push(tree);
-            inner_trees += 1;
+            if (this.pointInPen(x, y) == null) {
+              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              tree.position.set(x, y);
+              // tree.scale.set(1.2, 1.2);
+              tree.anchor.set(0.5, 0.75);
+              this.decorations.push(tree);
+              inner_trees += 1;
+            }
           }
         }
       }
@@ -1216,12 +1232,14 @@ Game.prototype.populateZoo = function() {
           if (Math.random() > 0.3) {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + square_width - 120 - 20 * Math.random();
-            let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree.png"));
-            tree.position.set(x, y);
-            tree.scale.set(1.2, 1.2);
-            tree.anchor.set(0.5, 0.9);
-            this.decorations.push(tree);
-            inner_trees += 1;
+            if (this.pointInPen(x, y) == null) {
+              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              tree.position.set(x, y);
+              // tree.scale.set(1.2, 1.2);
+              tree.anchor.set(0.5, 0.75);
+              this.decorations.push(tree);
+              inner_trees += 1;
+            }
           }
         }
       }
@@ -2118,6 +2136,29 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
 }
 
 
+Game.prototype.pointInPen = function(x, y, find_closest=false) {
+  let min_distance = 100000;
+  let closest_pen = null;
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
+      if (pointInsidePolygon([x, y], this.zoo_pens[i].polygon)) {
+        if (!find_closest) {
+          return this.zoo_pens[i];
+        } else {
+          let d = distance(x, y, this.zoo_pens[i].cx, this.zoo_pens[i].cy);
+          if (d < min_distance) {
+            min_distance = d;
+            closest_pen = this.zoo_pens[i];
+          }
+        }
+      }
+    }
+  }
+  if (find_closest) return closest_pen;
+  return null;
+}
+
+
 Game.prototype.checkPenProximity = function(x, y, direction) {
   // Check proximity to any animal pens, first by casting a ray,
   // Then falling back on a small radius.
@@ -2147,18 +2188,17 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       ty -= 42*r;
     }
 
-    // for (let i = 0; i < voronoi_size; i++) {
-    //   if (this.voronoi_metadata[i].use == true
-    //     && this.voronoi_metadata[i].group != null
-    for (let i = 0; i < this.zoo_pens.length; i++) {
-      if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
-        if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
-          found_pen = this.zoo_pens[i];
 
-          break;
-        }
-      }
-    }
+    // for (let i = 0; i < this.zoo_pens.length; i++) {
+    //   if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
+    //     if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
+    //       found_pen = this.zoo_pens[i];
+
+    //       break;
+    //     }
+    //   }
+    // }
+    found_pen = this.pointInPen(tx, ty);
     if (found_pen != null) break;
   }
 
@@ -2167,17 +2207,16 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       let tx = x + 120 * Math.cos(Math.PI / 180 * a);
       let ty = y + 120 * Math.sin(Math.PI / 180 * a);
 
-      // for (let i = 0; i < voronoi_size; i++) {
-      //   if (this.voronoi_metadata[i].use == true
-      //     && this.voronoi_metadata[i].group != null
-      for (let i = 0; i < this.zoo_pens.length; i++) {
-        if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
-          if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
-            found_pen = this.zoo_pens[i];
-            break;
-          }
-        }
-      }
+      // for (let i = 0; i < this.zoo_pens.length; i++) {
+      //   if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
+      //     if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
+      //       found_pen = this.zoo_pens[i];
+      //       break;
+      //     }
+      //   }
+      // }
+      found_pen = this.pointInPen(tx, ty, true);
+      if (found_pen != null) break;
     }
   }
 

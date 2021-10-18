@@ -470,7 +470,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.delay = 0;
   animal.delay_time = null;
 
-  console.log(animals[animal.type].speed);
   animal.vx = land_speed_factor * animals[animal.type].speed;
   animal.vy = 0;
   animal.direction = 1;
