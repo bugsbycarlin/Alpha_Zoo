@@ -1,6 +1,6 @@
 'use strict';
 
-var use_music = false;
+var use_music = true;
 var use_sound = true;
 var use_scores = false;
 var log_performance = true;
@@ -75,6 +75,7 @@ class Game {
       .add("Art/Characters/orange_cat.json")
       .add("Art/Characters/yellow_cat.json")
       .add("Art/Characters/light_cat.json")
+      .add("Art/Decorations/trees.json")
       .add("Art/Animals/parrot.json")
       .add("Art/Animals/owl.json")
       .add("Art/Animals/peacock.json")

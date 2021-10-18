@@ -723,6 +723,7 @@ Game.prototype.updateEnts = function() {
       if (ent_count < total_ents) {
         this.ents[ent_count].visible = true;
         this.ents[ent_count].position.set(pos[0], pos[1]);
+        this.ents[ent_count].gotoAndStop(pos[2] - 1);
         ent_count += 1;
       }
     }
@@ -1076,6 +1077,8 @@ Game.prototype.populateZoo = function() {
   this.animals_obtained = 0;
   this.animals_available = 0;
 
+  let sheet = PIXI.Loader.shared.resources["Art/Decorations/trees.json"].spritesheet;
+
   this.decorations = [];
   for (let i = 0; i < this.zoo_pens.length; i++) {
   // for (let i = 0; i < voronoi_size; i++) {
@@ -1085,7 +1088,14 @@ Game.prototype.populateZoo = function() {
         for (let t = 0; t < 5; t++) {
           if (Math.random() > 0.3) {
             let decoration_type = pick(this.zoo_pens[i].decorations);
-            let decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
+            let decoration = null;
+            if (decoration_type != "tree") {
+              decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
+            }
+            if (decoration_type == "tree") {
+              decoration = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              decoration.gotoAndStop(Math.floor(Math.random() * 3));
+            }
             let edge = pick(this.zoo_pens[i].polygon);
             let fraction = 0.3 + 0.5 * Math.random();
             decoration.position.set(
@@ -1094,7 +1104,7 @@ Game.prototype.populateZoo = function() {
             decoration.scale.set(1.2, 1.2);
             decoration.anchor.set(0.5,0.9);
             if (decoration_type == "tree") {
-              decoration.anchor.set(0.5,0.8);
+              decoration.anchor.set(0.5,0.85);
             }
             this.decorations.push(decoration);
             this.zoo_pens[i].decoration_objects.push(decoration);
@@ -1153,7 +1163,7 @@ Game.prototype.populateZoo = function() {
             //   }
             // }
             if (this.pointInPen(x, y) == null) {
-              this.ent_positions.push([x,y]);
+              this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
             } else {
               console.log("cancelled a tree");
             }
@@ -1165,10 +1175,12 @@ Game.prototype.populateZoo = function() {
   
   this.ents = [];
   for (let k = 0; k < total_ents; k++) {
-    let ent = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+    let ent = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+    // let ent = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
     ent.position.set(0, 0);
+    ent.gotoAndStop(0);
     // ent.scale.set(1.2, 1.2);
-    ent.anchor.set(0.5, 0.75);
+    ent.anchor.set(0.5, 0.85);
     ent.visible = false;
     this.ents.push(ent);
     this.decorations.push(ent);
@@ -1185,10 +1197,12 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + 120 + 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
             if (this.pointInPen(x, y) == null) {
-              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
+              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              tree.gotoAndStop(Math.floor(Math.random() * 3));
               tree.position.set(x, y);
               // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.75);
+              tree.anchor.set(0.5, 0.85);
               this.decorations.push(tree);
               inner_trees += 1;
             }
@@ -1201,10 +1215,12 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + square_width - 120 - 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
             if (this.pointInPen(x, y) == null) {
-              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
+              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              tree.gotoAndStop(Math.floor(Math.random() * 3));
               tree.position.set(x, y);
               // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.75);
+              tree.anchor.set(0.5, 0.85);
               this.decorations.push(tree);
               inner_trees += 1;
             }
@@ -1217,10 +1233,12 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + 120 + 20 * Math.random();
             if (this.pointInPen(x, y) == null) {
-              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
+              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              tree.gotoAndStop(Math.floor(Math.random() * 3));
               tree.position.set(x, y);
               // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.75);
+              tree.anchor.set(0.5, 0.85);
               this.decorations.push(tree);
               inner_trees += 1;
             }
@@ -1233,10 +1251,12 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + square_width - 120 - 20 * Math.random();
             if (this.pointInPen(x, y) == null) {
-              let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v3.png"));
+              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
+              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              tree.gotoAndStop(Math.floor(Math.random() * 3));
               tree.position.set(x, y);
               // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.75);
+              tree.anchor.set(0.5, 0.85);
               this.decorations.push(tree);
               inner_trees += 1;
             }
