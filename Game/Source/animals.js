@@ -334,7 +334,7 @@ animals = {
 // While broadly all animals can be sorted into the Carnivore, Herbivore and Omnivore buckets,
 // in reality there are some edge cases, as well as some strong tendencies that create tension
 // between what's technically correct and what looks realistic. I'm choosing to err on the side
-// of realism for now. So, for instance, while the Polar Bear is technically an omnivore,
+// of realism. So, for instance, while the Polar Bear is technically an omnivore,
 // in practice it eats a mostly meat diet, and I'm putting it in Carnivore for now.
 //
 

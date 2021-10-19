@@ -32,23 +32,6 @@ Game.prototype.makeFerrisWheel = function(pen) {
   fw.sky.position.set(0, -1346 - 1100);
   fw.addChild(fw.sky);
 
-  //   this.new_sky = new PIXI.Sprite(PIXI.Texture.from("Art/sky.png")); // only for the ferris wheel
-  // this.new_sky.visible = false;
-  // this.new_sky.anchor.set(0.5, 1);
-  // this.new_sky.position.set(this.width / 2, 0);
-  // screen.addChild(this.new_sky);
-
-  //   if (this.ferris_wheel.wheel_angle % 360 >= 80 && this.ferris_wheel.wheel_angle % 360 <= 90) {
-  //     this.new_sky.visible = true;
-  //     let h = 
-  //     this.new_sky.position.set(this.width / 2, ((this.ferris_wheel.wheel_angle % 360) - 80) / 10 * 200);
-  //   } else if (this.ferris_wheel.wheel_angle % 360 > 90 && this.ferris_wheel.wheel_angle % 360 <= 100) {
-  //     this.new_sky.visible = true; 
-  //     this.new_sky.position.set(this.width / 2, (100 - (this.ferris_wheel.wheel_angle % 360)) / 10 * 200);
-  //   } else {
-  //     this.new_sky.visible = false;
-  //   }
-
   fw.wheel_shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/wheel.png"));
   fw.wheel_shadow.anchor.set(0.5, 0.5);
   fw.wheel_shadow.position.set(0, -1346 + 8); // 2370 - 1024 = 1346. 2370 is how far the base is from the center on the drawing.
