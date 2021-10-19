@@ -323,6 +323,8 @@ animals = {
     speed: 0.6,
     decorations: ["tree"],
     movement: "arboreal",
+    min: 2,
+    max: 4,
   },
 }
 
@@ -411,6 +413,33 @@ animated_animals = {
 let animal_scale = 0.66;
 let land_speed_factor = 2.4;
 
+let arboreal_jump_distance = 200;
+
+let tree_cling_points = [];
+tree_cling_points[1] = [
+  [-21, 107],
+  [-23, 55],
+  [-20, 123],
+  [-47, 91],
+  [31, 55],
+  [26, 113],
+  [67, 86],
+
+];
+tree_cling_points[2] = [
+  [35, 23],
+
+];
+tree_cling_points[3] = [
+  [31, 30],
+  [48, 126],
+  [20, 145],
+  [-28, 106],
+  [-29, 35],
+  [-31, 51],
+];
+
+
 
 for (const [name, data] of Object.entries(animals)) {
   if (!("land" in data)) data["land"] = "grass";
@@ -441,7 +470,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.type = animal_type;
 
   animal.sprite = null;
-  if (!(animal.type in animated_animals) && !(animals[animal.type].movement == "arboreal")) {
+  if (!animal.animated && animals[animal.type].movement != "arboreal") {
     animal.sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + animal.type.toLowerCase() + ".png"));
   } else {
     var sheet = PIXI.Loader.shared.resources["Art/Animals/" + animal.type.toLowerCase() + ".json"].spritesheet;
@@ -454,7 +483,11 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.movement = animals[animal.type].movement;
 
-  if (animal.movement == "arboreal") animal.movement_state = "bounce";
+  if (animal.movement == "arboreal") {
+    animal.arboreal_state = "on_ground";
+    animal.last_arboreal = self.markTime();
+    animal.arboreal_duration = 0;
+  }
 
 
   // if (pen.land == "water") {
@@ -497,7 +530,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.undulation_counter = 0;
 
-  animal.animated = this.markTime();
+  animal.animated = (animal.type in animated_animals);
+  animal.last_animated = this.markTime();
 
   animal.eating = false;
   animal.eating_time = this.markTime();
@@ -520,12 +554,12 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         animal.delay = 500 + 2000 * Math.random();
         animal.delay_time = self.markTime();
         // animal.food_target = food;
-        if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
+        if (animal.animated) animal.sprite.gotoAndStop(0);
 
         if (self.timeSince(animal.eating_time) > 500) {
           // take a bite!
           animal.eating_time = self.markTime();
-          self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+          if (distance(self.player.x, self.player.y, animal.x, animal.y) < 1000) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
           if (food.currentFrame < 2) {
             food.gotoAndStop(food.currentFrame + 1);
           } else if (food.currentFrame == 2) {
@@ -582,8 +616,28 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       animal.delay_time = null;
     }
 
+    if (animal.movement == "arboreal" && animal.arboreal_state == "in_tree" 
+      && self.timeSince(animal.last_arboreal) > animal.arboreal_duration) {
+      
+      if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("tree_shake");
+      animal.tree.shake = self.markTime();
+      animal.sprite.gotoAndStop(0);
+      animal.arboreal_duration = 0;
+      animal.arboreal_state = "jumping_down";
+
+      new TWEEN.Tween(animal.sprite)
+        .to({x: 0, y: 0})
+        .duration(300)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .start()
+        .onComplete(function() {
+          animal.arboreal_state = "on_ground";
+          animal.tree = null;
+        });      
+    }
+
     if (animals[animal.type].last_sound == null || self.timeSince(animals[animal.type].last_sound) > animals[animal.type].sound_delay) {
-      if (distance(self.player.x, self.player.y, animal.pen.cx, animal.pen.cy) < 1200) {
+      if (distance(self.player.x, self.player.y, animal.x, animal.y) < 1000) {
         if (Math.random() > 0.65) {
           self.soundEffect(animals[animal.type].sound);
           animals[animal.type].sound_delay = 3000 + Math.random() * 11000;
@@ -594,7 +648,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
     if (animal.delay == 0 && animal.eating == false) {
       
-      if (animal.movement == "bounce" || (animal.movement == "arboreal" && animal.movement_state == "bounce")) {
+      if (animal.movement == "bounce" || (animal.movement == "arboreal" && animal.arboreal_state == "on_ground")) {
         //animal.sprite.x += animal.vx;
         animal.sprite.y += animal.vy;
         animal.y += animal.land_speed * Math.sin(animal.land_angle);
@@ -623,8 +677,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         }
 
         // animation test for bouncers
-        if (animal.type in animated_animals) {
-          if (self.timeSince(animal.animated) > walk_frame_time) {
+        if (animal.animated) {
+          if (self.timeSince(animal.last_animated) > walk_frame_time) {
             if (animal.sprite.currentFrame == 0) {
               animal.sprite.gotoAndStop(1);
               // animal.vy -= (0.5 + 0.55 * Math.random())
@@ -632,7 +686,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
               animal.sprite.gotoAndStop(0);
               // animal.vy -= (0.2 + 0.3 * Math.random())
             }
-            animal.animated = self.markTime();
+            animal.last_animated = self.markTime();
           }
         }
 
@@ -645,16 +699,16 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             animal.delay = 500 + 2000 * Math.random();
             animal.delay_time = self.markTime();
 
-            if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
+            if (animal.animated) animal.sprite.gotoAndStop(0);
 
-            if (animal.movement == "arboreal" && animal.movement_state == "bounce") {
-              
-            }
+            if (Math.random() < 0.75) animal.maybeJumpIntoATree();
 
-            if (animal.movement != "arboreal" || animal.movement_state == "bounce") {
+            if (animal.movement != "arboreal" || animal.arboreal_state == "on_ground") {
               animal.maybeChangeDirection();
             }
           }
+
+          if (Math.random() < 0.1) animal.maybeJumpIntoATree();
 
           if (Math.random() > 0.5) {
             if (pen.land == "water" 
@@ -714,7 +768,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             animal.delay = 700 + 3000 * Math.random();
             animal.delay_time = self.markTime();
 
-            if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
+            if (animal.animated) animal.sprite.gotoAndStop(0);
 
             animal.maybeChangeDirection();
           }
@@ -735,14 +789,14 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             animal.sprite.y = 0;
             animal.vy = 0;
 
-            if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
+            if (animal.animated) animal.sprite.gotoAndStop(0);
           } else {
             animal.sprite.y -= 18;
             animal.vy = -1.8;
           }
         } else {
           // fliers are always animated
-          if (self.timeSince(animal.animated) > walk_frame_time) {
+          if (self.timeSince(animal.last_animated) > walk_frame_time) {
             if (animal.sprite.currentFrame == 0) {
               animal.sprite.gotoAndStop(1);
               // animal.vy -= (0.5 + 0.55 * Math.random())
@@ -750,7 +804,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
               animal.sprite.gotoAndStop(0);
               // animal.vy -= (0.2 + 0.3 * Math.random())
             }
-            animal.animated = self.markTime();
+            animal.last_animated = self.markTime();
           }
 
           animal.vy += -0.6 + Math.random() * 1.2;
@@ -797,6 +851,60 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       animal.land_angle = (Math.random() * 360) * Math.PI / 180;
     } else if (animal.eating_target != null && dice >= 0.25 && dice < 0.75) {
       animal.land_angle = Math.atan2(animal.eating_target.position.y - animal.y, animal.eating_target.position.x - animal.x);
+    }
+  }
+
+  animal.maybeJumpIntoATree = function() {
+    if (animal.movement == "arboreal" && animal.arboreal_state == "on_ground") {
+      contact_points = [];
+      for (let p = 0; p < animal.pen.decoration_objects.length; p++) {
+        let decoration = animal.pen.decoration_objects[p];
+        if (decoration.type == "tree" 
+          && distance(decoration.x, decoration.y, animal.x, animal.y) < arboreal_jump_distance
+          && Math.abs(decoration.x - animal.x) < Math.abs(decoration.y - animal.y) * 0.9
+          && animal.y < decoration.y + 80) {
+          for (let c = 0; c < tree_cling_points[decoration.tree_number].length; c++) { // hey, c++
+            let cling_point = tree_cling_points[decoration.tree_number][c];
+            if ((cling_point[0] > 0 && animal.x > decoration.x)
+              || (cling_point[0] > 0 && animal.x > decoration.x)) {
+              contact_points.push([decoration, cling_point[0], cling_point[1]]);
+            }
+          }
+        }
+      }
+
+      if (contact_points.length > 0) {
+        let contact_point = pick(contact_points);
+        animal.arboreal_state = "in_tree";
+        if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("jump");
+        animal.last_arboreal = self.markTime();
+        animal.arboreal_duration = 3000 + Math.random() * 9000;
+        animal.tree = contact_point[0];
+
+        animal.sprite.gotoAndStop(1);
+        if (contact_point[1] > 0) {
+          animal.direction = -1;
+          animal.sprite.scale.set(-animal_scale, animal_scale);
+        } else {
+          animal.direction = 1;
+          animal.sprite.scale.set(animal_scale, animal_scale);
+        }
+
+        new TWEEN.Tween(animal)
+          .to({x: contact_point[0].x, y: contact_point[0].y + 5})
+          .duration(300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+        new TWEEN.Tween(animal.sprite)
+          .to({x: contact_point[1], y: -1 * contact_point[2] - 5})
+          .duration(300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start()
+          .onComplete(function() {
+            if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("tree_shake");
+            contact_point[0].shake = self.markTime();
+          });
+      }
     }
   }
 

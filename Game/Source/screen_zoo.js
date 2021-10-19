@@ -58,18 +58,7 @@ let square_width = 900;
 let total_ents = 150;
 
 
-let tree_cling_points = [];
-tree_cling_points[1] = [
-  [112,189,1],
-  [139, 169,-1],
-  [121,127,1],
-];
-tree_cling_points[3] = [
-  [116,148,1],
-  [116,114,1],
-  [139, 178,-1],
-  [149, 115,-1],
-];
+
 
 Game.prototype.resetZooScreen = function() {
   var self = this;
@@ -311,6 +300,22 @@ Game.prototype.makeUI = function() {
   this.animal_count_text.alpha = 0.0;
   this.animal_count_text.visible = false;
   screen.addChild(this.animal_count_text);
+
+  this.escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
+  this.escape_glyph.anchor.set(1,1);
+  this.escape_glyph.position.set(this.width - 20, this.height - 20);
+  this.escape_glyph.scale.set(0.6, 0.6)
+  this.escape_glyph.tint = 0x000000;
+  this.escape_glyph.alpha = 0.6;
+  this.escape_glyph.visible = false;
+  screen.addChild(this.escape_glyph);
+
+  this.escape_text = new PIXI.Text("Enter | Escape | Space", {fontFamily: "Bebas Neue", fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.escape_text.anchor.set(1,1);
+  this.escape_text.position.set(this.width - 100, this.height - 32);
+  this.escape_text.alpha = 0.6;
+  this.escape_text.visible = false;
+  screen.addChild(this.escape_text);
 }
 
 
@@ -803,6 +808,7 @@ Game.prototype.designatePens = function() {
 
       if (s != null && s.length > 0) {
         new_animal = s.pop();
+        new_animal = "KOALA";
         this.zoo_pens[i].animal = new_animal;
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;
@@ -1086,7 +1092,8 @@ Game.prototype.populateZoo = function() {
               decoration = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
               decoration.tree_number = Math.ceil(Math.random() * 3)
               decoration.gotoAndStop(decoration.tree_number - 1);
-              decoration.cling_points = [];
+              this.shakers.push(decoration);
+              //decoration.cling_points = [];
               // for (let s = 0; s < tree_cling_points[decoration.tree_number].length; s++) {
               //   // correct the cling points for this particular tree, including position, anchor, and scale.
               //   let p = tree_cling_points[decoration.tree_number][s];
@@ -1095,6 +1102,7 @@ Game.prototype.populateZoo = function() {
               //   decoration.cling_points.push([x,y,p[2]]);
               // }
             }
+            decoration.type = decoration_type;
             let edge = pick(this.zoo_pens[i].polygon);
             let fraction = 0.3 + 0.5 * Math.random();
             decoration.position.set(
@@ -1307,6 +1315,13 @@ Game.prototype.handleKeyDown = function(ev) {
   // if (key === "Escape") {
   //   this.player.position.set(this.entrance.cx, this.entrance.cy);
   // }
+
+  if (this.map_visible == true) {
+    if (key === "Escape" || key === " " || key === "Enter") {
+      this.hideMap();
+      return;
+    }
+  }
 
   if (this.zoo_mode == "active") {
     if (this.typing_allowed && this.typing_ui.visible) {
@@ -1924,6 +1939,9 @@ Game.prototype.displayMap = function() {
     //   pen.land_object.visible = false;
     // }
   }
+  for (let i = 0; i < this.npcs.length; i++) {
+    this.npcs[i].visible = false;
+  }
   this.player.scale.set(3 * 0.72,3 * 0.72);
   this.player.red_circle.visible = true;
   this.map_border.visible = true;
@@ -1933,6 +1951,9 @@ Game.prototype.displayMap = function() {
   this.hideDisplayText();
 
   this.map.scale.set(0.2, 0.2);
+
+  this.escape_glyph.visible = true;
+  this.escape_text.visible = true;
 
   this.map_visible = true;
 }
@@ -1963,7 +1984,9 @@ Game.prototype.hideMap = function() {
       pen.land_object.visible = true;
     }
   }
-
+  for (let i = 0; i < this.npcs.length; i++) {
+    this.npcs[i].visible = true;
+  }
   this.player.scale.set(0.72,0.72);
   this.player.red_circle.visible = false;
   this.map_border.visible = false;
@@ -1971,6 +1994,14 @@ Game.prototype.hideMap = function() {
   this.map.scale.set(1, 1);
 
   this.map_visible = false;
+
+  this.escape_glyph.visible = false;
+  this.escape_text.visible = false;
+
+  console.log(this.player.direction);
+  if (this.map_visible == false) {
+    this.checkPenProximity(this.player.x, this.player.y, this.player.direction);
+  }
 }
 
 
