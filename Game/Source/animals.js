@@ -38,6 +38,7 @@ animals = {
   "GORILLA": {
     mouth: [284, 307],
     butt: [191, 345],
+    land: "forest",
     food: ["greens", "fruit"],
   },
   "CHIMPANZEE": {
@@ -159,6 +160,7 @@ animals = {
     mouth: [314, 327],
     butt: [188, 338],
     food: ["bamboo"],
+    land: "forest",
   },
   "FOX": {
     mouth: [279, 329],
@@ -253,6 +255,8 @@ animals = {
     mouth: [272, 333],
     butt: [222, 396],
     food: "omnivore",
+    land: "forest",
+    // TO DO: arboreal red panda!
   },
   "KANGAROO": {
     mouth: [273, 295],
@@ -311,6 +315,15 @@ animals = {
     sound: "llama",
     food: "herbivore",
   },
+  "KOALA": {
+    mouth: [253, 331],
+    butt: [250, 411],
+    land: "forest",
+    food: "herbivore",
+    speed: 0.6,
+    decorations: ["tree"],
+    movement: "arboreal",
+  },
 }
 
 
@@ -354,7 +367,7 @@ section_starter_and_farm = [
 ]
 
 section_east_asia = [
-  "PANDA_BEAR", "RED_PANDA", "KANGAROO",
+  "PANDA_BEAR", "RED_PANDA", "KANGAROO", "KOALA",
 ]
 
 section_birds_reptiles_rodents = [
@@ -428,7 +441,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.type = animal_type;
 
   animal.sprite = null;
-  if (!(animal.type in animated_animals)) {
+  if (!(animal.type in animated_animals) && !(animals[animal.type].movement == "arboreal")) {
     animal.sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + animal.type.toLowerCase() + ".png"));
   } else {
     var sheet = PIXI.Loader.shared.resources["Art/Animals/" + animal.type.toLowerCase() + ".json"].spritesheet;
@@ -441,6 +454,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.movement = animals[animal.type].movement;
 
+  if (animal.movement == "arboreal") animal.movement_state = "bounce";
 
 
   // if (pen.land == "water") {
@@ -580,7 +594,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
     if (animal.delay == 0 && animal.eating == false) {
       
-      if (animal.movement == "bounce") {
+      if (animal.movement == "bounce" || (animal.movement == "arboreal" && animal.movement_state == "bounce")) {
         //animal.sprite.x += animal.vx;
         animal.sprite.y += animal.vy;
         animal.y += animal.land_speed * Math.sin(animal.land_angle);
@@ -609,15 +623,17 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         }
 
         // animation test for bouncers
-        if (self.timeSince(animal.animated) > walk_frame_time) {
-          if (animal.sprite.currentFrame == 0) {
-            animal.sprite.gotoAndStop(1);
-            // animal.vy -= (0.5 + 0.55 * Math.random())
-          } else if (animal.sprite.currentFrame == 1) {
-            animal.sprite.gotoAndStop(0);
-            // animal.vy -= (0.2 + 0.3 * Math.random())
+        if (animal.type in animated_animals) {
+          if (self.timeSince(animal.animated) > walk_frame_time) {
+            if (animal.sprite.currentFrame == 0) {
+              animal.sprite.gotoAndStop(1);
+              // animal.vy -= (0.5 + 0.55 * Math.random())
+            } else if (animal.sprite.currentFrame == 1) {
+              animal.sprite.gotoAndStop(0);
+              // animal.vy -= (0.2 + 0.3 * Math.random())
+            }
+            animal.animated = self.markTime();
           }
-          animal.animated = self.markTime();
         }
 
         if (animal.sprite.y >= 0) {
@@ -631,7 +647,13 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
             if (animal.type in animated_animals) animal.sprite.gotoAndStop(0);
 
-            animal.maybeChangeDirection();
+            if (animal.movement == "arboreal" && animal.movement_state == "bounce") {
+              
+            }
+
+            if (animal.movement != "arboreal" || animal.movement_state == "bounce") {
+              animal.maybeChangeDirection();
+            }
           }
 
           if (Math.random() > 0.5) {
@@ -769,6 +791,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.maybeChangeDirection = function() {
     let dice = Math.random();
+
     if ((animal.eating_target == null && dice < 0.5)
       || (animal.eating_target != null && dice < 0.25)) {
       animal.land_angle = (Math.random() * 360) * Math.PI / 180;

@@ -7,6 +7,7 @@ let ferris_wheel_colors = [
   0xFDFD97, // yellow,
   0xFEB144, // orange,
   0xFF6663, // red,
+  0xFEDCFF, // pink,
 ]
 
 

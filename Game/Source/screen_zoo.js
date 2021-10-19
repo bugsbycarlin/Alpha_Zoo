@@ -57,6 +57,20 @@ let poop_color = 0x644b38;
 let square_width = 900;
 let total_ents = 150;
 
+
+let tree_cling_points = [];
+tree_cling_points[1] = [
+  [112,189,1],
+  [139, 169,-1],
+  [121,127,1],
+];
+tree_cling_points[3] = [
+  [116,148,1],
+  [116,114,1],
+  [139, 178,-1],
+  [149, 115,-1],
+];
+
 Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
@@ -616,21 +630,30 @@ Game.prototype.makeMapPens = function() {
         });
       } else if (this.zoo_squares[i][j].reachable && this.isFerrisTile(i,j)) {
         let polygon = [];
-        polygon.push(this.zoo_vertices[i][j].halo.se);
-        polygon.push(this.zoo_vertices[i+1][j].halo.s);
-        polygon.push(this.zoo_vertices[i+2][j].halo.sw);
-        polygon.push(this.zoo_vertices[i+2][j+1].halo.nw);
-        polygon.push(this.zoo_vertices[i+1][j+1].halo.n);
-        polygon.push(this.zoo_vertices[i][j+1].halo.ne);
-        polygon.push(this.zoo_vertices[i][j].halo.se);
+        let center_x = square_width * (i + 1);
+        let center_y = square_width * j + square_width / 2;
+        // polygon.push(this.zoo_vertices[i][j].halo.se);
+        // polygon.push(this.zoo_vertices[i+1][j].halo.s);
+        // polygon.push(this.zoo_vertices[i+2][j].halo.sw);
+        // polygon.push(this.zoo_vertices[i+2][j+1].halo.nw);
+        // polygon.push(this.zoo_vertices[i+1][j+1].halo.n);
+        // polygon.push(this.zoo_vertices[i][j+1].halo.ne);
+        // polygon.push(this.zoo_vertices[i][j].halo.se);
+        polygon.push([center_x + 600, center_y + 160]);
+        polygon.push([center_x - 600, center_y + 160]);
+        polygon.push([center_x - 540, center_y + 160 - 60]);
+        polygon.push([center_x - 480, center_y + 160 - 120]);
+        polygon.push([center_x + 480, center_y + 160 - 120]);
+        polygon.push([center_x + 540, center_y + 160 - 60]);
+        polygon.push([center_x + 600, center_y + 160]);
 
         this.zoo_pens.push({
           use: false,
           outer: false,
           polygon: polygon,
           polygon_flat: polygon.flat(),
-          cx: square_width * (i + 1),
-          cy: square_width * j + square_width / 2,
+          cx: center_x,
+          cy: center_y,
           animal: null,
           special: "FERRIS_WHEEL",
           land: "grass",
@@ -811,8 +834,6 @@ Game.prototype.drawMap = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-
-
   // Map background
   let background = new PIXI.Sprite(PIXI.Texture.from("Art/zoo_gradient.png"));
   background.width = square_width * (this.zoo_size + 4);
@@ -821,57 +842,16 @@ Game.prototype.drawMap = function() {
   background.position.set(-2 * square_width, -2 * square_width);
   this.map.background_layer.addChild(background);
 
-
-
-  // this.debugDrawMapGroups();
-
-
-
-  // Draw the path background
-  // let path_background = new PIXI.Graphics();
-  // path_background.beginFill(path_color);
-  // path_background.drawEllipse(0, 0, ellipse_size * ellipse_eccentricity, ellipse_size);
-  // path_background.endFill();
-  // this.map.background_layer.addChild(path_background);
-
-  // let new_path_background = new PIXI.TilingSprite(PIXI.Texture.from("Art/path_art_2.png"));
-  // new_path_background.position.set(0, 0);
-  // this.map.background_layer.addChild(new_path_background);
-
-  // Draw the land background, using the unused voronoi cells to partially cover
-  // the elliptical edges of the path background.
-  // let land_background = new PIXI.Graphics();
-  // land_background.lineStyle(0, 0x000000, 0);
-  // //for (let i = 0; i < voronoi_size; i++) {
-  //   //if (this.voronoi_metadata[i].use == false && this.voronoi_metadata[i].group != 5000) {
-  // for (let i = 0; i < this.zoo_pens.length; i++) {
-  //   land_background.beginFill(background_color);
-  //   let polygon = this.zoo_pens[i].polygon_flat;
-  //   land_background.drawPolygon(polygon);
-  //   land_background.endFill();
-  // }
-  // this.map.background_layer.addChild(land_background);
-
-
   this.drawMapPath();
 
-
-  // for (let i = 0; i < voronoi_size; i++) {
-  //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != 5000) {
   for (let i = 0; i < this.zoo_pens.length; i++) {
-      this.zoo_pens[i].land_object = new PIXI.Container();
-      this.zoo_pens[i].land_object.cx = this.zoo_pens[i].cx;
-      this.zoo_pens[i].land_object.cy = this.zoo_pens[i].cy;
 
-      // let grass_polygon = this.zoo_pens[i].grass_polygon.flat();
+    this.zoo_pens[i].land_object = new PIXI.Container();
+    this.zoo_pens[i].land_object.cx = this.zoo_pens[i].cx;
+    this.zoo_pens[i].land_object.cy = this.zoo_pens[i].cy;
 
-      // let grass = new PIXI.Graphics();
-      // grass.beginFill(grass_color);
-      // grass.drawPolygon(grass_polygon);
-      // grass.endFill();
-      // grass.true_color = grass_color;
-      // grass.grey_color = grass_color;
-      // this.zoo_pens[i].land_object.addChild(grass);
+    if (this.zoo_pens[i].special == null) {
+    // if(true){
 
       let polygon = this.zoo_pens[i].polygon.flat();
 
@@ -927,6 +907,7 @@ Game.prototype.drawMap = function() {
       }
 
 
+    
       let border = new PIXI.Graphics();
       border.lineStyle(12, 0xFFFFFF, 1); //width, color, alpha
       let border_polygon = this.zoo_pens[i].polygon.flat();
@@ -951,10 +932,9 @@ Game.prototype.drawMap = function() {
       this.zoo_pens[i].land_object.addChild(border_depth_1);
       this.zoo_pens[i].land_object.addChild(border_depth_2);
       this.zoo_pens[i].land_object.addChild(border);
+    }
 
-
-      this.terrain.push(this.zoo_pens[i].land_object)
-    //}
+    this.terrain.push(this.zoo_pens[i].land_object)
   }
 
   this.sortLayer(this.map.terrain_layer, this.terrain, true);
@@ -1084,8 +1064,12 @@ Game.prototype.populateZoo = function() {
   // for (let i = 0; i < voronoi_size; i++) {
     // if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
       if (this.zoo_pens[i].decorations != null) {
-        decoration_number = Math.random();
-        for (let t = 0; t < 5; t++) {
+        let decoration_number = 5;
+        // if (this.zoo_pens[i].animal != null && animals[this.zoo_pens[i].animal].movement == "arboreal") {
+        //   decoration_number = 10;
+        // }
+        if (this.zoo_pens[i].land == "forest") decoration_number = 10;
+        for (let t = 0; t < decoration_number; t++) {
           if (Math.random() > 0.3) {
             let decoration_type = pick(this.zoo_pens[i].decorations);
             let decoration = null;
@@ -1094,7 +1078,16 @@ Game.prototype.populateZoo = function() {
             }
             if (decoration_type == "tree") {
               decoration = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              decoration.gotoAndStop(Math.floor(Math.random() * 3));
+              decoration.tree_number = Math.ceil(Math.random() * 3)
+              decoration.gotoAndStop(decoration.tree_number - 1);
+              decoration.cling_points = [];
+              // for (let s = 0; s < tree_cling_points[decoration.tree_number].length; s++) {
+              //   // correct the cling points for this particular tree, including position, anchor, and scale.
+              //   let p = tree_cling_points[decoration.tree_number][s];
+              //   let x = (p[0] - 256) * 1.2 + decoration.x;
+              //   let y = (p[1] - (512 * 0.9)) * 1.2 + decoration.y;
+              //   decoration.cling_points.push([x,y,p[2]]);
+              // }
             }
             let edge = pick(this.zoo_pens[i].polygon);
             let fraction = 0.3 + 0.5 * Math.random();
@@ -1664,7 +1657,7 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
 
   if (this.thing_to_type == "FERRIS_WHEEL") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/icon.png"));
-  } else if (!(this.thing_to_type in animated_animals)) {
+  } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.thing_to_type.toLowerCase() + ".png"));
   } else {
     console.log(this.thing_to_type);
