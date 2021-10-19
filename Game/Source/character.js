@@ -12,6 +12,12 @@ Game.prototype.makeCharacter = function(character_name) {
 
   character.type = "character";
   character.character_name = character_name;
+
+  character.red_circle = new PIXI.Sprite(PIXI.Texture.from("Art/red_circle.png"));
+  character.red_circle.anchor.set(0.5,0.5);
+  character.red_circle.position.set(0,0);
+  character.red_circle.visible = false;
+  character.addChild(character.red_circle)
   
 
   var sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;

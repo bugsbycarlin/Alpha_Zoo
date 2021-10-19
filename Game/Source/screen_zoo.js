@@ -289,6 +289,12 @@ Game.prototype.makeUI = function() {
 
   this.display_ui.visible = false;
 
+  this.map_border = new PIXI.Sprite(PIXI.Texture.from("Art/map_border.png"));
+  this.map_border.anchor.set(0,0);
+  this.map_border.position.set(0,0);
+  this.map_border.visible = false;
+  this.map_visible = false;
+  screen.addChild(this.map_border);
 
   this.animal_count_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/brown_bear.png"));
   this.animal_count_glyph.anchor.set(1,0.5);
@@ -1898,6 +1904,76 @@ Game.prototype.greyAllActivePens = function() {
 }
 
 
+Game.prototype.displayMap = function() {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    //if(this.zoo_pens[i].use == true && this.zoo_pens[i].group != 5000) {
+      //this.grey(this.zoo_pens[i]);
+    //}
+    let pen = this.zoo_pens[i];
+    if (pen.animal_objects != null) {
+      for (let j = 0; j < pen.animal_objects.length; j++) {
+        if (pen.state == "grey") pen.animal_objects[j].alpha = 0.4;
+        if (j > 0) pen.animal_objects[j].visible = false;
+        pen.animal_objects[j].scale.set(3,3);
+      }
+    }
+    for (let j = 0; j < pen.decoration_objects.length; j++) {
+      pen.decoration_objects[j].visible = false;
+    }
+    // if (pen.land_object != null) {
+    //   pen.land_object.visible = false;
+    // }
+  }
+  this.player.scale.set(3 * 0.72,3 * 0.72);
+  this.player.red_circle.visible = true;
+  this.map_border.visible = true;
+
+  // gonna have to change this when map is typed
+  if (this.typing_allowed) this.hideTypingText();
+  this.hideDisplayText();
+
+  this.map.scale.set(0.2, 0.2);
+
+  this.map_visible = true;
+}
+
+
+Game.prototype.hideMap = function() {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    //if(this.zoo_pens[i].use == true && this.zoo_pens[i].group != 5000) {
+      //this.grey(this.zoo_pens[i]);
+    //}
+    let pen = this.zoo_pens[i];
+    if (pen.animal_objects != null) {
+      for (let j = 0; j < pen.animal_objects.length; j++) {
+        if (pen.state == "grey") pen.animal_objects[j].alpha = 0.4;
+        if (pen.state == "ungrey") {
+          pen.animal_objects[j].alpha = 1.0;
+          pen.animal_objects[j].visible = true;
+        }
+        pen.animal_objects[j].scale.set(1,1);
+      }
+    }
+    if (pen.state == "ungrey") {
+      for (let j = 0; j < pen.decoration_objects.length; j++) {
+        pen.decoration_objects[j].visible = true;
+      }
+    }
+    if (pen.land_object != null) {
+      pen.land_object.visible = true;
+    }
+  }
+
+  this.player.scale.set(0.72,0.72);
+  this.player.red_circle.visible = false;
+  this.map_border.visible = false;
+
+  this.map.scale.set(1, 1);
+
+  this.map_visible = false;
+}
+
+
 Game.prototype.fadeTitle = function() {
   var self = this;
 
@@ -2094,7 +2170,7 @@ Game.prototype.updatePlayer = function() {
 
     this.updateEnts();
 
-    if (player.direction != null) {
+    if (player.direction != null && this.map_visible == false) {
       this.checkPenProximity(player.x, player.y, player.direction);
     }
   } else if (player.direction != null) {
@@ -2341,7 +2417,7 @@ Game.prototype.updateZoo = function(diff) {
 
   
   if (this.ferris_wheel != null) {
-    if (this.zoo_mode == "active" && this.player.y + 150 < this.ferris_wheel.y) {
+    if (this.zoo_mode == "active" && this.player.y + 150 < this.ferris_wheel.y && this.map_visible == false) {
       this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y - 150) / 800, 0.0);
     } else {
       this.ferris_wheel.alpha = 1;
