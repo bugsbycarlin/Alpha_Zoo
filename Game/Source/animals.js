@@ -866,7 +866,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           for (let c = 0; c < tree_cling_points[decoration.tree_number].length; c++) { // hey, c++
             let cling_point = tree_cling_points[decoration.tree_number][c];
             if ((cling_point[0] > 0 && animal.x > decoration.x)
-              || (cling_point[0] > 0 && animal.x > decoration.x)) {
+              || (cling_point[0] < 0 && animal.x < decoration.x)) {
               contact_points.push([decoration, cling_point[0], cling_point[1]]);
             }
           }

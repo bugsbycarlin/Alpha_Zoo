@@ -1478,21 +1478,21 @@ Game.prototype.addDisplayType = function(letter) {
 
   let prefix = false;
 
-  console.log(this.action_typing_text[this.action_default_slot].text);
+  // console.log(this.action_typing_text[this.action_default_slot].text);
 
   if (this.action_typing_text[this.action_default_slot].text.length  == 0) {
-    console.log("checking prefix");
+    // console.log("checking prefix");
     // only perform this prefix check if you're not using the existing field.
     for (let i = 0; i < this.action_list.length; i++) {
       let word = this.action_typing_text[i].text + letter;
-      console.log(this.action_list[i]);
-      console.log(word);
+      // console.log(this.action_list[i]);
+      // console.log(word);
       if (this.action_list[i].indexOf(word) == 0) {
         console.log("it is a prefix");
         prefix = true;
         this.action_default_slot = i;
       }
-      console.log("---");
+      // console.log("---");
     }
   }
 
