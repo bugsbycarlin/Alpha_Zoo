@@ -24,6 +24,14 @@ Music is Campfire Song by Chris Haugen (https://chrishaugen.net/).
 
 # Version history
 
+0.9
+- 10 more animals (now 55 total)
+- Arboreal animals!
+- Fish and bamboo foods
+- NPCs
+- A map
+- A Ferris Wheel!
+
 0.8
 - Added Electron build system for releases
 - Bug fixes for the feeding function

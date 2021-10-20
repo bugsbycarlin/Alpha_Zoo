@@ -325,6 +325,7 @@ animals = {
     movement: "arboreal",
     min: 2,
     max: 4,
+    tree_time: 9000,
   },
   "SLOTH": {
     mouth: [222, 346],
@@ -336,6 +337,27 @@ animals = {
     movement: "arboreal",
     min: 1,
     max: 3,
+    tree_time: 14000,
+  },
+  "LEMUR": {
+    mouth: [280, 326],
+    butt: [[195, 346], [277, 410]],
+    land: "forest",
+    food: "omnivore",
+    decorations: ["tree"],
+    movement: "arboreal",
+    min: 2,
+    max: 4,
+    tree_time: 7000,
+  },
+  "ORANGUTAN": {
+    mouth: [258, 308],
+    butt: [[255, 362], [262, 370]],
+    land: "forest",
+    food: "omnivore",
+    decorations: ["tree"],
+    movement: "arboreal",
+    tree_time: 9000,
   },
 }
 
@@ -367,7 +389,7 @@ section_cats = [
 ]
 
 section_primates = [
-  "GORILLA", "BABOON", "CHIMPANZEE",
+  "GORILLA", "BABOON", "CHIMPANZEE", "LEMUR", "ORANGUTAN",
 ]
 
 section_north_and_water = [
@@ -398,21 +420,6 @@ section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 
 
 
-// omnivores = [
-//   "BROWN_BEAR", "BLACK_BEAR", "FOX", "TURTLE",
-//   "PARROT", "MOUSE", "DOG", "PIG", "RED_PANDA", "BABOON",
-//   "CHIMPANZEE", "MEERKAT", "RACCOON", "PEACOCK",
-// ]
-// carnivores = [
-//   "LION", "OTTER", "TIGER", "ALLIGATOR", "CHEETAH", "SNAKE",
-//   "PANTHER", "CAT", "SEAL", "OWL", "LYNX", "POLAR_BEAR",
-//   "WOLF", "PENGUIN"
-// ]
-// bamboovores = [
-//   "PANDA_BEAR"
-// ]
-
-
 
 animated_animals = {
   "PARROT":0,
@@ -428,30 +435,24 @@ let arboreal_jump_distance = 200;
 
 let tree_touch_points = {};
 tree_touch_points["KOALA"] = [];
-tree_touch_points["KOALA"][1] = [
-  [-21, 107], [-23, 55], [-20, 123],
-  [-47, 91], [31, 55], [26, 113], [67, 86],
-];
-tree_touch_points["KOALA"][2] = [
-  [35, 23],
-];
-tree_touch_points["KOALA"][3] = [
-  [31, 30], [48, 126], [20, 145],
-  [-28, 106], [-29, 35], [-31, 51],
-];
-
+tree_touch_points["KOALA"][1] = [[-21, 107], [-23, 55], [-20, 123], [-47, 91], [31, 55], [26, 113], [67, 86],];
+tree_touch_points["KOALA"][2] = [[35, 23],];
+tree_touch_points["KOALA"][3] = [[31, 30], [48, 126], [20, 145],[-28, 106], [-29, 35], [-31, 51],];
 
 tree_touch_points["SLOTH"] = [];
-tree_touch_points["SLOTH"][1] = [
-  [26, 80], [29, 38], [50, 96],
-  [-25, 100], [-46, 63],
-];
-tree_touch_points["SLOTH"][2] = [
-  [75, 62],
-];
-tree_touch_points["SLOTH"][3] = [
-  [-24, 25], [-34, 112], [47, 84], [29, 75]
-];
+tree_touch_points["SLOTH"][1] = [[26, 80], [29, 38], [50, 96],[-25, 100], [-46, 63],];
+tree_touch_points["SLOTH"][2] = [[75, 62],];
+tree_touch_points["SLOTH"][3] = [[-24, 25], [-34, 112], [47, 84], [29, 75]];
+
+tree_touch_points["LEMUR"] = [];
+tree_touch_points["LEMUR"][1] = [[51, 106], [-39, 113],];
+tree_touch_points["LEMUR"][2] = [];
+tree_touch_points["LEMUR"][3] = [[63, 151], [-34, 180], [-45, 90],];
+
+tree_touch_points["ORANGUTAN"] = [];
+tree_touch_points["ORANGUTAN"][1] = [[-59, 37], [-24, 22], [82, 39], [28, 37]];
+tree_touch_points["ORANGUTAN"][2] = [[102, 2]];
+tree_touch_points["ORANGUTAN"][3] = [[-24, 22], [-68, 55], [27, 54], [98, 27], [60, 29]];
 
 
 
@@ -709,6 +710,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         if (animal.sprite.y >= 0) {
           animal.vy = -3.6;
           if (animal.type == "KANGAROO") animal.vy = -5;
+          if (animal.type == "SLOTH") animal.vy = -2.4;
           animal.sprite.y = 0;
 
           if(Math.random() < 0.05) {
@@ -744,6 +746,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           }
         } else {
           animal.vy += 0.6;
+          if (animal.type == "SLOTH") animal.vy -= 0.3;
         }
       }
 
@@ -894,7 +897,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         animal.arboreal_state = "in_tree";
         if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("jump");
         animal.last_arboreal = self.markTime();
-        animal.arboreal_duration = 3000 + Math.random() * 9000;
+        animal.arboreal_duration = 3000 + Math.random() * animals[animal.type].tree_time;
         animal.tree = contact_point[0];
 
         animal.sprite.gotoAndStop(1);

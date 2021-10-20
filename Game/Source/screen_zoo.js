@@ -806,7 +806,7 @@ Game.prototype.updateEnts = function() {
       if (ent_count < total_ents) {
         this.ents[ent_count].visible = true;
         this.ents[ent_count].position.set(pos[0], pos[1]);
-        this.ents[ent_count].gotoAndStop(pos[2] - 1);
+        this.ents[ent_count].tree.gotoAndStop(pos[2] - 1);
         ent_count += 1;
       }
     }
@@ -857,7 +857,7 @@ Game.prototype.designatePens = function() {
 
       if (s != null && s.length > 0) {
         new_animal = s.pop();
-        new_animal = "SLOTH";
+        // new_animal = "ORANGUTAN";
         this.zoo_pens[i].animal = new_animal;
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;
@@ -1138,9 +1138,16 @@ Game.prototype.populateZoo = function() {
               decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
             }
             if (decoration_type == "tree") {
-              decoration = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              decoration = new PIXI.Container();
               decoration.tree_number = Math.ceil(Math.random() * 3)
-              decoration.gotoAndStop(decoration.tree_number - 1);
+              let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
+              shadow.anchor.set(0.5, 0.5);
+              shadow.position.set(0,25);
+              decoration.addChild(shadow);
+              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              tree.gotoAndStop(decoration.tree_number - 1);
+              tree.anchor.set(0.5, 0.85);
+              decoration.addChild(tree);
               this.shakers.push(decoration);
             }
             decoration.type = decoration_type;
@@ -1150,9 +1157,8 @@ Game.prototype.populateZoo = function() {
               (1-fraction) * this.zoo_pens[i].cx + (fraction) * edge[0],
               (1-fraction) * this.zoo_pens[i].cy + (fraction) * edge[1]);
             decoration.scale.set(1.2, 1.2);
-            decoration.anchor.set(0.5,0.9);
-            if (decoration_type == "tree") {
-              decoration.anchor.set(0.5,0.85);
+            if (decoration_type != "tree") {
+              decoration.anchor.set(0.5,0.9);
             }
             this.decorations.push(decoration);
             this.zoo_pens[i].decoration_objects.push(decoration);
@@ -1223,12 +1229,21 @@ Game.prototype.populateZoo = function() {
   
   this.ents = [];
   for (let k = 0; k < total_ents; k++) {
-    let ent = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-    // let ent = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
+
+    let ent = new PIXI.Container();
+    let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
+    shadow.anchor.set(0.5, 0.5);
+    shadow.position.set(0,25);
+    ent.addChild(shadow);
+    let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+    tree.gotoAndStop(0);
+    tree.anchor.set(0.5, 0.85);
+    ent.addChild(tree);
+    ent.tree = tree;
+
+    // let ent = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
     ent.position.set(0, 0);
-    ent.gotoAndStop(0);
-    // ent.scale.set(1.2, 1.2);
-    ent.anchor.set(0.5, 0.85);
+    // ent.gotoAndStop(0);
     ent.visible = false;
     this.ents.push(ent);
     this.decorations.push(ent);
@@ -1236,7 +1251,7 @@ Game.prototype.populateZoo = function() {
 
 
   // Add a few trees around the edges of the pens
-  let inner_trees = 0;
+  let tree_lining_points = [];
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
       if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge) {
@@ -1245,14 +1260,7 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + 120 + 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
             if (this.pointInPen(x, y) == null) {
-              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
-              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              tree.gotoAndStop(Math.floor(Math.random() * 3));
-              tree.position.set(x, y);
-              // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.85);
-              this.decorations.push(tree);
-              inner_trees += 1;
+              tree_lining_points.push([x, y])
             }
           }
         }
@@ -1263,14 +1271,7 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + square_width - 120 - 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
             if (this.pointInPen(x, y) == null) {
-              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
-              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              tree.gotoAndStop(Math.floor(Math.random() * 3));
-              tree.position.set(x, y);
-              // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.85);
-              this.decorations.push(tree);
-              inner_trees += 1;
+              tree_lining_points.push([x, y]);
             }
           }
         }
@@ -1281,14 +1282,7 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + 120 + 20 * Math.random();
             if (this.pointInPen(x, y) == null) {
-              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
-              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              tree.gotoAndStop(Math.floor(Math.random() * 3));
-              tree.position.set(x, y);
-              // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.85);
-              this.decorations.push(tree);
-              inner_trees += 1;
+              tree_lining_points.push([x, y]);
             }
           }
         }
@@ -1299,21 +1293,32 @@ Game.prototype.populateZoo = function() {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + square_width - 120 - 20 * Math.random();
             if (this.pointInPen(x, y) == null) {
-              // let tree = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_v4_1.png"));
-              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              tree.gotoAndStop(Math.floor(Math.random() * 3));
-              tree.position.set(x, y);
-              // tree.scale.set(1.2, 1.2);
-              tree.anchor.set(0.5, 0.85);
-              this.decorations.push(tree);
-              inner_trees += 1;
+              tree_lining_points.push([x, y]);
             }
           }
         }
       }
     }
   }
-  console.log(inner_trees);
+
+  for (let i = 0; i < tree_lining_points.length; i++) {
+    let x = tree_lining_points[i][0];
+    let y = tree_lining_points[i][1];
+
+    let decoration = new PIXI.Container();
+    decoration.tree_number = Math.ceil(Math.random() * 3)
+    let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
+    shadow.anchor.set(0.5, 0.5);
+    shadow.position.set(0,25);
+    decoration.addChild(shadow);
+    let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+    tree.gotoAndStop(decoration.tree_number - 1);
+    tree.anchor.set(0.5, 0.85);
+    decoration.addChild(tree);
+    decoration.position.set(x, y);
+    this.decorations.push(decoration);
+  }
+
 
   this.updateAnimalCount();
 

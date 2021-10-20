@@ -79,6 +79,8 @@ class Game {
       .add("Art/Animals/peacock.json")
       .add("Art/Animals/koala.json")
       .add("Art/Animals/sloth.json")
+      .add("Art/Animals/lemur.json")
+      .add("Art/Animals/orangutan.json")
       .add("Art/Food/fruit.json")
       .add("Art/Food/steak.json")
       .add("Art/Food/greens.json")

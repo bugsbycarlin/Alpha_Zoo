@@ -1,0 +1,31 @@
+{"frames": {
+
+"orangutan_1.png":
+{
+	"frame": {"x":0,"y":0,"w":512,"h":512},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":512},
+	"sourceSize": {"w":512,"h":512}
+},
+"orangutan_2.png":
+{
+	"frame": {"x":512,"y":0,"w":512,"h":512},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":512},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"orangutan": ["orangutan_1.png","orangutan_2.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "orangutan.png",
+	"format": "RGBA8888",
+	"size": {"w":1024,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:ac99e3e57b2654708b2943ae138984ca:f3010811563e4f7c3cd84a12d34638bb:66b495ead1442516508f32eb3da9f1eb$"
+}
+}

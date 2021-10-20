@@ -1,0 +1,31 @@
+{"frames": {
+
+"lemur_1.png":
+{
+	"frame": {"x":0,"y":0,"w":512,"h":512},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":512},
+	"sourceSize": {"w":512,"h":512}
+},
+"lemur_2.png":
+{
+	"frame": {"x":512,"y":0,"w":512,"h":512},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":512},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"lemur": ["lemur_1.png","lemur_2.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "lemur.png",
+	"format": "RGBA8888",
+	"size": {"w":1024,"h":512},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:52bfd6d1f7fcfeb5b2cb4890d537271e:073dc7e4a8cc58cb36d601fc07f4a1a8:411082a9e1519c62f00563d766b0e34a$"
+}
+}
