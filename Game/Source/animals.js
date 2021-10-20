@@ -317,7 +317,7 @@ animals = {
   },
   "KOALA": {
     mouth: [253, 331],
-    butt: [250, 411],
+    butt: [[250, 411], [250, 411]],
     land: "forest",
     food: "herbivore",
     speed: 0.6,
@@ -325,6 +325,17 @@ animals = {
     movement: "arboreal",
     min: 2,
     max: 4,
+  },
+  "SLOTH": {
+    mouth: [222, 346],
+    butt: [[293, 328], [281, 415]],
+    land: "forest",
+    food: "herbivore",
+    speed: 0.25,
+    decorations: ["tree"],
+    movement: "arboreal",
+    min: 1,
+    max: 3,
   },
 }
 
@@ -368,8 +379,8 @@ section_starter_and_farm = [
   "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE", "GOAT", "RABBIT", "ALPACA", "LLAMA",
 ]
 
-section_east_asia = [
-  "PANDA_BEAR", "RED_PANDA", "KANGAROO", "KOALA",
+section_east_asia_south_america = [
+  "PANDA_BEAR", "RED_PANDA", "KANGAROO", "KOALA", "SLOTH",
 ]
 
 section_birds_reptiles_rodents = [
@@ -380,7 +391,7 @@ section_birds_reptiles_rodents = [
 // Current sections
 section = [];
 section[0] = section_savannah.concat(section_cats, section_primates, section_desert_special);
-section[1] = section_north_and_water.concat(section_east_asia);
+section[1] = section_north_and_water.concat(section_east_asia_south_america);
 section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
 
 
@@ -415,29 +426,34 @@ let land_speed_factor = 2.4;
 
 let arboreal_jump_distance = 200;
 
-let tree_cling_points = [];
-tree_cling_points[1] = [
-  [-21, 107],
-  [-23, 55],
-  [-20, 123],
-  [-47, 91],
-  [31, 55],
-  [26, 113],
-  [67, 86],
-
+let tree_touch_points = {};
+tree_touch_points["KOALA"] = [];
+tree_touch_points["KOALA"][1] = [
+  [-21, 107], [-23, 55], [-20, 123],
+  [-47, 91], [31, 55], [26, 113], [67, 86],
 ];
-tree_cling_points[2] = [
+tree_touch_points["KOALA"][2] = [
   [35, 23],
+];
+tree_touch_points["KOALA"][3] = [
+  [31, 30], [48, 126], [20, 145],
+  [-28, 106], [-29, 35], [-31, 51],
+];
 
+
+tree_touch_points["SLOTH"] = [];
+tree_touch_points["SLOTH"][1] = [
+  [26, 80], [29, 38], [50, 96],
+  [-25, 100], [-46, 63],
 ];
-tree_cling_points[3] = [
-  [31, 30],
-  [48, 126],
-  [20, 145],
-  [-28, 106],
-  [-29, 35],
-  [-31, 51],
+tree_touch_points["SLOTH"][2] = [
+  [75, 62],
 ];
+tree_touch_points["SLOTH"][3] = [
+  [-24, 25], [-34, 112], [47, 84], [29, 75]
+];
+
+
 
 
 
@@ -863,8 +879,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           && distance(decoration.x, decoration.y, animal.x, animal.y) < arboreal_jump_distance
           && Math.abs(decoration.x - animal.x) < Math.abs(decoration.y - animal.y) * 0.9
           && animal.y < decoration.y + 80) {
-          for (let c = 0; c < tree_cling_points[decoration.tree_number].length; c++) { // hey, c++
-            let cling_point = tree_cling_points[decoration.tree_number][c];
+          for (let c = 0; c < tree_touch_points[animal.type][decoration.tree_number].length; c++) { // hey, c++
+            let cling_point = tree_touch_points[animal.type][decoration.tree_number][c];
             if ((cling_point[0] > 0 && animal.x > decoration.x)
               || (cling_point[0] < 0 && animal.x < decoration.x)) {
               contact_points.push([decoration, cling_point[0], cling_point[1]]);
@@ -912,6 +928,9 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     // Find coords (say for a mouth or a butt) relative to the
     // anchor point (0.5, 0.75) in a 512x512 animal sprite
     let butt = animals[animal.type].butt;
+    if (animal.movement == "arboreal") {
+      butt = animals[animal.type].butt[animal.sprite.currentFrame];
+    }
     if (animal.direction >= 0) return [animal.x + animal_scale * (animal.sprite.x + butt[0] - 256), animal.y + animal_scale * (animal.sprite.y + butt[1] - 384)];
     if (animal.direction < 0) return [animal.x + animal_scale * (animal.sprite.x + 256 - butt[0]), animal.y + animal_scale * (animal.sprite.y + butt[1] - 384)];
   }

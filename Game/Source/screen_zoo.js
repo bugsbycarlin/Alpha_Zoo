@@ -857,7 +857,7 @@ Game.prototype.designatePens = function() {
 
       if (s != null && s.length > 0) {
         new_animal = s.pop();
-        // new_animal = "KOALA";
+        new_animal = "SLOTH";
         this.zoo_pens[i].animal = new_animal;
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;
@@ -1142,14 +1142,6 @@ Game.prototype.populateZoo = function() {
               decoration.tree_number = Math.ceil(Math.random() * 3)
               decoration.gotoAndStop(decoration.tree_number - 1);
               this.shakers.push(decoration);
-              //decoration.cling_points = [];
-              // for (let s = 0; s < tree_cling_points[decoration.tree_number].length; s++) {
-              //   // correct the cling points for this particular tree, including position, anchor, and scale.
-              //   let p = tree_cling_points[decoration.tree_number][s];
-              //   let x = (p[0] - 256) * 1.2 + decoration.x;
-              //   let y = (p[1] - (512 * 0.9)) * 1.2 + decoration.y;
-              //   decoration.cling_points.push([x,y,p[2]]);
-              // }
             }
             decoration.type = decoration_type;
             let edge = pick(this.zoo_pens[i].polygon);
