@@ -1,0 +1,76 @@
+<html>
+<head>
+  <title>Alpha Zoo</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link href="https://fonts.googleapis.com/css?family=Bebas+Neue" rel="stylesheet"/>
+  <meta name="description" content = "A game where parents and children learn together."/>
+  <link rel="shortcut icon" href="Art/icon.png"/>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NFHLQYMQKK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-NFHLQYMQKK');
+  </script>
+
+  <style type="text/css">
+    body {
+      background-image:  url(Art/path.png), linear-gradient(to bottom right, #518f40, #efd8ac);
+      background-position: 50% 500, center;
+      background-repeat: repeat-y;
+    }
+    #content {
+      margin: auto;
+      width: 90%;
+      height: 5000px;
+    }
+    #title_div {
+      position: relative;
+      top: 50px;
+      width: 100%;
+
+      animation: hovering 5s linear -5s infinite;
+      -webkit-animation: hovering 5s linear -5s infinite;
+      -moz-animation: hovering 5s linear -5s infinite;
+      -o-animation: hovering 5s linear -5s infinite;
+      -webkit-animation-direction: alternate;
+              animation-direction: alternate;
+    }
+    #title {
+      display: block;
+      margin-left: auto;
+      margin-right: auto
+    }
+
+
+
+    @keyframes hovering {
+      0% {
+        -webkit-transform: translateY(-25px);
+        transform: translateY(-25px);
+      }
+      100% {
+        -webkit-transform: translateY(25px);
+        transform: translateY(25px);
+      }
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <div id="content">
+    <div id="title_div">
+      <img id="title" src="Art/title.png"/>
+    </div>
+  </div>
+
+  <div id="footer">
+    
+  </div>
+</body>
+
+</html>
