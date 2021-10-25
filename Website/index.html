@@ -19,19 +19,16 @@
   <style type="text/css">
     body {
       background-image:  url(Art/path.png), linear-gradient(to bottom right, #518f40, #efd8ac);
-      background-position: 50% 500, center;
+      background-position: 50% 100, center;
       background-repeat: repeat-y;
     }
     #content {
-      margin: auto;
-      width: 90%;
       height: 5000px;
     }
-    #title_div {
-      position: relative;
-      top: 50px;
-      width: 100%;
-
+    #title {
+      position: absolute;
+      left: calc(50% - 660px);
+      top: 85px;
       animation: hovering 5s linear -5s infinite;
       -webkit-animation: hovering 5s linear -5s infinite;
       -moz-animation: hovering 5s linear -5s infinite;
@@ -39,32 +36,161 @@
       -webkit-animation-direction: alternate;
               animation-direction: alternate;
     }
-    #title {
-      display: block;
-      margin-left: auto;
-      margin-right: auto
+
+    #steam_link {
+      position: absolute;
+      left: calc(50% - 76px);
+      top: 990px;
+    }
+
+    #build_a_zoo_card {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% + 438px);
+      top: 1905px;
+    }
+
+    #help_your_child_card {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% - 544px);
+      top: 2713px;
+    }
+
+    .animal {
+      position: absolute;
+      transform: translate(-50%, -75%);
+      width: 320px;
+      height: 320px;
+    }
+
+    #explore_zoo_video {
+      position: absolute;
+      left: calc(50% - 545px);
+      top: 1710px;
+    }
+
+    #help_child_video {
+      position: absolute;
+      left: calc(50% - 66px);
+      top: 2548px;
     }
 
 
 
     @keyframes hovering {
       0% {
-        -webkit-transform: translateY(-25px);
-        transform: translateY(-25px);
+        -webkit-transform: translateY(-20px);
+        transform: translateY(-20px);
       }
       100% {
-        -webkit-transform: translateY(25px);
-        transform: translateY(25px);
+        -webkit-transform: translateY(20px);
+        transform: translateY(20px);
       }
     }
   </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+    animals = [];
+
+    addAnimal = function(animal_name, x, y) {
+      var animal = $("<img />", { 
+        class: "animal",
+        src: "Art/Animals/" + animal_name + ".png",
+      });
+      animal.css({ "left": "calc(50% + " + x + "px", "top": y + "px"});
+      animal.appendTo($("#content"));
+      animal.orig_x = x;
+      animal.orig_y = y;
+      animal.true_x = x;
+      animal.true_y = y;
+      animal.angle = Math.random() * 360;
+      animal.sprite_x = 0;
+      animal.sprite_y = 0;
+      animal.vy = 0;
+      animal.delay_duration = -1;
+      animal.delay_time = 0;
+      animal.update = function() {
+        if (animal.delay_duration == -1) {
+          animal.sprite_y += animal.vy;
+          animal.true_y += 2.4 * Math.sin(animal.angle * Math.PI / 180);
+          animal.true_x += 2.4 * Math.cos(animal.angle * Math.PI / 180);
+
+          if (animal.sprite_y >= 0) {
+            animal.vy = -3.0;
+            animal.sprite_y = 0;
+
+            if (Math.random() < 0.05) {
+              animal.delay_duration = 500 + Math.random() * 2000;
+              animal.delay_time = Date.now();
+            }
+          } else {
+            animal.vy += 0.6;
+          }
+
+          if (animal.true_x > animal.orig_x + 100 || animal.true_x < animal.orig_x - 130
+            || animal.true_y > animal.orig_y + 130 || animal.true_y < animal.orig_y - 130) {
+            animal.true_y -= 2.4 * Math.sin(animal.angle * Math.PI / 180);
+            animal.true_x -= 2.4 * Math.cos(animal.angle * Math.PI / 180);
+            animal.angle = Math.random() * 360;
+          }
+        } else if (Date.now() - animal.delay_time > animal.delay_duration) {
+          animal.delay_duration = -1;
+          animal.angle = Math.random() * 360;
+        }
+
+        // let dir = 1;
+        if (2.4 * Math.cos(animal.angle * Math.PI / 180) < 0) {
+          // dir = -1;
+          animal.css({"transform": "scaleX(-1) translate(50%, -75%)"});
+        } else {
+          animal.css({"transform": "translate(-50%, -75%)"});
+        }
+
+        animal.css({ "left": "calc(50% + " + animal.true_x + "px", "top": animal.true_y + animal.sprite_y + "px"});
+      }
+      animals.push(animal);
+    }
+
+    loadAnimals = function() {
+      addAnimal("hippo", 450, 315);
+      addAnimal("tiger", 420, 1145);
+      addAnimal("penguin", -500, 1145);
+      addAnimal("penguin", -770, 1105);
+      addAnimal("rabbit", -592, 1586);
+      addAnimal("camel", -584, 3178);
+
+      setInterval(function(){ 
+        for(let i = 0; i < animals.length; i++) {
+          animals[i].update();
+        }
+      }, 30 + 5 * Math.random());
+    }
+    
+  </script>
 </head>
 
-<body>
+<body onload="loadAnimals()">
   <div id="content">
-    <div id="title_div">
-      <img id="title" src="Art/title.png"/>
+    <div id="title">
+      <img src="Art/title.png"/>
+    </div>
+    <div id="steam_link">
+      <img src="Art/temporary_steam_link.png"/>
+    </div>
+    <div id="build_a_zoo_card">
+      <img src="Art/build_a_zoo_card.png"/>
+    </div>
+    <div id="help_your_child_card">
+      <img src="Art/help_your_child_card.png"/>
+    </div>
+
+    <div id="explore_zoo_video">
+      <iframe width="533" height="400" src="https://www.youtube.com/embed/_tPxGQdSCvA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <div id="help_child_video">
+      <iframe width="533" height="400" src="https://www.youtube.com/embed/_tPxGQdSCvA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
 
