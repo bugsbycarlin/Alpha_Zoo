@@ -23,7 +23,7 @@
       background-repeat: repeat-y;
     }
     #content {
-      height: 5000px;
+      height: 5600px;
     }
     #title {
       position: absolute;
@@ -39,15 +39,15 @@
 
     #steam_link {
       position: absolute;
-      left: calc(50% - 76px);
+      left: calc(50% + 125px);
       top: 990px;
     }
 
-    #build_a_zoo_card {
+    #explore_a_zoo_card {
       position: absolute;
       transform: translate(-50%, -50%);
       left: calc(50% + 438px);
-      top: 1905px;
+      top: 1965px;
     }
 
     #help_your_child_card {
@@ -55,6 +55,45 @@
       transform: translate(-50%, -50%);
       left: calc(50% - 544px);
       top: 2713px;
+    }
+
+    #feed_and_poop_card {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% + 438px);
+      top: 3565px;
+    }
+
+    #extras_card {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% - 544px);
+      top: 4333px;
+    }
+
+    #thanks_and_copyright_card {
+      position: absolute;
+      left: calc(50% - 545px);
+      top: 4910px;
+    }
+
+    #twitter_link {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% - 440px);
+      top: 5110px;
+    }
+    #contact_link {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% - 280px);
+      top: 5110px;
+    }
+    #presskit_link {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% - 120px);
+      top: 5110px;
     }
 
     .animal {
@@ -74,6 +113,18 @@
       position: absolute;
       left: calc(50% - 66px);
       top: 2548px;
+    }
+
+    #feed_and_poop_video {
+      position: absolute;
+      left: calc(50% - 545px);
+      top: 3310px;
+    }
+
+    #extras_video {
+      position: absolute;
+      left: calc(50% - 66px);
+      top: 4148px;
     }
 
 
@@ -154,11 +205,32 @@
 
     loadAnimals = function() {
       addAnimal("hippo", 450, 315);
+      addAnimal("tiger", 70, 1145);
       addAnimal("tiger", 420, 1145);
       addAnimal("penguin", -500, 1145);
       addAnimal("penguin", -770, 1105);
       addAnimal("rabbit", -592, 1586);
       addAnimal("camel", -584, 3178);
+      addAnimal("zebra", 438, 1855);
+      addAnimal("polar_bear", 438, 3455);
+      addAnimal("beaver", -584, 4778);
+      addAnimal("wolf", 438, 5055);
+
+      var koala = $("<img />", { 
+        class: "animal",
+        src: "Art/Animals/koala.png",
+      });
+      koala.css({ "left": "calc(50% + " + 390 + "px", "top": 2400 + "px", 
+        "transform": "scaleX(-1) translate(50%, -75%)"});
+      koala.appendTo($("#content"));
+
+      var lemur = $("<img />", { 
+        class: "animal",
+        src: "Art/Animals/lemur.png",
+      });
+      lemur.css({ "left": "calc(50% + -" + 677 + "px", "top": 3931 + "px", 
+        "transform": "translate(-50%, -75%)"});
+      lemur.appendTo($("#content"));
 
       setInterval(function(){ 
         for(let i = 0; i < animals.length; i++) {
@@ -178,11 +250,30 @@
     <div id="steam_link">
       <img src="Art/temporary_steam_link.png"/>
     </div>
-    <div id="build_a_zoo_card">
-      <img src="Art/build_a_zoo_card.png"/>
+    <div id="explore_a_zoo_card">
+      <img src="Art/explore_a_zoo_card.png"/>
     </div>
     <div id="help_your_child_card">
       <img src="Art/help_your_child_card.png"/>
+    </div>
+    <div id="feed_and_poop_card">
+      <img src="Art/feed_and_poop_card.png"/>
+    </div>
+    <div id="extras_card">
+      <img src="Art/extras_card.png"/>
+    </div>
+    <div id="thanks_and_copyright_card">
+      <img src="Art/thanks_and_copyright_card.png"/>
+    </div>
+
+    <div id="twitter_link">
+      <img src="Art/twitter_link.png"/>
+    </div>
+    <div id="contact_link">
+      <img src="Art/contact_link.png"/>
+    </div>
+    <div id="presskit_link">
+      <img src="Art/presskit_link.png"/>
     </div>
 
     <div id="explore_zoo_video">
@@ -190,6 +281,14 @@
     </div>
 
     <div id="help_child_video">
+      <iframe width="533" height="400" src="https://www.youtube.com/embed/_tPxGQdSCvA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <div id="feed_and_poop_video">
+      <iframe width="533" height="400" src="https://www.youtube.com/embed/_tPxGQdSCvA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <div id="extras_video">
       <iframe width="533" height="400" src="https://www.youtube.com/embed/_tPxGQdSCvA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
