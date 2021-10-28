@@ -23,8 +23,6 @@ Game.prototype.initializeZoo = function() {
   this.decorations = [];
   this.animals = [];
 
-  this.keymap = {};
-
   this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
   this.dropshadow_filter.blur  = 2;
   this.dropshadow_filter.quality = 3;
@@ -67,14 +65,17 @@ let poop_color = 0x644b38;
 let square_width = 900;
 let total_ents = 150;
 
-
-
+let npc_list = [
+  "black_bear", "polar_bear",
+  "rabbit_greenshirt", "rabbit_redshirt", "rabbit_blueshirt",
+  "yellow_cat", "orange_cat", "light_cat"
+];
 
 Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.zoo_mode = "active"; // active, ferris_wheel
+  this.zoo_mode = "active"; // active, ferris_wheel, fading
 
   // Make the map
   this.initializeMap();
@@ -548,7 +549,7 @@ Game.prototype.makeMapPens = function() {
     let potential_cafe_tiles = [];
     for (let i = 1; i < this.zoo_size - 1; i++) {
       for (let j = 1; j < this.zoo_size - 1; j++) {
-        if (this.zoo_squares[i][j].reachable && !this.isFerrisTile(i,j)
+        if (this.zoo_squares[i][j].reachable && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
           && this.zoo_squares[i][j].s_edge == true) { // put the cafe somewhere where there's a road below it.
           potential_cafe_tiles.push([i,j]);
         }
@@ -835,12 +836,6 @@ Game.prototype.playerAndBoundaries = function() {
       }
     }
   }
-
-  let npc_list = [
-    "black_bear", "polar_bear",
-    "rabbit_greenshirt", "rabbit_redshirt", "rabbit_blueshirt",
-    "yellow_cat", "orange_cat", "light_cat"
-  ];
 
   this.player = this.makeCharacter("brown_bear"); //brown_bear
   this.player.position.set(min_location[0], min_location[1]);
@@ -1427,28 +1422,22 @@ Game.prototype.populateZoo = function() {
 }
 
 
-Game.prototype.handleKeyUp = function(ev) {
-  ev.preventDefault();
+// Game.prototype.zooKeyUp = function(ev) {
+//   // ev.preventDefault();
 
-  this.keymap[ev.key] = null;
-}
+//   // this.keymap[ev.key] = null;
+// }
 
 
-Game.prototype.handleKeyDown = function(ev) {
+Game.prototype.zooKeyDown = function(ev) {
   var self = this;
   var screen = this.screens["zoo"];
-
-  if (ev.key === "Tab") {
-    ev.preventDefault();
-  }
-
-  let key = ev.key;
-
-  this.keymap[key] = true;
 
   // if (key === "Escape") {
   //   this.player.position.set(this.entrance.cx, this.entrance.cy);
   // }
+
+  let key = ev.key;
 
   if (this.map_visible == true) {
     if (key === "Escape" || key === " " || key === "Enter") {
@@ -2270,28 +2259,6 @@ Game.prototype.sortLayer = function(layer_name, layer_object_list, artificial_y 
 }
 
 
-
-Game.prototype.shakeDamage = function() {
-  var self = this;
-  var screen = this.screens["zoo"];
-
-  // for (let item of [screen, this.player_area, this.enemy_area]) {
-  for (let item of this.shakers) {
-    if (item.shake != null) {
-      if (item.permanent_x == null) item.permanent_x = item.position.x;
-      if (item.permanent_y == null) item.permanent_y = item.position.y;
-      item.position.set(item.permanent_x - 3 + Math.random() * 6, item.permanent_y - 3 + Math.random() * 6)
-      if (this.timeSince(item.shake) >= 150) {
-        item.shake = null;
-        item.position.set(item.permanent_x, item.permanent_y);
-        item.permanent_x = null;
-        item.permanent_y = null;
-      }
-    }
-  }
-}
-
-
 Game.prototype.poopsAndFoods = function(fractional) {
   var self = this;
   var screen = this.screens[this.current_screen];
@@ -2403,6 +2370,13 @@ Game.prototype.updatePlayer = function() {
 
     if (player.direction != null && this.map_visible == false) {
       this.checkPenProximity(player.x, player.y, player.direction);
+    }
+
+    if (Math.abs(player.x - this.cafe.x) <= 80 && player.y < this.cafe.y && player.y > this.cafe.y - 50) {
+      this.player.visible = false;
+      this.zoo_mode = "fading";
+      this.initializeScreen("cafe");
+      this.fadeScreens("zoo", "cafe", true);
     }
   } else if (player.direction != null) {
     player.updateDirection();
@@ -2633,7 +2607,7 @@ Game.prototype.updateZoo = function(diff) {
   //   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
   // }
 
-  if (this.zoo_mode == "active") {
+  if (this.zoo_mode == "active" || this.zoo_mode == "fading") {
     if (this.timeSince(this.start_time) < 2000) {
       this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
     } else {
@@ -2649,7 +2623,7 @@ Game.prototype.updateZoo = function(diff) {
 
   
   if (this.ferris_wheel != null) {
-    if (this.zoo_mode == "active" && this.player.y + 150 < this.ferris_wheel.y && this.map_visible == false) {
+    if ((this.zoo_mode == "active" || this.zoo_mode == "fading") && this.player.y + 150 < this.ferris_wheel.y && this.map_visible == false) {
       this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y - 150) / 800, 0.0);
     } else {
       this.ferris_wheel.alpha = 1;
@@ -2668,7 +2642,7 @@ Game.prototype.updateZoo = function(diff) {
 
   this.sortLayer(this.map.decoration_layer, this.decorations);
 
-  this.shakeDamage();
+  this.shakeThings();
   this.freeeeeFreeeeeFalling(fractional);
   this.poopsAndFoods(fractional);
 

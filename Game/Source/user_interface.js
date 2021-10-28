@@ -9,6 +9,27 @@
 // Written by Matthew Carlin
 //
 
+
+Game.prototype.shakeThings = function() {
+  var self = this;
+  var screen = this.screens[this.current_screen];
+
+  for (let item of this.shakers) {
+    if (item.shake != null) {
+      if (item.permanent_x == null) item.permanent_x = item.position.x;
+      if (item.permanent_y == null) item.permanent_y = item.position.y;
+      item.position.set(item.permanent_x - 3 + Math.random() * 6, item.permanent_y - 3 + Math.random() * 6)
+      if (this.timeSince(item.shake) >= 150) {
+        item.shake = null;
+        item.position.set(item.permanent_x, item.permanent_y);
+        item.permanent_x = null;
+        item.permanent_y = null;
+      }
+    }
+  }
+}
+
+
 Game.prototype.makeRocketTile = function(parent, letter, word_length, letter_number, shift, player, inner_size, outer_size) {
   var self = this;
   let rocket_tile = new PIXI.Container();
@@ -395,8 +416,8 @@ Game.prototype.initializeScreens = function() {
   var self = this;
   this.screens = [];
 
-  // this.makeScreen("alt_gen");
   this.makeScreen("zoo");
+  this.makeScreen("cafe");
 
   this.black = PIXI.Sprite.from(PIXI.Texture.WHITE);
   this.black.width = 1280;
@@ -423,6 +444,7 @@ Game.prototype.makeScreen = function(name) {
 
 
 Game.prototype.clearScreen = function(screen) {
+  console.log("clearing " + screen.name)
   while(screen.children[0]) {
     let x = screen.removeChild(screen.children[0]);
     x.destroy();
@@ -498,9 +520,10 @@ Game.prototype.fadeScreens = function(old_screen, new_screen, double_fade = fals
   for (var i = 0; i < this.screens.length; i++) {
     if (this.screens[i] == new_screen || this.screens[i] == old_screen) {
       this.screens[i].visible = true;
+      this.screens[i].alpha = 1;
     } else {
       this.screens[i].visible = false;
-      this.clearScreen(this.screens[i]);
+      // this.clearScreen(this.screens[i]);
     }
   }
 
@@ -509,6 +532,8 @@ Game.prototype.fadeScreens = function(old_screen, new_screen, double_fade = fals
     .duration(1000)
     // .easing(TWEEN.Easing.Linear)
     .onComplete(function() {
+      self.screens[new_screen].alpha = 1;
+      self.screens[new_screen].visible = true;
       if (!double_fade) {
         self.clearScreen(self.screens[old_screen]);
       } else {
@@ -516,7 +541,10 @@ Game.prototype.fadeScreens = function(old_screen, new_screen, double_fade = fals
         .to({alpha: 0})
         .duration(1000)
         .onComplete(function() {
-          self.clearScreen(self.screens[old_screen]);
+          // self.clearScreen(self.screens[old_screen]);
+          self.screens[old_screen].position.x = 1290;
+          self.screens[old_screen].alpha = 1;
+          self.screens[old_screen].visible = false;
           self.current_screen = new_screen;
           pixi.stage.removeChild(self.black);
         })
@@ -535,17 +563,17 @@ Game.prototype.popScreens = function(old_screen, new_screen) {
   pixi.stage.removeChild(this.screens[new_screen]);
   pixi.stage.addChild(this.screens[old_screen]);
   pixi.stage.addChild(this.screens[new_screen]);
-  this.screens[old_screen].position.x = 0;
+  this.screens[old_screen].position.x = 1290;
   this.screens[new_screen].position.x = 0;
   for (var i = 0; i < this.screens.length; i++) {
     if (this.screens[i] == new_screen) {
       this.screens[i].visible = true;
     } else {
       this.screens[i].visible = false;
-      this.clearScreen(this.screens[i]);
+      // this.clearScreen(this.screens[i]);
     }
   }
-  this.clearScreen(this.screens[old_screen]);
+  // this.clearScreen(this.screens[old_screen]);
   this.current_screen = new_screen;
 }
 

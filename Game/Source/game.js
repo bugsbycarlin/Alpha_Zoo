@@ -18,7 +18,6 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-// var first_screen = "alt_gen";
 var first_screen = "zoo";
 
 var performance_result = null;
@@ -36,6 +35,7 @@ class Game {
     var self = this;
 
     this.tracking = {};
+    this.keymap = {};
 
     this.basicInit();
 
@@ -217,19 +217,40 @@ class Game {
     if (screen_name == "zoo") {
       console.log("here");
       this.initializeZoo();
+    } else if (screen_name == "cafe") {
+      this.initializeCafe();
     }
-    // } else if (screen_name == "alt_gen") {
-    //   this.initializeAltGen();
-    // }
   }
 
   update(diff) {
     if (this.current_screen == "zoo") {
       this.updateZoo(diff);
+    } else if (this.current_screen == "cafe") {
+      this.updateCafe(diff);
     } 
-    // else if (this.current_screen == "alt_gen") {
-    //   this.updateAltGen(diff);
-    // }
+  }
+
+
+
+  handleKeyUp(ev) {
+    ev.preventDefault();
+
+    this.keymap[ev.key] = null;
+  }
+
+
+  handleKeyDown(ev) {
+    if (ev.key === "Tab") {
+      ev.preventDefault();
+    }
+
+    this.keymap[ev.key] = true;
+
+    if(this.current_screen === "zoo") {
+      this.zooKeyDown(ev);
+    } else if (this.current_screen == "cafe") {
+      this.cafeKeyDown(ev);
+    }
   }
 
 

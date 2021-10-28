@@ -8,37 +8,12 @@
 // Written by Matthew Carlin
 //
 
-// Some colors
-// Blue: 0x3cb0f3
-// Yellow: 0xf3db3c
-// Red: 0xdb5858
-// Green: 0x71d07d
-// Retro green: 0x3ff74f
-
-const board_width = 12;
-
-const special_level_duration = 60000;
-
-const bomb_spawn_interval = 10000;
-
 const letter_values = {
   "A": 1, "B": 2, "C": 1, "D": 1, "E": 1, "F": 2, "G": 1,
   "H": 2, "I": 1, "J": 3, "K": 2, "L": 1, "M": 1, "N": 1,
   "O": 1, "P": 1, "Q": 4, "R": 1, "S": 1, "T": 1, "U": 2,
   "V": 3, "W": 2, "X": 3, "Y": 2, "Z": 4,
 }
-
-var character_names = [
-  "ALFIE", "BERT", "CALLIE", "DENZEL", "EMMA", "FATIMA",
-  "GRETA", "HAKEEM", "INEZ", "JIN", "KRISHNA", "LIAN",
-  "MARCUS", "NAOMI", "OMAR", "PABLO", "QUARREN", "RIYA",
-  "SOPHIE", "TANIEL", "UBA", "VIJAY", "WINTER", "XAVIER",
-  "YAIR", "ZHANG",
-];
-
-var opponents = ["zh"];
-
-var fire_colors = [0xda5533, 0xf66931, 0xef912d, 0xfaae4b];
 
 const letter_array = Object.keys(letter_values);
 const lower_array = [];
