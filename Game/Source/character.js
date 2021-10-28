@@ -1,4 +1,12 @@
 
+//
+// The character class makes characters (player and NPC) and has methods
+// for making them move around. Actual input/control is handled in screen_zoo.js.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
+
 var default_walk_speed = 6;
 var walk_frame_time = 105;
 

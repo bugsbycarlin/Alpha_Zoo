@@ -1,4 +1,13 @@
 
+//
+// utilities.js has general utility methods like array shuffling, distance detection,
+// random element picking, point-inside-polygon detection, and so forth.
+// Lots of good stuff here.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
+
 // Some colors
 // Blue: 0x3cb0f3
 // Yellow: 0xf3db3c

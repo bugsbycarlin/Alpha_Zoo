@@ -1,3 +1,12 @@
+
+//
+// Notarize isn't part of the game. It's just used to notarize the OS X game build.
+// Written from various tutorials.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
+
 require('dotenv').config();
 const { notarize } = require('/usr/local/lib/node_modules/electron-notarize');
 

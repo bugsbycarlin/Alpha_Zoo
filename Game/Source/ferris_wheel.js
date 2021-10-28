@@ -1,4 +1,12 @@
 
+//
+// The ferris wheel class makes a ferris wheel and has methods for controlling it.
+// Actual ferris wheel sequence is handled in screen_zoo.js.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
+
 // https://www.schemecolor.com/pastel-rainbow.php
 let ferris_wheel_colors = [
   0xCC99C9, // purple,

@@ -1,4 +1,10 @@
-// main.js
+
+//
+// main.js is an electron wrapper around game.js.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
 
 // https://www.electronjs.org/docs/tutorial/quick-start
 

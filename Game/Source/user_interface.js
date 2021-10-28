@@ -1,8 +1,12 @@
 
 //
+// This is a partially outdated collection of user interface helper methods.
+// This is where we store things like popup window makers, special effect makers,
+// scene transition machinery, and so forth. It's outdated because most of the
+// methods in here are built for other games. But not all of them!
 //
-// Game UI tools
-//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
 //
 
 Game.prototype.makeRocketTile = function(parent, letter, word_length, letter_number, shift, player, inner_size, outer_size) {

@@ -1,4 +1,11 @@
 
+//
+// The animal class makes animals and governs their behavior. This file also
+// contains lists of animal properties such as diet, land type, behavior type, etc.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
 
 animals = {
   "LION": {

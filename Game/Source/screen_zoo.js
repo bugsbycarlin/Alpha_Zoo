@@ -1,4 +1,14 @@
 
+//
+// screen_zoo.js contains basically the entire core game scene.
+// This is where we create the zoo and also where we manage everything
+// about the core zoo game: walking around, building enclosures,
+// interacting with existing enclosures, and updating all the living things.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
+
 Game.prototype.initializeZoo = function() {
   var self = this;
   var screen = this.screens["zoo"];
@@ -494,7 +504,14 @@ Game.prototype.isFerrisTile = function(i,j) {
 
   if (i == this.special_ferris_tile[0] && j == this.special_ferris_tile[1]) return true;
 
-  // if ((i - 1) == this.special_ferris_tile[0] && j == this.special_ferris_tile[1]) return true;
+  return false;
+}
+
+
+Game.prototype.isCafeTile = function(i,j) {
+  if (this.special_cafe_tile == null) return false;
+
+  if (i == this.special_cafe_tile[0] && j == this.special_cafe_tile[1]) return true;
 
   return false;
 }
@@ -524,10 +541,33 @@ Game.prototype.makeMapPens = function() {
     }
   }
 
+
+  // next, choose a special cafe tile, and hold that out too.
+  this.special_cafe_tile = null;
+  if (this.zoo_size >= 6) {
+    let potential_cafe_tiles = [];
+    for (let i = 1; i < this.zoo_size - 1; i++) {
+      for (let j = 1; j < this.zoo_size - 1; j++) {
+        if (this.zoo_squares[i][j].reachable && !this.isFerrisTile(i,j)
+          && this.zoo_squares[i][j].s_edge == true) { // put the cafe somewhere where there's a road below it.
+          potential_cafe_tiles.push([i,j]);
+        }
+      }
+    }
+
+    if (potential_cafe_tiles.length > 0) {
+      shuffleArray(potential_cafe_tiles);
+      this.special_cafe_tile = potential_cafe_tiles[0];
+    } else {
+      console.log("ALERT: NO SPACE TO PUT THE CAFE!");
+    }
+  }
+
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
 
-      if (this.zoo_squares[i][j].reachable && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
+      if (this.zoo_squares[i][j].reachable && !this.isCafeTile(i,j)
+        && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
 
         let polygon = [];
 
@@ -724,6 +764,46 @@ Game.prototype.makeMapPens = function() {
           state: "ungrey",
           location: this.zoo_squares[i][j],
         });
+      } else if (this.zoo_squares[i][j].reachable && this.isCafeTile(i,j)) {
+        let polygon = [];
+        let center_x = square_width * i + square_width / 2;
+        let center_y = square_width * (j + 1) - 186; // 100 pixels of path, 86 pixels of space until the cafe door.
+        polygon.push([center_x + 300, center_y + 50]); // the bottom is 50 pixels from the door
+        polygon.push([center_x + 80, center_y + 50]); // the next four vertices define an indentation for the door
+        polygon.push([center_x + 80, center_y - 55]);
+        polygon.push([center_x - 80, center_y - 55]);
+        polygon.push([center_x - 80, center_y + 50]);
+        polygon.push([center_x - 300, center_y + 50]); // now we're back to the proper exterior
+        polygon.push([center_x - 300, center_y - 630]); // the top is 630 from the door, with a bit allowed for the player to walk partially out of view behind the building.
+        polygon.push([center_x + 300, center_y - 630]);
+        polygon.push([center_x + 300, center_y + 50]);
+
+        let grey_polygon = []; // we also define a simpler polygon for when the object is grey.
+        grey_polygon.push([center_x + 300, center_y + 50]);
+        grey_polygon.push([center_x - 300, center_y + 50]);
+        grey_polygon.push([center_x - 300, center_y - 630]);
+        grey_polygon.push([center_x + 300, center_y - 630]);
+        grey_polygon.push([center_x + 300, center_y + 50]);
+
+        this.zoo_pens.push({
+          use: false,
+          outer: false,
+          polygon: grey_polygon,
+          ungrey_polygon: polygon,
+          grey_polygon: grey_polygon,
+          polygon_flat: polygon.flat(),
+          cx: center_x,
+          cy: center_y,
+          animal: null,
+          special: "CAFE",
+          land: "grass",
+          decorations: null,
+          decoration_objects: [],
+          land_object: null,
+          animal_objects: null,
+          state: "ungrey",
+          location: this.zoo_squares[i][j],
+        });
       }
     }
   }
@@ -862,8 +942,6 @@ Game.prototype.designatePens = function() {
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;
       }
-    } else if (this.zoo_pens[i].special == "FERRIS_WHEEL") {
-      // do the ferris wheel thing!
     }
   }
 }
@@ -1190,6 +1268,13 @@ Game.prototype.populateZoo = function() {
         this.ferris_wheel.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy + 180);
         this.decorations.push(this.ferris_wheel);
         this.zoo_pens[i].special_object = this.ferris_wheel;
+      }
+
+      if (this.zoo_pens[i].special == "CAFE") {
+        this.cafe = this.makeCafeExterior(this.zoo_pens[i]);
+        this.cafe.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
+        this.decorations.push(this.cafe);
+        this.zoo_pens[i].special_object = this.cafe;
       }  
   }
 
@@ -1254,7 +1339,8 @@ Game.prototype.populateZoo = function() {
   let tree_lining_points = [];
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge) {
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge
+        && !this.isCafeTile(i,j)) {
         for (let t = 0; t < 4; t++) {
           if (Math.random() > 0.4) {
             let x = square_width * i + 120 + 20 * Math.random();
@@ -1265,7 +1351,8 @@ Game.prototype.populateZoo = function() {
           }
         }
       }
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].e_edge) {
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].e_edge
+        && !this.isCafeTile(i,j)) {
         for (let t = 0; t < 4; t++) {
           if (Math.random() > 0.4) {
             let x = square_width * i + square_width - 120 - 20 * Math.random();
@@ -1287,9 +1374,10 @@ Game.prototype.populateZoo = function() {
           }
         }
       }
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].n_edge) {
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].s_edge
+        && !this.isCafeTile(i,j)) {
         for (let t = 0; t < 3; t++) {
-          if (Math.random() > 0.3) {
+          if (Math.random() > 0.2) {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + square_width - 120 - 20 * Math.random();
             if (this.pointInPen(x, y) == null) {
@@ -1550,29 +1638,6 @@ Game.prototype.addDisplayType = function(letter) {
       pen.special_object = this.ferris_wheel;
     }
   }
-
-
-
-  // if (this.thing_to_display == "FERRIS_WHEEL") {
-  //   if (this.display_ride_typing_text.text.length < 4) {
-  //     this.display_ride_typing_text.text += letter;
-  //   }
-
-    
-  // } else {
-
-  //   // standard animal actions
-  //   if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length == 0) {
-  //     if (letter === "P") {
-  //       this.display_poop_typing_text.text += letter;
-  //     } else {
-  //       this.display_food_typing_text.text += letter;
-  //     }
-  //   } else if (this.display_poop_typing_text.text.length == 0 && this.display_food_typing_text.text.length < 4) {
-  //     this.display_food_typing_text.text += letter;
-  //   } else if (this.display_food_typing_text.text.length == 0 && this.display_poop_typing_text.text.length < 4) {
-  //     this.display_poop_typing_text.text += letter;
-  //   }
 }
 
 
@@ -1620,6 +1685,8 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
 
   if (this.thing_to_type == "FERRIS_WHEEL") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/icon.png"));
+  } else if (this.thing_to_type == "CAFE") {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Cafe/icon.png"));
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.thing_to_type.toLowerCase() + ".png"));
   } else {
@@ -1702,6 +1769,8 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
       word_list = ["MAP"];
     } else if (this.thing_to_display == "FERRIS_WHEEL") {
       word_list = ["COLOR", "RIDE"];
+    } else if (this.thing_to_display == "CAFE") {
+      word_list = [];
     } else {
       word_list = ["POOP", "FEED", "MAP"];
     }
@@ -1783,10 +1852,13 @@ Game.prototype.grey = function(pen) {
   for (let j = 0; j < pen.decoration_objects.length; j++) {
     pen.decoration_objects[j].visible = false;
   }
-  if (pen.special_object != null) {
+  if (pen.special == "FERRIS_WHEEL") {
     for (let j = 0; j < pen.special_object.all_objects.length; j++) {
       pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].grey_color;
     }
+  }
+  if (pen.special == "CAFE") {
+    pen.special_object.grey();
   }
   if (pen.land_object != null) {
     for (let j = 0; j < pen.land_object.children.length; j++) {
@@ -1811,10 +1883,13 @@ Game.prototype.ungrey = function(pen) {
   for (let j = 0; j < pen.decoration_objects.length; j++) {
     pen.decoration_objects[j].visible = true;
   }
-  if (pen.special_object != null) {
+  if (pen.special == "FERRIS_WHEEL") {
     for (let j = 0; j < pen.special_object.all_objects.length; j++) {
       pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].true_color;
     }
+  }
+  if (pen.special == "CAFE") {
+    pen.special_object.ungrey();
   }
   if (pen.land_object != null) {
     for (let j = 0; j < pen.land_object.children.length; j++) {

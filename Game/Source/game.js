@@ -1,6 +1,16 @@
+
+//
+// The game class runs the entire game, managing pixi.js setup and basic game setup,
+// handling scenes, running the master update and input handlers, and handling
+// pause and time.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
+
 'use strict';
 
-var use_music = true;
+var use_music = false;
 var use_sound = true;
 var use_scores = false;
 var log_performance = true;
