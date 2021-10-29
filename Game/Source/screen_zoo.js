@@ -13,8 +13,8 @@ Game.prototype.initializeZoo = function() {
   var self = this;
   var screen = this.screens["zoo"];
   this.clearScreen(screen);
+  console.log("initializing " + screen.name)
 
-  this.freefalling = [];
   this.shakers = [];
   this.drops = [];
   this.foods = [];
@@ -2298,39 +2298,6 @@ Game.prototype.poopsAndFoods = function(fractional) {
     }
   }
   this.drops = new_drops;
-}
-
-
-Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
-  var self = this;
-  var screen = this.screens[this.current_screen];
-
-  for (let i = 0; i < this.freefalling.length; i++) {
-    let item = this.freefalling[i];
-    item.position.x += item.vx * fractional;
-    item.position.y += item.vy * fractional;
-    if (item.gravity != null) {
-      item.vy += item.gravity * fractional;
-    } else {
-      item.vy += this.gravity * fractional;
-    }
-    
-    if (item.floor != null && item.position.y > item.floor) {
-      if (item.parent != null) {
-        item.parent.removeChild(item);
-      }
-      item.status = "dead";
-    }
-  }
-
-  let new_freefalling = [];
-  for (let i = 0; i < this.freefalling.length; i++) {
-    let item = this.freefalling[i];
-    if (item.status != "dead") {
-      new_freefalling.push(item);
-    }
-  }
-  this.freefalling = new_freefalling;
 }
 
 

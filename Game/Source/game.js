@@ -18,7 +18,7 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "zoo";
+var first_screen = "cafe";
 
 var performance_result = null;
 
@@ -83,7 +83,9 @@ class Game {
       .add("Art/Characters/orange_cat.json")
       .add("Art/Characters/yellow_cat.json")
       .add("Art/Characters/light_cat.json")
+
       .add("Art/Decorations/trees.json")
+
       .add("Art/Animals/parrot.json")
       .add("Art/Animals/owl.json")
       .add("Art/Animals/peacock.json")
@@ -91,12 +93,18 @@ class Game {
       .add("Art/Animals/sloth.json")
       .add("Art/Animals/lemur.json")
       .add("Art/Animals/orangutan.json")
+
       .add("Art/Food/fruit.json")
       .add("Art/Food/steak.json")
       .add("Art/Food/greens.json")
       .add("Art/Food/fish.json")
       .add("Art/Food/bamboo.json")
+
       .add("Art/smoke.json")
+      .add("Art/pop.json")
+
+      .add("Art/Cafe/Food/pizza.json")
+      .add("Art/Cafe/Food/burger.json")
       .load(function() {
         WebFont.load({
           google: {
@@ -215,7 +223,6 @@ class Game {
   initializeScreen(screen_name, reset = false) {
     console.log(screen_name);
     if (screen_name == "zoo") {
-      console.log("here");
       this.initializeZoo();
     } else if (screen_name == "cafe") {
       this.initializeCafe();

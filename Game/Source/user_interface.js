@@ -30,6 +30,39 @@ Game.prototype.shakeThings = function() {
 }
 
 
+Game.prototype.freeeeeFreeeeeFalling = function(fractional) {
+  var self = this;
+  var screen = this.screens[this.current_screen];
+
+  for (let i = 0; i < this.freefalling.length; i++) {
+    let item = this.freefalling[i];
+    item.position.x += item.vx * fractional;
+    item.position.y += item.vy * fractional;
+    if (item.gravity != null) {
+      item.vy += item.gravity * fractional;
+    } else {
+      item.vy += this.gravity * fractional;
+    }
+    
+    if (item.floor != null && item.position.y > item.floor) {
+      if (item.parent != null) {
+        item.parent.removeChild(item);
+      }
+      item.status = "dead";
+    }
+  }
+
+  let new_freefalling = [];
+  for (let i = 0; i < this.freefalling.length; i++) {
+    let item = this.freefalling[i];
+    if (item.status != "dead") {
+      new_freefalling.push(item);
+    }
+  }
+  this.freefalling = new_freefalling;
+}
+
+
 Game.prototype.makeRocketTile = function(parent, letter, word_length, letter_number, shift, player, inner_size, outer_size) {
   var self = this;
   let rocket_tile = new PIXI.Container();
@@ -173,6 +206,31 @@ Game.prototype.makeSmoke = function(parent, x, y, xScale, yScale) {
   }
   smoke_sprite.play();
   return smoke_sprite;
+}
+
+
+
+Game.prototype.makePop = function(parent, x, y, xScale, yScale) {
+  let sheet = PIXI.Loader.shared.resources["Art/pop.json"].spritesheet;
+  let pop_sprite = new PIXI.AnimatedSprite(sheet.animations["pop"]);
+  pop_sprite.anchor.set(0.5,0.5);
+  pop_sprite.position.set(x, y);
+  // pop_sprite.angle = Math.random() * 360;
+  parent.addChild(pop_sprite);
+  pop_sprite.animationSpeed = 0.4;
+  pop_sprite.scale.set(xScale, yScale);
+
+  // pop_sprite.onLoop = function() {
+  //   this.angle = Math.random() * 360;
+  // }
+  // console.log("But abba tho");
+  parent.addChild(pop_sprite);
+  pop_sprite.loop = false;
+  pop_sprite.onComplete = function() {
+    parent.removeChild(pop_sprite);
+  }
+  pop_sprite.play();
+  return pop_sprite;
 }
 
 
