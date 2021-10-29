@@ -18,7 +18,7 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "zoo";
+var first_screen = "cafe";
 
 var performance_result = null;
 
@@ -113,6 +113,15 @@ class Game {
       .add("Art/Cafe/Food/juice.json")
       .add("Art/Cafe/Food/apple.json")
       .add("Art/Cafe/Food/kiwi.json")
+      .add("Art/Cafe/Food/plum.json")
+      .add("Art/Cafe/Food/pear.json")
+      .add("Art/Cafe/Food/peach.json")
+      .add("Art/Cafe/Food/banana.json")
+      .add("Art/Cafe/Food/orange.json")
+      .add("Art/Cafe/Food/candy.json")
+      .add("Art/Cafe/Food/donut.json")
+      .add("Art/Cafe/Food/cookie.json")
+      .add("Art/Cafe/Food/ice_cream.json")
       .load(function() {
         WebFont.load({
           google: {
