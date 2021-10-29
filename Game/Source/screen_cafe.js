@@ -8,7 +8,7 @@
 
 let cafe_diner_locations = [[1107,704], [1213, 485], [798, 827], [324, 829]];
 let cafe_table_locations = [[1070,800], [1183, 578], [759, 922], [355, 923]];
-let cafe_food_locations = [[1084, 747], [1195, 519], [772, 864], [347, 860]];
+let cafe_food_locations = [[1084, 747], [1195, 519], [772, 864], [352, 870]];
 
 let menu_layout = [
   ["PIZZA", 60, 50],
@@ -47,11 +47,9 @@ Game.prototype.initializeCafe = function() {
   this.clearScreen(screen);
   console.log("initializing " + screen.name);
 
-
   this.cafe_typing_allowed = true;
   this.cafe_last_prefix = "";
   this.cafe_last_edit = null;
-
 
   this.cafe_background = new PIXI.Sprite(PIXI.Texture.from("Art/Cafe/cafe_background.png"));
   this.cafe_background.anchor.set(0, 0);
@@ -59,13 +57,11 @@ Game.prototype.initializeCafe = function() {
   this.cafe_background.position.set(0, 0);
   screen.addChild(this.cafe_background);
 
-
   this.cafe_menu_background = new PIXI.Sprite(PIXI.Texture.from("Art/Cafe/menu_background.png"));
   this.cafe_menu_background.anchor.set(0, 0);
   this.cafe_menu_background.scale.set(1, 1);
   this.cafe_menu_background.position.set(0, 0);
   screen.addChild(this.cafe_menu_background);
-
 
   this.cafe_escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
   this.cafe_escape_glyph.anchor.set(0,1);
@@ -274,6 +270,11 @@ Game.prototype.deleteCafeType = function() {
 }
 
 
+isLiquid = function(food_name) {
+  return (food_name == "milk" || food_name == "water" || food_name == "juice" || food_name == "soda");
+}
+
+
 Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
   var self = this;
   var screen = this.screens["cafe"];
@@ -288,6 +289,7 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
   let food_sprite = new PIXI.AnimatedSprite(sheet.animations[food_name]);
   food_sprite.anchor.set(0.5, 0.5);
   food_sprite.position.set(cafe_food_locations[table_number][0], cafe_food_locations[table_number][1]);
+  if (table_number == 3) food_sprite.scale.set(-1,1);
   screen.addChild(food_sprite);
 
   if (table_number == 0) {
@@ -303,27 +305,33 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
   }
 
   delay(function() {
-    if (table_number == 0) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+    if (table_number == 0) {
+      if (!isLiquid(food_name)) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+      if (isLiquid(food_name)) self.soundEffect("slurp"); 
+      self.cafe_diners[table_number].shake = self.markTime();
+    }
     food_sprite.gotoAndStop(1);
-    self.cafe_diners[table_number].shake = self.markTime();
-    console.log(self.cafe_diners[0]);
-  }, 500);
+    
+  }, 500 * (table_number/2 + 1));
 
   delay(function() {
-    if (table_number == 0) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+    if (table_number == 0) {
+      if (!isLiquid(food_name)) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+      self.cafe_diners[table_number].shake = self.markTime();
+    }
     food_sprite.gotoAndStop(2);
-    self.cafe_diners[table_number].shake = self.markTime();
-  }, 1000);
+    
+  }, 1000 * (table_number/2 + 1));
 
   delay(function() {
     food_sprite.visible = false;
     screen.removeChild(food_sprite);
-    self.cafe_diners[table_number].shake = self.markTime();
     if (table_number == 0) {
-      self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+      if (!isLiquid(food_name)) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
       self.cafe_typing_allowed = true;
+      self.cafe_diners[table_number].shake = self.markTime();
     }
-  }, 1500);
+  }, 1500 * (table_number/2 + 1));
 }
 
 

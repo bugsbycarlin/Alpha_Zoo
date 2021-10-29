@@ -10,7 +10,7 @@
 
 'use strict';
 
-var use_music = false;
+var use_music = true;
 var use_sound = true;
 var use_scores = false;
 var log_performance = true;
@@ -18,7 +18,7 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "cafe";
+var first_screen = "zoo";
 
 var performance_result = null;
 
@@ -105,6 +105,14 @@ class Game {
 
       .add("Art/Cafe/Food/pizza.json")
       .add("Art/Cafe/Food/burger.json")
+      .add("Art/Cafe/Food/hot_dog.json")
+      .add("Art/Cafe/Food/salad.json")
+      .add("Art/Cafe/Food/milk.json")
+      .add("Art/Cafe/Food/soda.json")
+      .add("Art/Cafe/Food/water.json")
+      .add("Art/Cafe/Food/juice.json")
+      .add("Art/Cafe/Food/apple.json")
+      .add("Art/Cafe/Food/kiwi.json")
       .load(function() {
         WebFont.load({
           google: {
