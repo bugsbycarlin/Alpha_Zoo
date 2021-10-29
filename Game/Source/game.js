@@ -122,6 +122,10 @@ class Game {
       .add("Art/Cafe/Food/donut.json")
       .add("Art/Cafe/Food/cookie.json")
       .add("Art/Cafe/Food/ice_cream.json")
+      .add("Art/Cafe/Food/celery.json")
+      .add("Art/Cafe/Food/carrots.json")
+      .add("Art/Cafe/Food/tomatoes.json")
+      .add("Art/Cafe/Food/cucumbers.json")
       .load(function() {
         WebFont.load({
           google: {
