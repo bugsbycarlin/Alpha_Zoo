@@ -366,6 +366,13 @@ animals = {
     movement: "arboreal",
     tree_time: 9000,
   },
+  "OSTRICH": {
+    mouth: [308, 211],
+    butt: [228, 344],
+    land: "sand",
+    food: "herbivore",
+    speed: 1.6,
+  },
 }
 
 
@@ -409,7 +416,7 @@ section_starter_and_farm = [
 ]
 
 section_east_asia_south_america = [
-  "PANDA_BEAR", "RED_PANDA", "KANGAROO", "KOALA", "SLOTH",
+  "PANDA_BEAR", "RED_PANDA", "KANGAROO", "KOALA", "SLOTH", "OSTRICH",
 ]
 
 section_birds_reptiles_rodents = [
