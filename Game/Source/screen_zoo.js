@@ -933,6 +933,7 @@ Game.prototype.designatePens = function() {
       if (s != null && s.length > 0) {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
+        // new_animal = "PEACOCK";
         this.zoo_pens[i].animal = new_animal;
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;

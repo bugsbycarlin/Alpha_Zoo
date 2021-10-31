@@ -493,6 +493,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.pen = pen;
   animal.type = animal_type;
 
+  animal.animated = (animal.type in animated_animals);
+
   animal.sprite = null;
   if (!animal.animated && animals[animal.type].movement != "arboreal") {
     animal.sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + animal.type.toLowerCase() + ".png"));
@@ -553,8 +555,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   // if (animal.type == "GAZELLE") animal.land_speed = 4.8;
 
   animal.undulation_counter = 0;
-
-  animal.animated = (animal.type in animated_animals);
   animal.last_animated = this.markTime();
 
   animal.eating = false;
@@ -724,6 +724,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             animal.delay = 500 + 2000 * Math.random();
             animal.delay_time = self.markTime();
 
+            console.log(animal.type);
+            console.log(animal.sprite);
             if (animal.animated) animal.sprite.gotoAndStop(0);
 
             if (Math.random() < 0.75) animal.maybeJumpIntoATree();
