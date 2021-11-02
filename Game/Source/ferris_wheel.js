@@ -32,11 +32,12 @@ Game.prototype.makeFerrisWheel = function(pen) {
   fw.pen = pen;
 
   fw.moving = false;
+  fw.ride_number = 0;
 
   fw.sky = new PIXI.Sprite(PIXI.Texture.from("Art/sky.png"));
   fw.sky.visible = false;
   fw.sky.anchor.set(0.5, 1);
-  fw.sky.scale.set(1.3,1);
+  fw.sky.scale.set(1.4,1.1);
   fw.sky.position.set(0, -1346 - 1100);
   fw.addChild(fw.sky);
 
@@ -74,7 +75,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.carts[i].true_color = fw.carts[i].tint;
     fw.carts[i].fw_sort_depth = 1;
 
-    if (i == 10 || i == 8) {
+    if (i >= 7 && i <= 11 && i != 9) {
       let rider = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/Riders/rider_" + Math.floor(Math.random() * 6) + ".png")); //" + Math.floor(Math.random() * 8) + "
       rider.anchor.set(0.5,0.5);
       rider.scale.set(0.72, 0.72);
@@ -138,7 +139,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.angular_acceleration = 0.02;
     fw.max_angular_velocity = 0.4;
     fw.moving = true;
-    fw.sky.visible = true;
+    fw.hideSoMuchStuff();
     fw.clunk_time = self.markTime();
     self.soundEffect("clunk");
   }
@@ -149,6 +150,88 @@ Game.prototype.makeFerrisWheel = function(pen) {
       .duration(300)
       .start()
     fw.angular_acceleration = 0;
+    fw.unhideTheStuff();
+    
+  }
+
+  let sight_line = 2700;
+  let decoration_sight_line = 2000;
+
+  fw.hideSoMuchStuff = function() {
+    for (let k = 0; k < total_ents; k++) {
+      self.ents[k].visible = false;
+    }
+
+    for (let i = 0; i < self.npcs.length; i++) {
+      self.npcs[i].visible = false;
+    }
+
+    for (let i = 0; i < self.zoo_pens.length; i++) {
+      let pen = self.zoo_pens[i];
+      if (pen.cy < fw.y - sight_line) {
+        if (pen.animal_objects != null) {
+          for (let j = 0; j < pen.animal_objects.length; j++) {
+            pen.animal_objects[j].pre_ferris_visible = pen.animal_objects[j].visible;
+            pen.animal_objects[j].visible = false;
+          }
+        }
+        for (let j = 0; j < pen.decoration_objects.length; j++) {
+          pen.decoration_objects[j].pre_ferris_visible = pen.decoration_objects[j].visible;
+          pen.decoration_objects[j].visible = false;
+        }
+        if (pen.special == "CAFE") {
+          pen.special_object.pre_ferris_visible = pen.special_object.visible;
+          pen.special_object.visible = false;
+        }
+        if (pen.land_object != null) {
+          pen.land_object.pre_ferris_visible = pen.land_object.visible;
+          pen.land_object.visible = false;
+        }
+      }
+    }
+
+    for (let i = 0; i < self.decorations.length; i++) {
+      if (self.decorations[i].y < fw.y - decoration_sight_line && self.decorations[i].type == "tree") {
+        self.decorations[i].pre_ferris_visible = self.decorations[i].visible;
+        self.decorations[i].visible = false;
+      }
+    }
+
+    fw.sky.visible = true;
+  }
+
+  fw.unhideTheStuff = function() {
+
+    for (let i = 0; i < self.npcs.length; i++) {
+      self.npcs[i].visible = true;
+    }
+
+    for (let i = 0; i < self.zoo_pens.length; i++) {
+      let pen = self.zoo_pens[i];
+      if (pen.cy < fw.y - sight_line) {
+        if (pen.animal_objects != null) {
+          for (let j = 0; j < pen.animal_objects.length; j++) {
+            pen.animal_objects[j].visible = pen.animal_objects[j].pre_ferris_visible;
+          }
+        }
+        for (let j = 0; j < pen.decoration_objects.length; j++) {
+          pen.decoration_objects[j].visible = pen.decoration_objects[j].pre_ferris_visible;
+        }
+        if (pen.special == "CAFE") {
+          pen.special_object.visible = pen.special_object.pre_ferris_visible;
+        }
+        if (pen.land_object != null) {
+          pen.land_object.visible = pen.land_object.pre_ferris_visible;
+        }
+      }
+    }
+
+    for (let i = 0; i < self.decorations.length; i++) {
+      if (self.decorations[i].y < fw.y - decoration_sight_line && self.decorations[i].type == "tree") {
+        self.decorations[i].visible = self.decorations[i].pre_ferris_visible;
+      }
+    }
+
     fw.sky.visible = false;
   }
 
@@ -163,6 +246,10 @@ Game.prototype.makeFerrisWheel = function(pen) {
 
     for (let i = 0; i < fw.riders.length; i++) {
       fw.riders[i].visible = false;
+      fw.riders[i].position.set(
+        0 + 850 * Math.cos((fw.riders[i].seat * 30) * Math.PI / 180),
+        -1346 - 850 * Math.sin((fw.riders[i].seat * 30) * Math.PI / 180) + 158
+      );
     }
 
     for (let i = 0; i < 12; i++) {
@@ -232,6 +319,16 @@ Game.prototype.makeFerrisWheel = function(pen) {
       if (fw.last_angle % 360 < 120 && fw.wheel_angle % 360 >= 120) {
         console.log("here");
         self.soundEffect("breeze");
+      }
+
+      // Messing with Ferris Wheel zoom. Needs to be paired with making things
+      // invisible and setting up the sky in a nicer way.
+      // But this is good, basically.
+      if (fw.wheel_angle % 360 > 90 && fw.wheel_angle % 360 < 270) {
+        let scale_dip = 0.2 * (90 - Math.abs(180 - (fw.wheel_angle % 360))) / 90;
+        self.map.scale.set(1 - scale_dip, 1 - scale_dip);
+      } else {
+        self.map.scale.set(1,1);
       }
 
       if (fw.last_angle % 360 < 240 && fw.wheel_angle % 360 >= 240) {

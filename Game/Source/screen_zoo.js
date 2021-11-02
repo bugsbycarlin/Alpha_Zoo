@@ -933,7 +933,7 @@ Game.prototype.designatePens = function() {
       if (s != null && s.length > 0) {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
-        // new_animal = "OSTRICH";
+        // new_animal = "PENGUIN";
         this.zoo_pens[i].animal = new_animal;
         this.zoo_pens[i].land = animals[new_animal].land;
         this.zoo_pens[i].decorations = animals[new_animal].decorations;
@@ -1248,14 +1248,20 @@ Game.prototype.populateZoo = function() {
         let num_animals_here = animals[animal_name].min + Math.floor(Math.random() * (1 + animals[animal_name].max - animals[animal_name].min))
 
         for (let n = 0; n < num_animals_here; n++) {
-          let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
-          animal.position.set(this.zoo_pens[i].cx - 36 + 72 * n, this.zoo_pens[i].cy - 36 + 72 * Math.random());
-          // animal.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
-          this.decorations.push(animal);
-          this.zoo_pens[i].animal_objects.push(animal);
-          this.animals.push(animal);
-          this.shakers.push(animal);
-          this.shakers.push(this.zoo_pens[i].land_object);
+          
+          let x = this.zoo_pens[i].cx - 60 + 120 * Math.random();
+          let y = this.zoo_pens[i].cy - 60 + 120 * Math.random();
+          if (this.pointInPen(x, y) == this.zoo_pens[i]) { // don't make animals outside the pen
+
+            let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
+            animal.position.set(x, y);
+            // animal.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
+            this.decorations.push(animal);
+            this.zoo_pens[i].animal_objects.push(animal);
+            this.animals.push(animal);
+            this.shakers.push(animal);
+            this.shakers.push(this.zoo_pens[i].land_object);
+          }
         }
       }
 
@@ -1390,6 +1396,7 @@ Game.prototype.populateZoo = function() {
     let y = tree_lining_points[i][1];
 
     let decoration = new PIXI.Container();
+    decoration.type = "tree";
     decoration.tree_number = Math.ceil(Math.random() * 3)
     let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
     shadow.anchor.set(0.5, 0.5);
@@ -1440,11 +1447,32 @@ Game.prototype.zooKeyDown = function(ev) {
 
   let key = ev.key;
 
-  if (this.map_visible == true) {
+  if (this.zoo_mode == "active" && this.map_visible == true) {
     if (key === "Escape" || key === " " || key === "Enter") {
       this.hideMap();
       return;
     }
+  }
+
+  if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.moving == true && key === "Escape") {
+    this.ferris_wheel.ride_number += 1;
+    this.ferris_wheel.stopMoving();
+    this.fadeToBlack(1000);
+
+    delay(function() {
+      self.ferris_wheel.reset();
+    }, 900)
+
+    delay(function() {
+        self.decorations.push(self.player);
+        self.sortLayer(self.map.decoration_layer, self.decorations);
+
+        self.fadeFromBlack(1000);
+
+        self.zoo_mode = "active";
+
+        self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
+    }, 2400);
   }
 
   if (this.zoo_mode == "active") {
@@ -2028,6 +2056,9 @@ Game.prototype.rideFerrisWheel = function() {
   this.zoo_mode = "pre_ferris_wheel";
   // this.fadeScreens("zoo", "zoo", true);
 
+  this.ferris_wheel.ride_number += 1;
+  let ride_number = this.ferris_wheel.ride_number;
+
   delay(function() {
     self.hideDisplayText();
     self.fadeToBlack(1000);
@@ -2060,25 +2091,35 @@ Game.prototype.rideFerrisWheel = function() {
   }, 2800);
 
   delay(function() {
-    self.ferris_wheel.stopMoving();
+    if (self.ferris_wheel.ride_number == ride_number) { // guard so we can skip a ride
+      self.ferris_wheel.stopMoving();
+    }
   }, 62800)
 
   delay(function() {
-    self.fadeToBlack(1000);
+    if (self.ferris_wheel.ride_number == ride_number) {
+      self.fadeToBlack(1000);
+    }
   }, 63100)
 
   delay(function() {
-    self.ferris_wheel.reset();
+    if (self.ferris_wheel.ride_number == ride_number) {
+      self.ferris_wheel.reset();
+    }
   }, 64200)
 
   delay(function() {
-    self.decorations.push(self.player);
-    self.sortLayer(self.map.decoration_layer, self.decorations);
+    if (self.ferris_wheel.ride_number == ride_number) {
+      self.decorations.push(self.player);
+      self.sortLayer(self.map.decoration_layer, self.decorations);
 
-    self.fadeFromBlack(1000);
+      self.fadeFromBlack(1000);
 
-    self.zoo_mode = "active";
-  }, 64600)
+      self.zoo_mode = "active";
+
+      self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
+    }
+  }, 64600);
 }
 
 

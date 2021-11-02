@@ -99,6 +99,7 @@ class Game {
       .add("Art/Food/greens.json")
       .add("Art/Food/fish.json")
       .add("Art/Food/bamboo.json")
+      .add("Art/Food/micro.json")
 
       .add("Art/smoke.json")
       .add("Art/pop.json")

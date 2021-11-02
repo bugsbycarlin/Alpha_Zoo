@@ -373,6 +373,15 @@ animals = {
     food: "herbivore",
     speed: 1.6,
   },
+  "FLAMINGO": {
+    mouth: [320, 234],
+    butt: [220, 326],
+    land: "watergrass",
+    food: ["micro"],
+    speed: 0.4,
+    min: 3,
+    max: 6,
+  },
 }
 
 
@@ -420,7 +429,7 @@ section_east_asia_south_america = [
 ]
 
 section_birds_reptiles_rodents = [
-  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK",
+  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO",
 ]
 
 

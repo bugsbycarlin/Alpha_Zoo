@@ -48,6 +48,7 @@ Game.prototype.initializeCafe = function() {
   console.log("initializing " + screen.name);
 
   this.cafe_typing_allowed = true;
+  this.cafe_exit_sequence = false;
   this.cafe_last_prefix = "";
   this.cafe_last_edit = null;
 
@@ -154,14 +155,19 @@ Game.prototype.cafeKeyDown = function(ev) {
 
   let key = ev.key;
 
-  if (key === "Escape") {
+  if (key === "Escape" && !this.cafe_exit_sequence) {
+    this.cafe_exit_sequence = true;
     this.player.visible = true;
     this.player.y += 150;
     this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
     this.zoo_mode = "active";
+    this.player.direction = "right";
+    this.player.updateDirection();
+    this.checkPenProximity(this.player.x, this.player.y, this.player.direction);
     this.fadeScreens("cafe", "zoo", true);
     return;
   }
+
   
 
   if (this.cafe_typing_allowed) {
