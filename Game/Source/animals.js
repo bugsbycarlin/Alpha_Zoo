@@ -382,6 +382,14 @@ animals = {
     min: 3,
     max: 6,
   },
+  "SWAN": {
+    mouth: [321, 287],
+    butt: [218, 382],
+    land: "water",
+    food: "herbivore",
+    speed: 0.8,
+    movement: "undulate",
+  },
 }
 
 
@@ -429,7 +437,7 @@ section_east_asia_south_america = [
 ]
 
 section_birds_reptiles_rodents = [
-  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO",
+  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO", "SWAN",
 ]
 
 
@@ -613,7 +621,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           let food_shard = new PIXI.Graphics();
           if (food.type == "greens" || food.type == "bamboo") {
             food_shard.beginFill(greens_color);
-          } else if (food.type == "steak" || food.type == "fish") {
+          } else if (food.type == "steak" || food.type == "fish" || food.type == "micro") {
             food_shard.beginFill(steak_color);
           } else if (food.type == "fruit") {
             food_shard.beginFill(fruit_color);
