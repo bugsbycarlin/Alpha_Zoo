@@ -390,6 +390,24 @@ animals = {
     speed: 0.8,
     movement: "undulate",
   },
+  "DUCK": {
+    mouth: [314, 307],
+    butt: [229, 382],
+    land: "watergrass",
+    food: ["fish", "micro", "greens"],
+    speed: 1,
+    min: 2,
+    max: 5,
+  },
+  "GOOSE": {
+    mouth: [334, 267],
+    butt: [219, 373],
+    land: "watergrass",
+    food: ["micro", "greens"],
+    speed: 1,
+    min: 2,
+    max: 5,
+  },
 }
 
 
