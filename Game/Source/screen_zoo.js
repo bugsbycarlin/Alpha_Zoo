@@ -85,9 +85,14 @@ Game.prototype.resetZooScreen = function() {
 
   // Make the title image
   this.title_image = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo_title.png"));
-  this.title_image.width = this.width;
-  this.title_image.height = this.height;
+  this.title_image.anchor.set(0.5,0);
+  this.title_image.position.set(this.width / 2, 0);
   screen.addChild(this.title_image);
+
+  this.title_instructions = new PIXI.Sprite(PIXI.Texture.from("Art/title_instructions.png"));
+  this.title_instructions.anchor.set(0.5,1);
+  this.title_instructions.position.set(this.width / 2, this.height);
+  screen.addChild(this.title_instructions);
 
   // Make the ui layer
   this.makeUI();
@@ -95,8 +100,9 @@ Game.prototype.resetZooScreen = function() {
   // Populate the map with things
   this.designatePens();
   this.drawMap();
-  this.populateZoo();
   this.playerAndBoundaries();
+  this.populateZoo();
+  
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAllActivePens();
 
@@ -130,6 +136,8 @@ Game.prototype.initializeMap = function() {
 
   this.map.decoration_layer = new PIXI.Container();
   this.map.addChild(this.map.decoration_layer);
+
+  this.decorations = [];
 
   // Vertices (crossroads in the path)
   this.zoo_vertices = {};
@@ -814,81 +822,6 @@ Game.prototype.makeMapPens = function() {
 }
 
 
-Game.prototype.playerAndBoundaries = function() {
-  
-  this.upper_bound = 0;
-  this.lower_bound = 0;
-  this.left_bound = 0;
-  this.right_bound = 0;
-
-
-  this.upper_bound = -0.5 * square_width;
-  this.lower_bound = square_width * (this.zoo_size + 0.5);
-  this.left_bound = -0.5 * square_width;
-  this.right_bound = square_width * (this.zoo_size + 0.5);
-
-  min_location = [-square_width,-square_width];
-
-  for (let i = 0; i <= this.zoo_size; i++) {
-    for (let j = 0; j <= this.zoo_size; j++) {
-      if (this.zoo_vertices[i][j].n_path == true && square_width * j + square_width / 2 > min_location[1]) {
-        min_location = [square_width * i, square_width * j];
-      }
-    }
-  }
-
-  this.player = this.makeCharacter("brown_bear"); //brown_bear
-  this.player.position.set(min_location[0], min_location[1]);
-  this.decorations.push(this.player);
-
-  this.npcs = [];
-
-  let count = 0;
-  for (let i = 1; i < this.zoo_size; i++) {
-    for (let j = 1; j < this.zoo_size; j++) {
-      count += 1;
-      if (this.zoo_vertices[i][j].n_path == true 
-        || this.zoo_vertices[i][j].s_path == true
-        || this.zoo_vertices[i][j].e_path == true
-        || this.zoo_vertices[i][j].w_path == true) {
-        if (Math.random() < 0.75) {
-          console.log("Making NPC");
-          let new_npc = this.makeCharacter(pick(npc_list));
-          new_npc.position.set(square_width * i, square_width * j);
-          new_npc.walk_speed = 0.75 * default_walk_speed;
-          new_npc.walk_frame_time = walk_frame_time / 0.75;
-          this.decorations.push(new_npc);
-          this.npcs.push(new_npc);
-        }
-      }
-    }
-  }
-  console.log(count);
-
-  this.updateEnts();
-}
-
-
-Game.prototype.updateEnts = function() {
-  for (let k = 0; k < total_ents; k++) {
-    this.ents[k].visible = false;
-  }
-  ent_count = 0;
-  for (let e = 0; e < this.ent_positions.length; e++) {
-    let pos = this.ent_positions[e];
-
-    if(Math.abs(this.player.x - pos[0]) < 800 && Math.abs(this.player.y - pos[1]) < 700) {
-      if (ent_count < total_ents) {
-        this.ents[ent_count].visible = true;
-        this.ents[ent_count].position.set(pos[0], pos[1]);
-        this.ents[ent_count].tree.gotoAndStop(pos[2] - 1);
-        ent_count += 1;
-      }
-    }
-  }
-}
-
-
 Game.prototype.designatePens = function() {
   console.log("There are " + this.zoo_pens.length + " pens.");
 
@@ -1077,7 +1010,6 @@ Game.prototype.drawMap = function() {
 }
 
 
-
 Game.prototype.drawMapPath = function() {
   var self = this;
   var screen = this.screens["zoo"];
@@ -1188,6 +1120,59 @@ Game.prototype.drawMapPath = function() {
 }
 
 
+Game.prototype.playerAndBoundaries = function() {
+  
+  this.upper_bound = 0;
+  this.lower_bound = 0;
+  this.left_bound = 0;
+  this.right_bound = 0;
+
+
+  this.upper_bound = -0.5 * square_width;
+  this.lower_bound = square_width * (this.zoo_size + 0.5);
+  this.left_bound = -0.5 * square_width;
+  this.right_bound = square_width * (this.zoo_size + 0.5);
+
+  min_location = [-square_width,-square_width];
+
+  for (let i = 0; i <= this.zoo_size; i++) {
+    for (let j = 0; j <= this.zoo_size; j++) {
+      if (this.zoo_vertices[i][j].n_path == true && square_width * j + square_width / 2 > min_location[1]) {
+        min_location = [square_width * i, square_width * j];
+      }
+    }
+  }
+
+  this.player = this.makeCharacter("brown_bear"); //brown_bear
+  this.player.position.set(min_location[0], min_location[1]);
+  this.decorations.push(this.player);
+
+  this.npcs = [];
+
+  let count = 0;
+  for (let i = 1; i < this.zoo_size; i++) {
+    for (let j = 1; j < this.zoo_size; j++) {
+      count += 1;
+      if (this.zoo_vertices[i][j].n_path == true 
+        || this.zoo_vertices[i][j].s_path == true
+        || this.zoo_vertices[i][j].e_path == true
+        || this.zoo_vertices[i][j].w_path == true) {
+        if (Math.random() < 0.75) {
+          console.log("Making NPC");
+          let new_npc = this.makeCharacter(pick(npc_list));
+          new_npc.position.set(square_width * i, square_width * j);
+          new_npc.walk_speed = 0.75 * default_walk_speed;
+          new_npc.walk_frame_time = walk_frame_time / 0.75;
+          this.decorations.push(new_npc);
+          this.npcs.push(new_npc);
+        }
+      }
+    }
+  }
+  console.log(count);
+}
+
+
 Game.prototype.populateZoo = function() {
 
   this.animals_obtained = 0;
@@ -1195,7 +1180,6 @@ Game.prototype.populateZoo = function() {
 
   let sheet = PIXI.Loader.shared.resources["Art/Decorations/trees.json"].spritesheet;
 
-  this.decorations = [];
   for (let i = 0; i < this.zoo_pens.length; i++) {
   // for (let i = 0; i < voronoi_size; i++) {
     // if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
@@ -1304,7 +1288,7 @@ Game.prototype.populateZoo = function() {
             //     }
             //   }
             // }
-            if (this.pointInPen(x, y) == null) {
+            if (this.pointInPen(x, y) == null && distance(x, y, this.player.x, this.player.y) > 250) { // && distance(x, y, blobs)
               this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
             } else {
               console.log("cancelled a tree");
@@ -1411,40 +1395,15 @@ Game.prototype.populateZoo = function() {
     this.decorations.push(decoration);
   }
 
-
   this.updateAnimalCount();
 
-  // Add zoo sign
-  // for (let i = 0; i < voronoi_size; i++) {
-  //   if(this.voronoi_metadata[i].group == 5000) {
-  //     let zoo = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo.png"));
-  //     zoo.scale.set(1.2, 1.2);
-  //     zoo.anchor.set(0.5, 0.8);
-  //     zoo.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
-  //     this.decorations.push(zoo);
-  //     // this.map.addChild(zoo);
-
-  //     this.player.position.set(this.voronoi_metadata[i].cx, this.voronoi_metadata[i].cy);
-  //     this.decorations.push(this.player);
-  //   }
-  // }
+  this.updateEnts();
 }
-
-
-// Game.prototype.zooKeyUp = function(ev) {
-//   // ev.preventDefault();
-
-//   // this.keymap[ev.key] = null;
-// }
 
 
 Game.prototype.zooKeyDown = function(ev) {
   var self = this;
   var screen = this.screens["zoo"];
-
-  // if (key === "Escape") {
-  //   this.player.position.set(this.entrance.cx, this.entrance.cy);
-  // }
 
   let key = ev.key;
 
@@ -2250,6 +2209,16 @@ Game.prototype.fadeTitle = function() {
       self.title_image.visible = false;
     });
 
+  new TWEEN.Tween(this.title_instructions)
+    .to({alpha: 0})
+    .duration(1000)
+    .start()
+    .onUpdate(function() {
+    })
+    .onComplete(function() {
+      self.title_instructions.visible = false;
+    });
+
   this.updateAnimalCount();
 
   this.animal_count_text.alpha = 0.01;
@@ -2564,6 +2533,28 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
 }
 
 
+Game.prototype.updateEnts = function() {
+  if (this.ents.length == 0) return;
+  if (this.player == null) return;
+  for (let k = 0; k < total_ents; k++) {
+    this.ents[k].visible = false;
+  }
+  ent_count = 0;
+  for (let e = 0; e < this.ent_positions.length; e++) {
+    let pos = this.ent_positions[e];
+
+    if(Math.abs(this.player.x - pos[0]) < 800 && Math.abs(this.player.y - pos[1]) < 700) {
+      if (ent_count < total_ents) {
+        this.ents[ent_count].visible = true;
+        this.ents[ent_count].position.set(pos[0], pos[1]);
+        this.ents[ent_count].tree.gotoAndStop(pos[2] - 1);
+        ent_count += 1;
+      }
+    }
+  }
+}
+
+
 let npc_directions = [
   "up", "down", "left", "right",
   "downleft", "downright", "upleft", "upright",
@@ -2618,17 +2609,18 @@ Game.prototype.updateZoo = function(diff) {
   // }
 
   if (this.zoo_mode == "active" || this.zoo_mode == "fading") {
-    if (this.timeSince(this.start_time) < 2000) {
-      this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
-    } else {
-      this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
-    }
+    // if (this.timeSince(this.start_time) < 2000) {
+    //   this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
+    // } else {
+    //   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+    // }
+    this.map.position.set(640 - this.player.x * this.map.scale.x, 480 - this.player.y * this.map.scale.y);
   } else if (this.zoo_mode == "pre_ferris_wheel") {
-    this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+    this.map.position.set(640 - this.player.x * this.map.scale.x, 480 - this.player.y * this.map.scale.y);
   } else if (this.zoo_mode == "ferris_wheel") {
     let x = this.ferris_wheel.x + this.player.x;
     let y = this.ferris_wheel.y + this.player.y;
-    this.map.position.set(640 - x * this.map.scale.x, 580 - y * this.map.scale.y);
+    this.map.position.set(640 - x * this.map.scale.x, 480 - y * this.map.scale.y);
   }
 
   
