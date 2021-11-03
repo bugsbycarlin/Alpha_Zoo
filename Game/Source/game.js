@@ -185,11 +185,10 @@ class Game {
     this.height = 960;
 
     // Create the pixi application
-    pixi = new PIXI.Application(this.width, this.height, {antialias: true});
+    pixi = new PIXI.Application(this.width, this.height, {antialias: true, backgroundColor: 0x000000});
     this.renderer = pixi.renderer;
     document.getElementById("mainDiv").appendChild(pixi.view);
     pixi.renderer.resize(this.width,this.height);
-    pixi.renderer.backgroundColor = 0xEEEEEE;
 
     // Set up rendering and tweening loop
     let ticker = PIXI.Ticker.shared;

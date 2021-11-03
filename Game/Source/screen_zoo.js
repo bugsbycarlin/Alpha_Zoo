@@ -75,7 +75,7 @@ Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.zoo_mode = "active"; // active, ferris_wheel, fading
+  this.zoo_mode = "loading"; // loading, active, ferris_wheel, fading
 
   // Make the map
   this.initializeMap();
@@ -86,13 +86,20 @@ Game.prototype.resetZooScreen = function() {
   // Make the title image
   this.title_image = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo_title.png"));
   this.title_image.anchor.set(0.5,0);
-  this.title_image.position.set(this.width / 2, 0);
+  this.title_image.position.set(this.width / 2, -20);
   screen.addChild(this.title_image);
 
   this.title_instructions = new PIXI.Sprite(PIXI.Texture.from("Art/title_instructions.png"));
   this.title_instructions.anchor.set(0.5,1);
   this.title_instructions.position.set(this.width / 2, this.height);
   screen.addChild(this.title_instructions);
+  this.title_instructions.alpha = 0.01;
+  this.title_instructions.visible = false;
+
+  // this.makeLoadingScreen();
+  this.black.alpha = 1;
+  this.black.visible = true;
+  pixi.stage.addChild(this.black);
 
   // Make the ui layer
   this.makeUI();
@@ -107,8 +114,16 @@ Game.prototype.resetZooScreen = function() {
   this.greyAllActivePens();
 
   this.start_time = this.markTime();
+  this.first_move = false;
 
   this.setMusic("background_music");
+
+  delay(function() {
+    self.zoo_mode = "active";
+    // self.loading_text.visible = false;
+    self.fadeFromBlack(3000);
+  }, 500);
+  
 }
 
 
@@ -2199,6 +2214,8 @@ Game.prototype.activateMap = function() {
 Game.prototype.fadeTitle = function() {
   var self = this;
 
+  this.first_move = true;
+
   new TWEEN.Tween(this.title_image)
     .to({alpha: 0})
     .duration(1000)
@@ -2209,15 +2226,17 @@ Game.prototype.fadeTitle = function() {
       self.title_image.visible = false;
     });
 
-  new TWEEN.Tween(this.title_instructions)
-    .to({alpha: 0})
-    .duration(1000)
-    .start()
-    .onUpdate(function() {
-    })
-    .onComplete(function() {
-      self.title_instructions.visible = false;
-    });
+  if (this.title_instructions.visible == true) {
+    new TWEEN.Tween(this.title_instructions)
+      .to({alpha: 0})
+      .duration(1000)
+      .start()
+      .onUpdate(function() {
+      })
+      .onComplete(function() {
+        self.title_instructions.visible = false;
+      });
+  }
 
   this.updateAnimalCount();
 
@@ -2591,6 +2610,15 @@ Game.prototype.updateZoo = function(diff) {
 
   if (this.zoo_mode == "ferris_wheel") this.ferris_wheel.update(fractional);
 
+  if (this.first_move == false && this.timeSince(this.start_time) > 4000
+    && this.title_instructions.visible == false) {
+    this.title_instructions.visible = true;
+    new TWEEN.Tween(this.title_instructions)
+      .to({alpha: 1})
+      .duration(1000)
+      .start();
+  }
+
   // if (this.timeSince(this.start_time) < 5000) {
   //     let scale = Math.max(0.1, (this.timeSince(this.start_time) / 5000));
   //     this.map.scale.set(scale, scale);
@@ -2608,7 +2636,7 @@ Game.prototype.updateZoo = function(diff) {
   //   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
   // }
 
-  if (this.zoo_mode == "active" || this.zoo_mode == "fading") {
+  if (this.zoo_mode == "active" || this.zoo_mode == "fading" || this.zoo_mode == "loading") {
     // if (this.timeSince(this.start_time) < 2000) {
     //   this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
     // } else {

@@ -539,6 +539,18 @@ Game.prototype.switchScreens = function(old_screen, new_screen) {
 }
 
 
+Game.prototype.makeLoadingScreen = function() {
+  this.black.alpha = 1;
+  this.black.visible = true;
+  pixi.stage.addChild(this.black);
+
+  this.loading_text = new PIXI.Text("LOADING...", {fontFamily: "Bebas Neue", fontSize: 72, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.loading_text.anchor.set(0.5,0.5);
+  this.loading_text.position.set(this.width / 2, this.height / 2);
+  pixi.stage.addChild(this.loading_text);
+}
+
+
 Game.prototype.fadeToBlack = function(time_to_fade) {
   pixi.stage.addChild(this.black);
   this.black.alpha = 0.01;
