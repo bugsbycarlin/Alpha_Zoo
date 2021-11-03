@@ -375,6 +375,7 @@ Game.prototype.makeMenu = function() {
   this.menu_selections = [];
   this.sound_slider_left = 815;
   this.music_slider_left = 450;
+  this.menu_selection_number = 0;
 
   this.main_menu_background = new PIXI.Sprite(PIXI.Texture.from("Art/main_menu_background.png"));
   this.main_menu_background.anchor.set(0,0);
@@ -427,21 +428,32 @@ Game.prototype.makeMenu = function() {
   this.menu_selections[3].position.set(603, 488);
   this.menu_layer.addChild(this.menu_selections[3]);
 
-  this.menu_selections[4] = new PIXI.Text("WINDOWED | FULL SCREEN", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[4] = new PIXI.Text("WINDOWED", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[4].tint = 0x000000;
   this.menu_selections[4].anchor.set(0,0);
   this.menu_selections[4].position.set(243, 658);
   this.menu_layer.addChild(this.menu_selections[4]);
 
-  this.menu_selection_number = 0;
-  this.menu_selections[0].tint = menu_selection_color;
+  let wfs_bar = new PIXI.Text("|", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  wfs_bar.tint = 0x000000;
+  wfs_bar.anchor.set(0,0);
+  wfs_bar.position.set(403, 658);
+  this.menu_layer.addChild(wfs_bar);
+
+  this.wfs_alt = new PIXI.Text("FULL SCREEN", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.wfs_alt.tint = 0x000000;
+  this.wfs_alt.anchor.set(0,0);
+  this.wfs_alt.position.set(435, 658);
+  this.menu_layer.addChild(this.wfs_alt);
+
+  this.changeMenuSelection(0);
+
 
   // 295,90
   // 654,199
   // 272,349
   // 601,495
   // 237,658 + 410 + 435
-
 
   this.menu_escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
   this.menu_escape_glyph.anchor.set(1,1);
@@ -461,10 +473,15 @@ Game.prototype.makeMenu = function() {
 
 Game.prototype.changeMenuSelection = function(delta) {
   this.menu_selection_number = (this.menu_selection_number + delta + this.menu_selections.length) % this.menu_selections.length;
-  console.log(this.menu_selection_number);
+  this.wfs_alt.tint = 0x000000;
   for (let i = 0; i < this.menu_selections.length; i++) {
     this.menu_selections[i].tint = 0x000000;
     if (i == this.menu_selection_number) this.menu_selections[i].tint = menu_selection_color;
+
+    if (i == 4 && game_fullscreen == true) {
+      this.menu_selections[4].tint = 0x000000;
+      this.wfs_alt.tint = menu_selection_color;
+    }
   }
 }
 
@@ -1562,6 +1579,13 @@ Game.prototype.zooKeyDown = function(ev) {
       }
     }
 
+    if (this.menu_selection_number == 4 && (key == "ArrowLeft" || key == "ArrowRight" || key == "Enter")) {
+      game_fullscreen = !game_fullscreen;
+      var electron = require('electron');
+      var window = electron.remote.getCurrentWindow();
+      window.setFullScreen(game_fullscreen);
+      this.changeMenuSelection(0);
+    }
   }  
 
   if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.moving == true && key === "Escape") {

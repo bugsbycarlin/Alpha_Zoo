@@ -25,6 +25,8 @@ var performance_result = null;
 var pixi = null;
 var game = null;
 
+let game_fullscreen = false;
+
 function initialize() {
   game = new Game();
 }
@@ -50,6 +52,8 @@ class Game {
     if (music_volume == NaN) music_volume = 0.4;
     if (music_volume < 0.001) music_volume = 0.0;
     music_volume = Math.round(music_volume * 10) / 10;
+
+    game_fullscreen = window.localStorage.getItem("fullscreen") == "true" ? true : false;
 
     console.log(sound_volume);
 
@@ -197,6 +201,8 @@ class Game {
     this.renderer = pixi.renderer;
     document.getElementById("mainDiv").appendChild(pixi.view);
     pixi.renderer.resize(this.width,this.height);
+
+    // pixi.renderer.resize(screen.availWidth, screen.availHeight);
 
     // Set up rendering and tweening loop
     let ticker = PIXI.Ticker.shared;

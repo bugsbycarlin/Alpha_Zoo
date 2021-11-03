@@ -12,22 +12,36 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
-let fullscreen = false;
+
+let game_fullscreen = false;
 
 
 function createWindow () {
   // Create the browser window.
+
+  // const {screen_width, screen_height} = electron.screen.getPrimaryDisplay().workAreaSize
+  // let width_zoom = screen_width / 1280;
+  // let height_zoom = screen_height / 960;
+  // let screen_zoom = Math.min(width_zoom, height_zoom);
+  let screen_zoom = 2;
+
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 982,
-    fullscreen: false,
+    fullscreen: game_fullscreen,
     // titleBarStyle: "hidden",
     backgroundColor: '#000000',
+    show: false,
+    zoomFactor: screen_zoom,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
 
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
