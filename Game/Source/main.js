@@ -13,6 +13,10 @@ const { app, ipcMain, BrowserWindow } = require('electron')
 const path = require('path')
 const settings = require('electron-settings');
 
+
+let game_fullscreen = false;
+
+
 function createWindow () {
   // Create the browser window.
 

@@ -481,10 +481,18 @@ Game.prototype.changeMenuSelection = function(delta) {
   for (let i = 0; i < this.menu_selections.length; i++) {
     this.menu_selections[i].tint = 0x000000;
     if (i == this.menu_selection_number) this.menu_selections[i].tint = menu_selection_color;
+<<<<<<< HEAD
   }
   if (this.menu_selection_number == 4 && game_fullscreen == true) {
     this.menu_selections[4].tint = 0x000000;
     this.wfs_alt.tint = menu_selection_color;
+=======
+
+    if (i == 4 && game_fullscreen == true) {
+      this.menu_selections[4].tint = 0x000000;
+      this.wfs_alt.tint = menu_selection_color;
+    }
+>>>>>>> 92d5c05f6aaddd02f241cd57f564ec0ca3ea6d1a
   }
 }
 
@@ -1518,8 +1526,11 @@ Game.prototype.zooKeyDown = function(ev) {
     console.log("boom");
     if (key === "Escape") {
       console.log("bim");
+<<<<<<< HEAD
       this.menu_selection_number = 0;
       this.changeMenuSelection(0);
+=======
+>>>>>>> 92d5c05f6aaddd02f241cd57f564ec0ca3ea6d1a
       this.zoo_mode = "menu";
       this.menu_layer.visible = true;
     }
