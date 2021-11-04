@@ -23,6 +23,8 @@ Game.prototype.initializeZoo = function() {
   this.decorations = [];
   this.animals = [];
 
+  makeSections();
+
   this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
   this.dropshadow_filter.blur  = 2;
   this.dropshadow_filter.quality = 3;
@@ -65,6 +67,8 @@ let poop_color = 0x644b38;
 let square_width = 900;
 let total_ents = 150;
 
+let menu_selection_color = 0x9869d2;
+
 let npc_list = [
   "black_bear", "polar_bear",
   "rabbit_greenshirt", "rabbit_redshirt", "rabbit_blueshirt",
@@ -75,7 +79,7 @@ Game.prototype.resetZooScreen = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.zoo_mode = "loading"; // loading, active, ferris_wheel, fading
+  this.zoo_mode = "loading"; // loading, active, ferris_wheel, fading, menu
 
   // Make the map
   this.initializeMap();
@@ -103,6 +107,7 @@ Game.prototype.resetZooScreen = function() {
 
   // Make the ui layer
   this.makeUI();
+  this.makeMenu();
 
   // Populate the map with things
   this.designatePens();
@@ -134,7 +139,9 @@ Game.prototype.initializeMap = function() {
   // The zoo is an NxN grid of square pens. Small is 5, leading to at most 25 pens.
   // Large is 8, leading to at most 64 pens.
   // Note some squares may be snipped, meaning less pens.
-  this.zoo_size = 6;
+  this.zoo_size = parseInt(localStorage.getItem("zoo_size"));
+  if (this.zoo_size == null) this.zoo_size = 6;
+  console.log("Zoo size is " + this.zoo_size);
 
   this.map = new PIXI.Container();
   this.map.position.set(640,480)
@@ -304,48 +311,6 @@ Game.prototype.makeUI = function() {
     this.action_typing_text.push(typing_text);
   }
 
-
-
-
-  // this.display_food_grey_text = new PIXI.Text("FEED", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
-  // this.display_food_grey_text.anchor.set(0,1);
-  // this.display_food_grey_text.position.set(130, 855);
-  // this.display_ui.addChild(this.display_food_grey_text);
-
-  // this.display_food_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
-  // this.display_food_typing_text.tint = 0x000000;
-  // this.display_food_typing_text.anchor.set(0,1);
-  // this.display_food_typing_text.position.set(130, 855);
-  // this.display_ui.addChild(this.display_food_typing_text);
-
-  
-
-  // this.display_poop_grey_text = new PIXI.Text("POOP", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
-  // this.display_poop_grey_text.anchor.set(0,1);
-  // this.display_poop_grey_text.position.set(130, 945);
-  // this.display_ui.addChild(this.display_poop_grey_text);
-
-  // this.display_poop_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
-  // this.display_poop_typing_text.tint = 0x000000;
-  // this.display_poop_typing_text.anchor.set(0,1);
-  // this.display_poop_typing_text.position.set(130, 945);
-  // this.display_ui.addChild(this.display_poop_typing_text);
-
-
-
-  // this.display_ride_grey_text = new PIXI.Text("RIDE", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
-  // this.display_ride_grey_text.anchor.set(0,1);
-  // this.display_ride_grey_text.position.set(130, 945);
-  // this.display_ui.addChild(this.display_ride_grey_text);
-  // this.display_ride_grey_text.visible = false;
-
-  // this.display_ride_typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
-  // this.display_ride_typing_text.tint = 0x000000;
-  // this.display_ride_typing_text.anchor.set(0,1);
-  // this.display_ride_typing_text.position.set(130, 945);
-  // this.display_ui.addChild(this.display_ride_typing_text);
-  // this.display_ride_typing_text.visible = false;
-
   this.display_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
   this.display_backing.anchor.set(0, 1);
   this.display_backing.scale.set(0.8, 0.8);
@@ -399,6 +364,128 @@ Game.prototype.makeUI = function() {
   this.escape_text.alpha = 0.6;
   this.escape_text.visible = false;
   screen.addChild(this.escape_text);
+}
+
+
+
+Game.prototype.makeMenu = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+  
+  this.menu_layer = new PIXI.Container();
+  screen.addChild(this.menu_layer);
+  this.menu_layer.visible = false;
+
+  this.menu_selections = [];
+  this.sound_slider_left = 815;
+  this.music_slider_left = 450;
+  this.menu_selection_number = 0;
+
+  this.main_menu_background = new PIXI.Sprite(PIXI.Texture.from("Art/main_menu_background.png"));
+  this.main_menu_background.anchor.set(0,0);
+  this.main_menu_background.position.set(0, 0);
+  this.menu_layer.addChild(this.main_menu_background);
+
+  this.menu_selections[0] = new PIXI.Text("MUSIC", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
+  this.menu_selections[0].tint = 0x000000;
+  this.menu_selections[0].anchor.set(0,0);
+  this.menu_selections[0].position.set(295, 90);
+  this.menu_layer.addChild(this.menu_selections[0]);
+
+  this.music_slider = new PIXI.Sprite(PIXI.Texture.from("Art/slider.png"));
+  this.music_slider.anchor.set(0,0.5);
+  this.music_slider.position.set(this.music_slider_left,113);
+  this.menu_layer.addChild(this.music_slider);
+
+  this.music_slider_bar = new PIXI.Sprite(PIXI.Texture.from("Art/slider_bar.png"));
+  this.music_slider_bar.anchor.set(0,0.5);
+  this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
+  this.menu_layer.addChild(this.music_slider_bar);
+  
+  this.menu_selections[1] = new PIXI.Text("SOUND", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
+  this.menu_selections[1].tint = 0x000000;
+  this.menu_selections[1].anchor.set(0,0);
+  this.menu_selections[1].position.set(654, 199);
+  this.menu_layer.addChild(this.menu_selections[1]);
+
+  this.sound_slider_left = 815;
+
+  this.sound_slider = new PIXI.Sprite(PIXI.Texture.from("Art/slider.png"));
+  this.sound_slider.anchor.set(0,0.5);
+  this.sound_slider.position.set(this.sound_slider_left,222);
+  this.menu_layer.addChild(this.sound_slider);
+
+  this.sound_slider_bar = new PIXI.Sprite(PIXI.Texture.from("Art/slider_bar.png"));
+  this.sound_slider_bar.anchor.set(0,0.5);
+  this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
+  this.menu_layer.addChild(this.sound_slider_bar);
+
+  this.menu_selections[2] = new PIXI.Text("NEW SMALL ZOO", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[2].tint = 0x000000;
+  this.menu_selections[2].anchor.set(0,0);
+  this.menu_selections[2].position.set(278, 345);
+  this.menu_layer.addChild(this.menu_selections[2]);
+
+  this.menu_selections[3] = new PIXI.Text("NEW LARGE ZOO", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[3].tint = 0x000000;
+  this.menu_selections[3].anchor.set(0,0);
+  this.menu_selections[3].position.set(603, 488);
+  this.menu_layer.addChild(this.menu_selections[3]);
+
+  this.menu_selections[4] = new PIXI.Text("WINDOWED", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[4].tint = 0x000000;
+  this.menu_selections[4].anchor.set(0,0);
+  this.menu_selections[4].position.set(243, 658);
+  this.menu_layer.addChild(this.menu_selections[4]);
+
+  let wfs_bar = new PIXI.Text("|", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  wfs_bar.tint = 0x000000;
+  wfs_bar.anchor.set(0,0);
+  wfs_bar.position.set(403, 658);
+  this.menu_layer.addChild(wfs_bar);
+
+  this.wfs_alt = new PIXI.Text("FULL SCREEN", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.wfs_alt.tint = 0x000000;
+  this.wfs_alt.anchor.set(0,0);
+  this.wfs_alt.position.set(435, 658);
+  this.menu_layer.addChild(this.wfs_alt);
+
+  this.changeMenuSelection(0);
+
+
+  // 295,90
+  // 654,199
+  // 272,349
+  // 601,495
+  // 237,658 + 410 + 435
+
+  this.menu_escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
+  this.menu_escape_glyph.anchor.set(1,1);
+  this.menu_escape_glyph.position.set(this.width - 15, this.height - 20);
+  this.menu_escape_glyph.scale.set(0.6, 0.6)
+  this.menu_escape_glyph.tint = 0x000000;
+  this.menu_escape_glyph.alpha = 0.6;
+  this.menu_layer.addChild(this.menu_escape_glyph);
+
+  this.menu_escape_text = new PIXI.Text("Escape", {fontFamily: "Bebas Neue", fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.menu_escape_text.anchor.set(1,1);
+  this.menu_escape_text.position.set(this.width - 90, this.height - 32);
+  this.menu_escape_text.alpha = 0.6;
+  this.menu_layer.addChild(this.menu_escape_text);
+}
+
+
+Game.prototype.changeMenuSelection = function(delta) {
+  this.menu_selection_number = (this.menu_selection_number + delta + this.menu_selections.length) % this.menu_selections.length;
+  this.wfs_alt.tint = 0x000000;
+  for (let i = 0; i < this.menu_selections.length; i++) {
+    this.menu_selections[i].tint = 0x000000;
+    if (i == this.menu_selection_number) this.menu_selections[i].tint = menu_selection_color;
+  }
+  if (this.menu_selection_number == 4 && game_fullscreen == true) {
+    this.menu_selections[4].tint = 0x000000;
+    this.wfs_alt.tint = menu_selection_color;
+  }
 }
 
 
@@ -1427,7 +1514,108 @@ Game.prototype.zooKeyDown = function(ev) {
       this.hideMap();
       return;
     }
+  } else if (this.zoo_mode == "active" && !this.map_visible) {
+    console.log("boom");
+    if (key === "Escape") {
+      console.log("bim");
+      this.menu_selection_number = 0;
+      this.changeMenuSelection(0);
+      this.zoo_mode = "menu";
+      this.menu_layer.visible = true;
+    }
+  } else if (this.zoo_mode == "menu") {
+    if (key === "Escape") {
+      this.zoo_mode = "active";
+      this.menu_layer.visible = false;
+    }
   }
+
+  if (this.zoo_mode == "menu") {
+    if (key === "ArrowUp") {
+      this.changeMenuSelection(-1);
+    } else if (key === "ArrowDown") {
+      this.changeMenuSelection(1);
+    }
+
+
+    if (this.menu_selection_number == 0 && key == "ArrowLeft") {
+      if (music_volume >= 0.1) {
+        music_volume -= 0.1;
+        if (music_volume < 0.001) music_volume = 0;
+        music_volume = Math.round(music_volume * 10) / 10;
+        localStorage.setItem("music_volume", music_volume);
+        if (this.music != null) this.music.volume = music_volume;
+        if (this.music == null && music_volume > 0) this.setMusic("background_music");
+        this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
+      }
+    }
+
+    if (this.menu_selection_number == 0 && key == "ArrowRight") {
+      if (music_volume <= 0.9) {
+        music_volume += 0.1;
+        if (music_volume > 0.999) music_volume = 1;
+        music_volume = Math.round(music_volume * 10) / 10;
+        localStorage.setItem("music_volume", music_volume);
+        if (this.music != null) this.music.volume = music_volume;
+        if (this.music == null && music_volume > 0) this.setMusic("background_music");
+        this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
+      }
+    }
+
+    if (this.menu_selection_number == 1 && key == "ArrowLeft") {
+      if (sound_volume >= 0.1) {
+        sound_volume -= 0.1;
+        if (sound_volume < 0.001) sound_volume = 0;
+        sound_volume = Math.round(sound_volume * 10) / 10;
+        localStorage.setItem("sound_volume", sound_volume);
+        this.soundEffect("pop");
+        this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
+      }
+    }
+
+    if (this.menu_selection_number == 1 && key == "ArrowRight") {
+      if (sound_volume <= 0.9) {
+        sound_volume += 0.1;
+        if (sound_volume > 0.999) sound_volume = 1;
+        sound_volume = Math.round(sound_volume * 10) / 10;
+        localStorage.setItem("sound_volume", sound_volume);
+        this.soundEffect("pop");
+        this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
+      }
+    }
+
+    if (this.menu_selection_number == 4 && (key == "ArrowLeft" || key == "ArrowRight" || key == "Enter")) {
+      game_fullscreen = !game_fullscreen;
+      if (game_fullscreen == true) {
+        window.gameFullScreen(game_fullscreen);
+      } else {
+        window.gameFullScreen(game_fullscreen);
+        window.gameFullScreen(game_fullscreen); // twice to force the resize.
+      }
+      this.keymap = {};
+      this.changeMenuSelection(0);
+    }
+
+    if (this.menu_selection_number == 2 && key == "Enter") {
+      this.zoo_mode = "fading";
+      this.fadeToBlack(1000);
+      delay(function() {
+        localStorage.setItem("zoo_size", 6);
+        self.zoo_size = localStorage.getItem("zoo_size");
+        self.initializeZoo();
+      }, 1000);
+    }
+
+    if (this.menu_selection_number == 3 && key == "Enter") {
+      this.zoo_mode = "fading";
+      this.fadeToBlack(1000);
+      delay(function() {
+        localStorage.setItem("zoo_size", 8);
+        self.zoo_size = localStorage.getItem("zoo_size");
+        self.initializeZoo();
+      }, 1000);
+    }
+  }  
 
   if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.moving == true && key === "Escape") {
     this.ferris_wheel.ride_number += 1;
@@ -2370,11 +2558,13 @@ Game.prototype.updatePlayer = function() {
       this.checkPenProximity(player.x, player.y, player.direction);
     }
 
-    if (Math.abs(player.x - this.cafe.x) <= 80 && player.y < this.cafe.y && player.y > this.cafe.y - 50) {
-      this.player.visible = false;
-      this.zoo_mode = "fading";
-      this.initializeScreen("cafe");
-      this.fadeScreens("zoo", "cafe", true);
+    if (this.cafe != null) {
+      if (Math.abs(player.x - this.cafe.x) <= 80 && player.y < this.cafe.y && player.y > this.cafe.y - 50) {
+        this.player.visible = false;
+        this.zoo_mode = "fading";
+        this.initializeScreen("cafe");
+        this.fadeScreens("zoo", "cafe", true);
+      }
     }
   } else if (player.direction != null) {
     player.updateDirection();

@@ -460,15 +460,13 @@ section_birds_reptiles_rodents = [
 
 
 // Current sections
-section = [];
-section[0] = section_savannah.concat(section_cats, section_primates, section_desert_special);
-section[1] = section_north_and_water.concat(section_east_asia_south_america);
-section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
-
-
-
-
-
+let section = [];
+makeSections = function() {
+  section = [];
+  section[0] = section_savannah.concat(section_cats, section_primates, section_desert_special);
+  section[1] = section_north_and_water.concat(section_east_asia_south_america);
+  section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
+}
 
 animated_animals = {
   "PARROT":0,

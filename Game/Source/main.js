@@ -9,21 +9,62 @@
 // https://www.electronjs.org/docs/tutorial/quick-start
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
+const { app, ipcMain, BrowserWindow } = require('electron')
 const path = require('path')
+const settings = require('electron-settings');
 
 function createWindow () {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 960,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+  settings.get('fullscreen.data').then(value => {
+
+    let fullscreen = false;
+    if (value != null) fullscreen = value;
+
+    const mainWindow = new BrowserWindow({
+      width: 1280,
+      height: 982,
+      fullscreen: fullscreen,
+      backgroundColor: '#000000',
+      show: false,
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js'),
+        enableRemoteModule: true,
+        contextIsolation: false,
+      }
+    })
+
+    mainWindow.once('ready-to-show', () => {
+      mainWindow.show()
+    })
+
+    // and load the index.html of the app.
+    mainWindow.loadFile('index.html')
+
+    ipcMain.on('synchronous-message', (event, arg) => {
+      if (arg[0] == "fullscreen" && arg[1] == true) {
+        mainWindow.setFullScreenable(true);
+        mainWindow.setFullScreen(true);
+        mainWindow.maximize();
+        mainWindow.show();
+        settings.set('fullscreen', {
+            data: true
+        });
+        event.returnValue = 'game is full screen.'
+      } else if (arg[0] == "fullscreen" && arg[1] == false) {
+        mainWindow.setFullScreen(false);
+        mainWindow.unmaximize();
+        mainWindow.setSize(1280, 982);
+        mainWindow.show();
+        settings.set('fullscreen', {
+            data: false
+        });
+        event.returnValue = 'game is windowed.'
+      } else if (arg[0] == "getfullscreen") {
+        event.returnValue = mainWindow.isFullScreen();
+      }
+    });
+  });
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -49,6 +90,10 @@ app.on('window-all-closed', function () {
   // if (process.platform !== 'darwin') app.quit()
   app.quit();
 })
+
+
+
+
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
