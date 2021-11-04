@@ -1613,7 +1613,7 @@ Game.prototype.zooKeyDown = function(ev) {
         self.initializeZoo();
       }, 1000);
     }
-  }  
+  }
 
   if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.moving == true && key === "Escape") {
     this.ferris_wheel.ride_number += 1;
