@@ -132,7 +132,7 @@ Game.prototype.initializeMap = function() {
   // The zoo is an NxN grid of square pens. Small is 5, leading to at most 25 pens.
   // Large is 8, leading to at most 64 pens.
   // Note some squares may be snipped, meaning less pens.
-  this.zoo_size = parseInt(localStorage.getItem("zoo_size"));
+  this.zoo_size = parseInt(localStorage.getItem("zoo_size")) || 6;
   if (this.zoo_size == null) this.zoo_size = 6;
   console.log("Zoo size is " + this.zoo_size);
 
