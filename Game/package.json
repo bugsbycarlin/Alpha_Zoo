@@ -13,7 +13,8 @@
   "devDependencies": {
     "electron": "15.0.0",
     "electron-builder": "^22.11.7",
-    "electron-notarize": "^1.1.1"
+    "electron-notarize": "^1.1.1",
+    "electron-settings": "^4.0.2"
   },
   "build": {
     "appId": "com.electron.alphazoo",

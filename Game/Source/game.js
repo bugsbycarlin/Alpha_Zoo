@@ -10,8 +10,8 @@
 
 'use strict';
 
-var use_music = true;
-var use_sound = true;
+var music_volume = 0.4;
+var sound_volume = 0.6;
 var use_scores = false;
 var log_performance = true;
 
@@ -24,6 +24,8 @@ var performance_result = null;
 
 var pixi = null;
 var game = null;
+
+let game_fullscreen = false;
 
 function initialize() {
   game = new Game();
@@ -38,6 +40,22 @@ class Game {
     this.keymap = {};
 
     this.basicInit();
+
+    sound_volume = localStorage.getItem("sound_volume");
+    if (sound_volume == null) sound_volume = 0.6;
+    if (sound_volume == NaN) sound_volume = 0.6;
+    if (sound_volume < 0.001) sound_volume = 0.0;
+    sound_volume = Math.round(sound_volume * 10) / 10;
+
+    music_volume = localStorage.getItem("music_volume");
+    if (music_volume == null) music_volume = 0.4;
+    if (music_volume == NaN) music_volume = 0.4;
+    if (music_volume < 0.001) music_volume = 0.0;
+    music_volume = Math.round(music_volume * 10) / 10;
+
+    game_fullscreen = window.gameIsFullScreen();
+
+    console.log(sound_volume);
 
     document.addEventListener("keydown", function(ev) {self.handleKeyDown(ev)}, false);
     document.addEventListener("keyup", function(ev) {self.handleKeyUp(ev)}, false);
@@ -64,12 +82,6 @@ class Game {
     this.gravity = 5.8;
 
     this.pause_time = 0;
-
-    // use_music = true;
-    // use_sound = true;
-
-    //var greyscale_shader_code = document.getElementById("greyscale_shader").innerHTML
-    //this.greyscale_filter = new CustomFilter(greyscale_shader_code);
 
     this.initializeScreens();
 
@@ -190,6 +202,8 @@ class Game {
     document.getElementById("mainDiv").appendChild(pixi.view);
     pixi.renderer.resize(this.width,this.height);
 
+    // pixi.renderer.resize(screen.availWidth, screen.availHeight);
+
     // Set up rendering and tweening loop
     let ticker = PIXI.Ticker.shared;
     ticker.autoStart = false;
@@ -282,11 +296,11 @@ class Game {
   }
 
 
-  soundEffect(effect_name, volume = 0.6) {
-    if (use_sound) {
+  soundEffect(effect_name) {
+    if (sound_volume > 0) {
       var sound_effect = document.getElementById(effect_name);
       if (sound_effect != null) {
-        sound_effect.volume = volume;
+        sound_effect.volume = sound_volume;
         sound_effect.play();
       }
     }
@@ -294,29 +308,30 @@ class Game {
 
 
   setMusic(music_name) {
-    if (use_music) {
+    if (music_volume > 0) {
       if (this.music_name == music_name) {
         return;
       }
       var self = this;
-      let crossfade = false;
-      if (this.music != null && this.music_name != music_name) {
-        crossfade = true;
-        this.fadeMusic();
-      }
+      // let crossfade = false;
+      // if (this.music != null && this.music_name != music_name) {
+      //   crossfade = true;
+      //   this.fadeMusic();
+      // }
       this.music = document.getElementById(music_name);
       this.music.loop = true;
       this.music.pause();
       this.music.currentTime = 0;
-      if (crossfade) {
-        for (let i = 0; i < 14; i++) {
-          delay(function() {
-            self.music.volume = i / 20;
-          }, 50 * i);
-        }
-      } else {
-        this.music.volume = 0.4;
-      }
+      // if (crossfade) {
+      //   for (let i = 0; i < 14; i++) {
+      //     delay(function() {
+      //       self.music.volume = i / 20;
+      //     }, 50 * i);
+      //   }
+      // } else {
+      //   this.music.volume = 0.4;
+      // }
+      this.music.volume = music_volume;
       this.music_name = music_name;
       this.music.play();
     }
