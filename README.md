@@ -24,6 +24,13 @@ Music is Campfire Song by Chris Haugen (https://chrishaugen.net/).
 
 # Version history
 
+1.0
+- 5 more animals (now 60 total)
+- A cafe with 23 foods to type!
+- Main menu with volume controls, zoo reset (to make a small or large zoo), and full screen / windowed setting.
+- Light testing to make sure the Windows and Linux versions work okay.
+- Bug fixes to stop birds and animated animals from displaying incorrect, and to stop animals from spawning outside pens.
+
 0.9
 - 10 more animals (now 55 total)
 - Arboreal animals!

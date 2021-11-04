@@ -1,23 +1,11 @@
 
-// This doesn't works
-// const { BrowserWindow } = require('electron');
-
-// console.log(BrowserWindow);
-// let current_window = BrowserWindow.getFocusedWindow();
-
-// window.gameFullScreen = function(game_fullscreen){
-//   current_window.setFullScreen(game_fullscreen);
-// }
-
-
-// This works
-// const fs = require('fs')
-
-// window.test = function() {
-//   console.log("ffs");
-//   console.log(fs)
-// }
-
+//
+// preload.js is glue to allow the app's javascript environment to communicate with the
+// electron wrapper's javascript environment in a sandboxed manner.
+//
+// Copyright 2021 Alpha Zoo LLC.
+// Written by Matthew Carlin
+//
 
 const { ipcRenderer } = require('electron')
 

@@ -32,13 +32,6 @@ Game.prototype.initializeZoo = function() {
   this.dropshadow_filter.distance = 8;
   this.dropshadow_filter.rotation = 45;
 
-  // this.path_shadow_filter = new PIXI.filters.DropShadowFilter();
-  // this.path_shadow_filter.blur  = 0;
-  // this.path_shadow_filter.alpha = 1;
-  // this.path_shadow_filter.color = 0xb2aca8;
-  // this.path_shadow_filter.distance = 8;
-  // this.path_shadow_filter.rotation = 90;
-
   this.resetZooScreen();
 
   this.map.scale.set(1,1);
