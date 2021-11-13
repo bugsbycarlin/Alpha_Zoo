@@ -476,6 +476,7 @@ Game.prototype.initializeScreens = function() {
 
   this.makeScreen("zoo");
   this.makeScreen("cafe");
+  this.makeScreen("animal_pop");
 
   this.black = PIXI.Sprite.from(PIXI.Texture.WHITE);
   this.black.width = 1280;

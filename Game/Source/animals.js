@@ -455,7 +455,7 @@ section_east_asia_south_america = [
 ]
 
 section_birds_reptiles_rodents = [
-  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO", "SWAN",
+  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO", "SWAN", "DUCK", "GOOSE",
 ]
 
 

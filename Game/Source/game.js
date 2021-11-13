@@ -261,6 +261,8 @@ class Game {
       this.initializeZoo();
     } else if (screen_name == "cafe") {
       this.initializeCafe();
+    } else if (screen_name == "animal_pop") {
+      this.initializeAnimalPop();
     }
   }
 
@@ -269,6 +271,8 @@ class Game {
       this.updateZoo(diff);
     } else if (this.current_screen == "cafe") {
       this.updateCafe(diff);
+    } else if (this.current_screen == "animal_pop") {
+      this.updateAnimalPop(diff);
     } 
   }
 
