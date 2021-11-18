@@ -630,8 +630,8 @@ Game.prototype.makeMapPens = function() {
     for (let i = 1; i < this.zoo_size - 2; i++) {
       for (let j = 2; j < this.zoo_size - 2; j++) {
         if (this.zoo_squares[i][j].reachable) {
-          console.log(i + "," + j);
-          console.log(this.zoo_squares[i][j].e_edge);
+          // console.log(i + "," + j);
+          // console.log(this.zoo_squares[i][j].e_edge);
           if (this.zoo_squares[i][j].e_edge == false && this.zoo_squares[i+1][j].w_edge == false) { // both should always be true or false anyway
             potential_ferris_tiles.push([i,j]);
           }
@@ -812,6 +812,20 @@ Game.prototype.makeMapPens = function() {
         }
         // Push a duplicate of the first point.
         smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
+
+
+        // Now remove points that are too close to each other
+        for(let c = 0; c < 2; c++) {
+          let reduced_polygon = [[smooth_polygon[0][0], smooth_polygon[0][1]]];
+          for (let m = 1; m < smooth_polygon.length; m++) {
+            let point = smooth_polygon[m];
+            let previous_point = reduced_polygon[reduced_polygon.length - 1];
+            if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 40) {
+              reduced_polygon.push([point[0], point[1]]);
+            }
+          }
+          smooth_polygon = reduced_polygon;
+        }
         
 
         this.zoo_pens.push({
@@ -1010,14 +1024,16 @@ Game.prototype.drawMap = function() {
 
   for (let i = 0; i < this.zoo_pens.length; i++) {
 
-    this.zoo_pens[i].land_object = new PIXI.Container();
-    this.zoo_pens[i].land_object.cx = this.zoo_pens[i].cx;
-    this.zoo_pens[i].land_object.cy = this.zoo_pens[i].cy;
+    let pen = this.zoo_pens[i];
 
-    if (this.zoo_pens[i].special == null) {
+    pen.land_object = new PIXI.Container();
+    pen.land_object.cx = pen.cx;
+    pen.land_object.cy = pen.cy;
+
+    if (pen.special == null) {
     // if(true){
-
-      let polygon = this.zoo_pens[i].polygon.flat();
+      
+      let polygon = pen.polygon.flat();
 
       let ground = new PIXI.Graphics();
       ground.beginFill(0xFFFFFF);
@@ -1026,32 +1042,32 @@ Game.prototype.drawMap = function() {
 
       ground.grey_color = 0xFFFFFF;
 
-      if (this.zoo_pens[i].land == null || this.zoo_pens[i].land == "grass") {
+      if (pen.land == null || pen.land == "grass") {
         ground.true_color = grass_color;
-      } else if (this.zoo_pens[i].land == "water") {
+      } else if (pen.land == "water") {
         ground.true_color = water_color;
-      } else if (this.zoo_pens[i].land == "sand") {
+      } else if (pen.land == "sand") {
         ground.true_color = sand_color;
-      } else if (this.zoo_pens[i].land == "forest") {
+      } else if (pen.land == "forest") {
         ground.true_color = forest_color;
-      } else if (this.zoo_pens[i].land == "watergrass") {
+      } else if (pen.land == "watergrass") {
         ground.true_color = water_color;
-      } else if (this.zoo_pens[i].land == "waterice") {
+      } else if (pen.land == "waterice") {
         ground.true_color = water_color;
       }
 
       ground.tint = ground.true_color;
-      this.zoo_pens[i].land_object.addChild(ground);
+      pen.land_object.addChild(ground);
 
-      if (this.zoo_pens[i].land == "watergrass" || this.zoo_pens[i].land == "waterice") {
+      if (pen.land == "watergrass" || pen.land == "waterice") {
         let super_ground = new PIXI.Graphics();
         super_ground.beginFill(0xFFFFFF);
 
         let polygon_left = [];
-        for (let k = 0; k < this.zoo_pens[i].polygon.length; k++) {
-          if (this.zoo_pens[i].polygon[k][0] <= this.zoo_pens[i].cx) {
-            polygon_left.push(this.zoo_pens[i].polygon[k][0])
-            polygon_left.push(this.zoo_pens[i].polygon[k][1]);
+        for (let k = 0; k < pen.polygon.length; k++) {
+          if (pen.polygon[k][0] <= pen.cx) {
+            polygon_left.push(pen.polygon[k][0])
+            polygon_left.push(pen.polygon[k][1]);
           }
         }
         polygon_left.push(polygon_left[0])
@@ -1060,45 +1076,245 @@ Game.prototype.drawMap = function() {
         super_ground.endFill();
 
         super_ground.grey_color = 0xFEFEFE;
-        if (this.zoo_pens[i].land == "watergrass") {
+        if (pen.land == "watergrass") {
           super_ground.true_color = grass_color;
-        } else if (this.zoo_pens[i].land == "waterice") {
+        } else if (pen.land == "waterice") {
           super_ground.true_color = ice_color;
         }
 
         super_ground.tint = super_ground.true_color;
-        this.zoo_pens[i].land_object.addChild(super_ground);
+        pen.land_object.addChild(super_ground);
       }
 
+      let border_polygon = pen.polygon;
 
+
+      //let post_size = 15;
+      // let border = new PIXI.Graphics();
+      // // border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
+
+      // border.true_color = 0x754c25;
+      // border.grey_color = 0x754c25;
+      // for (let p = 0; p < border_polygon.length; p++) {
+      //   let border_point = border_polygon[p];
+      //   // console.log(border_point);
+      //   border.beginFill(0xFFFFFF);
+      //   border.drawPolygon([
+      //     border_point[0] - post_size, border_point[1],
+      //     border_point[0] + post_size, border_point[1],
+      //     border_point[0] + post_size, border_point[1] + 3 * post_size,
+      //     border_point[0] - post_size, border_point[1] + 3 * post_size,
+      //   ]);
+      //   border.endFill();
+      // }
+      // pen.land_object.addChild(border);
+
+
+      let container_objects = [];
+      let posts = new PIXI.Container();
+      // border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
+      // border.true_color = 0x00FFFF;
+      // border.grey_color = 0x00FFFF;
+      for (let p = 0; p < border_polygon.length; p++) {
+        let border_point = [border_polygon[p][0], border_polygon[p][1]];
+        
+        // if (border_point[1] < pen.cy - square_width * 0.25) {
+        //   border_point[1] += 30;
+        // }
+
+        let post = new PIXI.Sprite(PIXI.Texture.from("Art/fence_post_v1.png"));
+        post.anchor.set(0.5, 0.87);
+        post.position.set(border_point[0], border_point[1]);
+        container_objects.push(post);
+
+        let fence = new PIXI.Graphics();
+        let next_point = border_polygon[0];
+        if (p < border_polygon.length - 1) {
+          next_point = [border_polygon[p + 1][0],border_polygon[p + 1][1]];
+        }
+        // if (next_point[1] < pen.cy - square_width * 0.25) {
+        //   next_point[1] += 30;
+        // }
+        fence.lineStyle(12, 0x462D16, 1);
+        if (next_point[1] < border_point[1]) {
+          fence.moveTo(-3, -28).lineTo(
+            next_point[0] - border_point[0], next_point[1] - border_point[1] - 28 - 3);
+          fence.position.set(border_point[0], border_point[1] - 6)
+        } else {
+          fence.moveTo(-3, -28).lineTo(
+            border_point[0] - next_point[0], border_point[1] - next_point[1] - 28 - 3);
+          fence.position.set(next_point[0], next_point[1] - 6)
+        }
+        fence.lineStyle(8, pen_color, 1);
+        if (next_point[1] < border_point[1]) {
+          fence.moveTo(0, -35).lineTo(
+            next_point[0] - border_point[0], next_point[1] - border_point[1] - 35);
+          fence.position.set(border_point[0], border_point[1] - 6)
+        } else {
+          fence.moveTo(0, -35).lineTo(
+            border_point[0] - next_point[0], border_point[1] - next_point[1] - 35);
+          fence.position.set(next_point[0], next_point[1] - 6 )
+        }
+
+
+        container_objects.push(fence);
+      }
+      container_objects.sort(function comp(a, b) {
+        return (a.y > b.y) ? 1 : -1;
+      });
+      for (let p = 0; p < container_objects.length; p++) {
+        posts.addChild(container_objects[p]);
+      }
+      pen.land_object.addChild(posts);
+      
+
+
+      // let border = new PIXI.Graphics();
+      // border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
+      // border.true_color = 0x00FFFF;
+      // border.grey_color = 0x00FFFF;
+      // for (let p = 0; p < border_polygon.length; p++) {
+      //   let border_point = border_polygon[p];
+      //   // console.log(border_point);
+
+      //   border.drawPolygon([
+      //     border_point[0] - post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] + post_size,
+      //     border_point[0] - post_size, border_point[1] + post_size,
+      //   ]);
+      // }
+      // pen.land_object.addChild(border);
+
+
+
+
+
+      // let top_fence = [];
+      // let bottom_fence = [];
+      // let left_fence = [];
+      // let right_fence = [];
+      // let post_size = 20;
+
+      // for (let p = 0; p < border_polygon.length; p++) {
+      //   let border_point = border_polygon[p];
+      //   if (border_point[1] < pen.cy - square_width * 0.3) {
+      //     top_fence.push(border_point);
+      //   } else if (border_point[1] > pen.cy + square_width * 0.3) {
+      //     bottom_fence.push(border_point);
+      //   } else if (border_point[0] < pen.cx) {
+      //     left_fence.push(border_point);
+      //   } else {
+      //     right_fence.push(border_point);
+      //   }
+      // }
+
+      // let top_border = new PIXI.Graphics();
+      // top_border.lineStyle(1, 0xFF0000, 1); //width, color, alpha
+      // top_border.true_color = 0xFF0000;
+      // top_border.grey_color = 0xFF0000;
+      // console.log(top_fence);
+      // for (let p = 0; p < top_fence.length; p++) {
+      //   let border_point = top_fence[p];
+      //   // console.log(border_point);
+
+      //   top_border.drawPolygon([
+      //     border_point[0] - post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] + post_size,
+      //     border_point[0] - post_size, border_point[1] + post_size,
+      //   ]);
+      // }
+      // pen.land_object.addChild(top_border);
+
+      // let bottom_border = new PIXI.Graphics();
+      // bottom_border.lineStyle(1, 0x0000FF, 1); //width, color, alpha
+      // bottom_border.true_color = 0x0000FF;
+      // bottom_border.grey_color = 0x0000FF;
+      // console.log(bottom_fence);
+      // for (let p = 0; p < bottom_fence.length; p++) {
+      //   let border_point = bottom_fence[p];
+      //   // console.log(border_point);
+
+      //   bottom_border.drawPolygon([
+      //     border_point[0] - post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] + post_size,
+      //     border_point[0] - post_size, border_point[1] + post_size,
+      //   ]);
+      // }
+      // pen.land_object.addChild(bottom_border);
+
+
+      // let left_border = new PIXI.Graphics();
+      // left_border.lineStyle(1, 0x00FF00, 1); //width, color, alpha
+      // left_border.true_color = 0x00FF00;
+      // left_border.grey_color = 0x00FF00;
+      // console.log(left_fence);
+      // for (let p = 0; p < left_fence.length; p++) {
+      //   let border_point = left_fence[p];
+      //   // console.log(border_point);
+
+      //   left_border.drawPolygon([
+      //     border_point[0] - post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] + post_size,
+      //     border_point[0] - post_size, border_point[1] + post_size,
+      //   ]);
+      // }
+      // pen.land_object.addChild(left_border);
+
+
+      // let right_border = new PIXI.Graphics();
+      // right_border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
+      // right_border.true_color = 0x00FFFF;
+      // right_border.grey_color = 0x00FFFF;
+      // console.log(right_fence);
+      // for (let p = 0; p < right_fence.length; p++) {
+      //   let border_point = right_fence[p];
+      //   // console.log(border_point);
+
+      //   right_border.drawPolygon([
+      //     border_point[0] - post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] - post_size,
+      //     border_point[0] + post_size, border_point[1] + post_size,
+      //     border_point[0] - post_size, border_point[1] + post_size,
+      //   ]);
+      // }
+      // pen.land_object.addChild(right_border);
     
-      let border = new PIXI.Graphics();
-      border.lineStyle(12, 0xFFFFFF, 1); //width, color, alpha
-      let border_polygon = this.zoo_pens[i].polygon.flat();
-      border.drawPolygon(border_polygon);
-      let border_depth_1 = border.clone();
-      border_depth_1.position.set(0,12);
-      let border_depth_2 = border.clone();
-      border_depth_2.position.set(0,24);
 
-      border.true_color = pen_color;
-      border_depth_1.true_color = pen_shadow_color;
-      border_depth_2.true_color = pen_shadow_color;
 
-      border.grey_color = greyscale_pen_color;
-      border_depth_1.grey_color = greyscale_pen_shadow_color;
-      border_depth_2.grey_color = greyscale_pen_shadow_color;
 
-      border.tint = border.true_color;
-      border_depth_1.tint = border_depth_1.true_color;
-      border_depth_2.tint = border_depth_2.true_color;
 
-      this.zoo_pens[i].land_object.addChild(border_depth_1);
-      this.zoo_pens[i].land_object.addChild(border_depth_2);
-      this.zoo_pens[i].land_object.addChild(border);
+
+      // 
+      // border.lineStyle(12, 0xFFFFFF, 1); //width, color, alpha
+      // let border_polygon = pen.polygon.flat();
+      // border.drawPolygon(border_polygon);
+      // let border_depth_1 = border.clone();
+      // border_depth_1.position.set(0,12);
+      // let border_depth_2 = border.clone();
+      // border_depth_2.position.set(0,24);
+
+      // border.true_color = pen_color;
+      // border_depth_1.true_color = pen_shadow_color;
+      // border_depth_2.true_color = pen_shadow_color;
+
+      // border.grey_color = greyscale_pen_color;
+      // border_depth_1.grey_color = greyscale_pen_shadow_color;
+      // border_depth_2.grey_color = greyscale_pen_shadow_color;
+
+      // border.tint = border.true_color;
+      // border_depth_1.tint = border_depth_1.true_color;
+      // border_depth_2.tint = border_depth_2.true_color;
+
+      // pen.land_object.addChild(border_depth_1);
+      // pen.land_object.addChild(border_depth_2);
+      // pen.land_object.addChild(border);
     }
 
-    this.terrain.push(this.zoo_pens[i].land_object)
+    this.terrain.push(pen.land_object)
   }
 
   this.sortLayer(this.map.terrain_layer, this.terrain, true);
