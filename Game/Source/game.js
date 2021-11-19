@@ -97,6 +97,7 @@ class Game {
       .add("Art/Characters/light_cat.json")
 
       .add("Art/Decorations/trees.json")
+      .add("Art/fence_post_v2.png")
 
       .add("Art/Animals/parrot.json")
       .add("Art/Animals/owl.json")

@@ -814,15 +814,21 @@ Game.prototype.makeMapPens = function() {
         smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
 
 
-        // Now remove points that are too close to each other
+        // Now remove points that are too close to each other and add points
+        // when they're too far
         for(let c = 0; c < 2; c++) {
           let reduced_polygon = [[smooth_polygon[0][0], smooth_polygon[0][1]]];
           for (let m = 1; m < smooth_polygon.length; m++) {
             let point = smooth_polygon[m];
             let previous_point = reduced_polygon[reduced_polygon.length - 1];
-            if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 40) {
+            if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 180) {
+              let blend_point = blendPoints([point, previous_point], [0.5, 0.5]);
+              reduced_polygon.push(blend_point);
+            }
+            if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 60) {
               reduced_polygon.push([point[0], point[1]]);
             }
+
           }
           smooth_polygon = reduced_polygon;
         }
@@ -1087,231 +1093,131 @@ Game.prototype.drawMap = function() {
       }
 
       let border_polygon = pen.polygon;
+      let top_objects = [];
+      let bottom_objects = [];
+      let top_x = pen.cx - square_width / 2;
+      let top_y = pen.cy - square_width / 2;
+      let bottom_x = pen.cx - square_width / 2;
+      let bottom_y = pen.cy;
+      let highest_top_point = null;
+      let lowest_bottom_point = null;
 
-
-      //let post_size = 15;
-      // let border = new PIXI.Graphics();
-      // // border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
-
-      // border.true_color = 0x754c25;
-      // border.grey_color = 0x754c25;
-      // for (let p = 0; p < border_polygon.length; p++) {
-      //   let border_point = border_polygon[p];
-      //   // console.log(border_point);
-      //   border.beginFill(0xFFFFFF);
-      //   border.drawPolygon([
-      //     border_point[0] - post_size, border_point[1],
-      //     border_point[0] + post_size, border_point[1],
-      //     border_point[0] + post_size, border_point[1] + 3 * post_size,
-      //     border_point[0] - post_size, border_point[1] + 3 * post_size,
-      //   ]);
-      //   border.endFill();
-      // }
-      // pen.land_object.addChild(border);
-
-
-      let container_objects = [];
-      let posts = new PIXI.Container();
-      // border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
-      // border.true_color = 0x00FFFF;
-      // border.grey_color = 0x00FFFF;
       for (let p = 0; p < border_polygon.length; p++) {
         let border_point = [border_polygon[p][0], border_polygon[p][1]];
-        
-        // if (border_point[1] < pen.cy - square_width * 0.25) {
-        //   border_point[1] += 30;
-        // }
+        if (highest_top_point == null || border_point[1] - top_y < highest_top_point) highest_top_point = border_point[1] - top_y;
+        if (lowest_bottom_point == null || border_point[1] - top_y > lowest_bottom_point) lowest_bottom_point = border_point[1] - top_y;
+      }
+      console.log("Yop," + highest_top_point);
+      console.log("Yip," + lowest_bottom_point);
 
-        let post = new PIXI.Sprite(PIXI.Texture.from("Art/fence_post_v1.png"));
-        post.anchor.set(0.5, 0.87);
-        post.position.set(border_point[0], border_point[1]);
-        container_objects.push(post);
+      for (let p = 0; p < border_polygon.length; p++) {
+        let border_point = [border_polygon[p][0], border_polygon[p][1]];
+
+        let post = new PIXI.Sprite(PIXI.Texture.from("Art/fence_post_v2.png"));
+        post.anchor.set(0.5, 0.85);
+        
+        if (border_point[1] - top_y < lowest_bottom_point - 70) {
+          top_objects.push(post);
+          post.position.set(border_point[0] - top_x, border_point[1] - top_y);
+        } else {
+          bottom_objects.push(post);
+          post.position.set(border_point[0] - bottom_x, border_point[1] - bottom_y);
+        }
+        
 
         let fence = new PIXI.Graphics();
         let next_point = border_polygon[0];
         if (p < border_polygon.length - 1) {
           next_point = [border_polygon[p + 1][0],border_polygon[p + 1][1]];
         }
-        // if (next_point[1] < pen.cy - square_width * 0.25) {
-        //   next_point[1] += 30;
-        // }
-        fence.lineStyle(12, 0x462D16, 1);
+        
         if (next_point[1] < border_point[1]) {
-          fence.moveTo(-3, -28).lineTo(
-            next_point[0] - border_point[0], next_point[1] - border_point[1] - 28 - 3);
-          fence.position.set(border_point[0], border_point[1] - 6)
+          fence.lineStyle(12, 0x462D16, 1);
+          fence.moveTo(-3, -23).lineTo(
+            next_point[0] - border_point[0], next_point[1] - border_point[1] - 23 - 3);
+          fence.lineStyle(8, pen_color, 1);
+          fence.moveTo(0, -30).lineTo(
+            next_point[0] - border_point[0], next_point[1] - border_point[1] - 30);
+          if (border_point[1] - top_y < lowest_bottom_point - 70) {
+            fence.position.set(border_point[0] - top_x, border_point[1] - 6 - top_y);
+            top_objects.push(fence);
+          } else {
+            fence.position.set(border_point[0] - bottom_x, border_point[1] - 6 - bottom_y)
+            bottom_objects.push(fence);
+          }
         } else {
-          fence.moveTo(-3, -28).lineTo(
-            border_point[0] - next_point[0], border_point[1] - next_point[1] - 28 - 3);
-          fence.position.set(next_point[0], next_point[1] - 6)
+          fence.lineStyle(12, 0x462D16, 1);
+          fence.moveTo(-3, -23).lineTo(
+            border_point[0] - next_point[0], border_point[1] - next_point[1] - 23 - 3);
+          fence.lineStyle(8, pen_color, 1);
+          fence.moveTo(0, -30).lineTo(
+            border_point[0] - next_point[0], border_point[1] - next_point[1] - 30);
+          if (next_point[1] - top_y < lowest_bottom_point - 70) {
+            fence.position.set(next_point[0] - top_x, next_point[1] - 6 - top_y);
+            top_objects.push(fence);
+          } else {
+            fence.position.set(next_point[0] - bottom_x, next_point[1] - 6 - bottom_y);
+            bottom_objects.push(fence);
+          }
         }
-        fence.lineStyle(8, pen_color, 1);
-        if (next_point[1] < border_point[1]) {
-          fence.moveTo(0, -35).lineTo(
-            next_point[0] - border_point[0], next_point[1] - border_point[1] - 35);
-          fence.position.set(border_point[0], border_point[1] - 6)
-        } else {
-          fence.moveTo(0, -35).lineTo(
-            border_point[0] - next_point[0], border_point[1] - next_point[1] - 35);
-          fence.position.set(next_point[0], next_point[1] - 6 )
-        }
-
-
-        container_objects.push(fence);
       }
-      container_objects.sort(function comp(a, b) {
+      top_objects.sort(function comp(a, b) {
         return (a.y > b.y) ? 1 : -1;
       });
-      for (let p = 0; p < container_objects.length; p++) {
-        posts.addChild(container_objects[p]);
+      bottom_objects.sort(function comp(a, b) {
+        return (a.y > b.y) ? 1 : -1;
+      });
+
+      var top_fence_render_container = new PIXI.Container();
+      var bottom_fence_render_container = new PIXI.Container();
+
+      for (let p = 0; p < top_objects.length; p++) {
+        top_fence_render_container.addChild(top_objects[p]);
       }
-      pen.land_object.addChild(posts);
+
+      for (let p = 0; p < bottom_objects.length; p++) {
+        bottom_fence_render_container.addChild(bottom_objects[p]);
+      }
       
 
+      var top_texture = this.renderer.generateTexture(top_fence_render_container,
+        PIXI.SCALE_MODES.LINEAR,
+        1,
+        new PIXI.Rectangle(-50, -100, 1024, 1024));
 
-      // let border = new PIXI.Graphics();
-      // border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
-      // border.true_color = 0x00FFFF;
-      // border.grey_color = 0x00FFFF;
-      // for (let p = 0; p < border_polygon.length; p++) {
-      //   let border_point = border_polygon[p];
-      //   // console.log(border_point);
+      console.log(top_x + "," + top_y + "," + highest_top_point);
+      var top_fence_sprite = new PIXI.Sprite(top_texture);
+      top_fence_sprite.anchor.set(0, 0);
+      top_fence_sprite.position.set(-50, -100 - highest_top_point);
+      top_fence = new PIXI.Container();
+      top_fence.type = "fence";
+      top_fence.addChild(top_fence_sprite);
+      top_fence.position.set(top_x, top_y + highest_top_point);
+      top_fence.true_color = 0xFFFFFF;
+      top_fence.grey_color = 0xFFFFFF;
+      // pen.land_object.addChild(top_fence_sprite);
+      this.decorations.push(top_fence);
 
-      //   border.drawPolygon([
-      //     border_point[0] - post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] + post_size,
-      //     border_point[0] - post_size, border_point[1] + post_size,
-      //   ]);
-      // }
-      // pen.land_object.addChild(border);
+      var bottom_texture = this.renderer.generateTexture(bottom_fence_render_container,
+        PIXI.SCALE_MODES.LINEAR,
+        1,
+        new PIXI.Rectangle(-50, -200, 1024, 1024));
 
-
-
-
-
-      // let top_fence = [];
-      // let bottom_fence = [];
-      // let left_fence = [];
-      // let right_fence = [];
-      // let post_size = 20;
-
-      // for (let p = 0; p < border_polygon.length; p++) {
-      //   let border_point = border_polygon[p];
-      //   if (border_point[1] < pen.cy - square_width * 0.3) {
-      //     top_fence.push(border_point);
-      //   } else if (border_point[1] > pen.cy + square_width * 0.3) {
-      //     bottom_fence.push(border_point);
-      //   } else if (border_point[0] < pen.cx) {
-      //     left_fence.push(border_point);
-      //   } else {
-      //     right_fence.push(border_point);
-      //   }
-      // }
-
-      // let top_border = new PIXI.Graphics();
-      // top_border.lineStyle(1, 0xFF0000, 1); //width, color, alpha
-      // top_border.true_color = 0xFF0000;
-      // top_border.grey_color = 0xFF0000;
-      // console.log(top_fence);
-      // for (let p = 0; p < top_fence.length; p++) {
-      //   let border_point = top_fence[p];
-      //   // console.log(border_point);
-
-      //   top_border.drawPolygon([
-      //     border_point[0] - post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] + post_size,
-      //     border_point[0] - post_size, border_point[1] + post_size,
-      //   ]);
-      // }
-      // pen.land_object.addChild(top_border);
-
-      // let bottom_border = new PIXI.Graphics();
-      // bottom_border.lineStyle(1, 0x0000FF, 1); //width, color, alpha
-      // bottom_border.true_color = 0x0000FF;
-      // bottom_border.grey_color = 0x0000FF;
-      // console.log(bottom_fence);
-      // for (let p = 0; p < bottom_fence.length; p++) {
-      //   let border_point = bottom_fence[p];
-      //   // console.log(border_point);
-
-      //   bottom_border.drawPolygon([
-      //     border_point[0] - post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] + post_size,
-      //     border_point[0] - post_size, border_point[1] + post_size,
-      //   ]);
-      // }
-      // pen.land_object.addChild(bottom_border);
+      console.log(bottom_x + "," + bottom_y + "," + lowest_bottom_point);
+      var bottom_fence_sprite = new PIXI.Sprite(bottom_texture);
+      bottom_fence_sprite.anchor.set(0, 0);
+      // bottom_fence_sprite.tint = 0x000000;
+      bottom_fence_sprite.position.set(-50, -200 - lowest_bottom_point + square_width/2);
+      bottom_fence = new PIXI.Container();
+      bottom_fence.type = "fence";
+      bottom_fence.addChild(bottom_fence_sprite);
+      bottom_fence.position.set(bottom_x, bottom_y + lowest_bottom_point - square_width/2);
+      bottom_fence.true_color = 0xFFFFFF;
+      bottom_fence.grey_color = 0xFFFFFF;
+      // pen.land_object.addChild(bottom_fence_sprite);
+      this.decorations.push(bottom_fence);
 
 
-      // let left_border = new PIXI.Graphics();
-      // left_border.lineStyle(1, 0x00FF00, 1); //width, color, alpha
-      // left_border.true_color = 0x00FF00;
-      // left_border.grey_color = 0x00FF00;
-      // console.log(left_fence);
-      // for (let p = 0; p < left_fence.length; p++) {
-      //   let border_point = left_fence[p];
-      //   // console.log(border_point);
-
-      //   left_border.drawPolygon([
-      //     border_point[0] - post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] + post_size,
-      //     border_point[0] - post_size, border_point[1] + post_size,
-      //   ]);
-      // }
-      // pen.land_object.addChild(left_border);
-
-
-      // let right_border = new PIXI.Graphics();
-      // right_border.lineStyle(1, 0x00FFFF, 1); //width, color, alpha
-      // right_border.true_color = 0x00FFFF;
-      // right_border.grey_color = 0x00FFFF;
-      // console.log(right_fence);
-      // for (let p = 0; p < right_fence.length; p++) {
-      //   let border_point = right_fence[p];
-      //   // console.log(border_point);
-
-      //   right_border.drawPolygon([
-      //     border_point[0] - post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] - post_size,
-      //     border_point[0] + post_size, border_point[1] + post_size,
-      //     border_point[0] - post_size, border_point[1] + post_size,
-      //   ]);
-      // }
-      // pen.land_object.addChild(right_border);
-    
-
-
-
-
-
-      // 
-      // border.lineStyle(12, 0xFFFFFF, 1); //width, color, alpha
-      // let border_polygon = pen.polygon.flat();
-      // border.drawPolygon(border_polygon);
-      // let border_depth_1 = border.clone();
-      // border_depth_1.position.set(0,12);
-      // let border_depth_2 = border.clone();
-      // border_depth_2.position.set(0,24);
-
-      // border.true_color = pen_color;
-      // border_depth_1.true_color = pen_shadow_color;
-      // border_depth_2.true_color = pen_shadow_color;
-
-      // border.grey_color = greyscale_pen_color;
-      // border_depth_1.grey_color = greyscale_pen_shadow_color;
-      // border_depth_2.grey_color = greyscale_pen_shadow_color;
-
-      // border.tint = border.true_color;
-      // border_depth_1.tint = border_depth_1.true_color;
-      // border_depth_2.tint = border_depth_2.true_color;
-
-      // pen.land_object.addChild(border_depth_1);
-      // pen.land_object.addChild(border_depth_2);
-      // pen.land_object.addChild(border);
     }
 
     this.terrain.push(pen.land_object)
@@ -2345,6 +2251,11 @@ Game.prototype.displayMap = function() {
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = false;
   }
+  for (let i = 0; i < this.decorations.length; i++) {
+    if (this.decorations[i].type == "fence") {
+      this.decorations[i].visible = false;
+    }
+  }
   this.player.scale.set(3 * 0.72,3 * 0.72);
   this.player.red_circle.visible = true;
   this.map_border.visible = true;
@@ -2389,6 +2300,11 @@ Game.prototype.hideMap = function() {
   }
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = true;
+  }
+  for (let i = 0; i < this.decorations.length; i++) {
+    if (this.decorations[i].type == "fence") {
+      this.decorations[i].visible = true;
+    }
   }
   this.player.scale.set(0.72,0.72);
   this.player.red_circle.visible = false;
@@ -2783,25 +2699,25 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
   let tx = x;
   let ty = y;
 
-  if (direction == "right") tx += 30;
-  if (direction == "left") tx -= 30;
+  if (direction == "right") tx += 40;
+  if (direction == "left") tx -= 40;
   if (direction == "up") ty -= 30;
-  if (direction == "down") ty += 48;
+  if (direction == "down") ty += 64;
   if (direction == "downright") {
-    tx += 30;
-    ty += 48;
+    tx += 40;
+    ty += 64;
   }
   if (direction == "downleft") {
-    tx -= 30;
-    ty += 48;
+    tx -= 40;
+    ty += 64;
   }
   if (direction == "upright") {
-    tx += 30;
-    ty -= 30;
+    tx += 40;
+    ty -= 64;
   }
   if (direction == "upleft") {
-    tx -= 30;
-    ty -= 30;
+    tx -= 40;
+    ty -= 64;
   }
 
   if (use_bounds) {
