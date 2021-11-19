@@ -100,6 +100,19 @@ function shuffleArray(array) {
 }
 
 
+function checkNeighbor(array, x, y, dir, val) {
+  if (dir == "w") {
+    return (x > 0 && (array[x-1][y] == val));
+  } else if (dir == "e") {
+    return (x < array.length - 1 && (array[x+1][y] == val));
+  } else if (dir == "n") {
+    return (y > 0 && (array[x][y-1] == val));
+  } else if (dir == "s") {
+    return (y < array[x].length - 1 && (array[x][y+1] == val));
+  }
+}
+
+
 function detectMobileBrowser() {
   const toMatch = [
       /Android/i,

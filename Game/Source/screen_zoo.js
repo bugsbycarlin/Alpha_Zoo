@@ -198,6 +198,7 @@ Game.prototype.initializeMap = function() {
         s_edge: false,
         w_edge: false,
         e_edge: false,
+        pen: null,
       };
     }
   }
@@ -850,8 +851,10 @@ Game.prototype.makeMapPens = function() {
           special_object: null,
           animal_objects: null,
           state: "ungrey",
+          square_numbers: [i,j],
           location: this.zoo_squares[i][j],
         });
+        this.zoo_squares[i][j].pen = this.zoo_pens[this.zoo_pens.length - 1];
       } else if (this.zoo_squares[i][j].reachable && this.isFerrisTile(i,j)) {
         let polygon = [];
         let center_x = square_width * (i + 1);
@@ -886,8 +889,10 @@ Game.prototype.makeMapPens = function() {
           land_object: null,
           animal_objects: null,
           state: "ungrey",
+          square_numbers: [i,j],
           location: this.zoo_squares[i][j],
         });
+        this.zoo_squares[i][j].pen = this.zoo_pens[this.zoo_pens.length - 1];
       } else if (this.zoo_squares[i][j].reachable && this.isCafeTile(i,j)) {
         let polygon = [];
         let center_x = square_width * i + square_width / 2;
@@ -926,8 +931,10 @@ Game.prototype.makeMapPens = function() {
           land_object: null,
           animal_objects: null,
           state: "ungrey",
+          square_numbers: [i,j],
           location: this.zoo_squares[i][j],
         });
+        this.zoo_squares[i][j].pen = this.zoo_pens[this.zoo_pens.length - 1];
       }
     }
   }
@@ -1036,61 +1043,340 @@ Game.prototype.drawMap = function() {
     pen.land_object.cx = pen.cx;
     pen.land_object.cy = pen.cy;
 
+    let corner_x = pen.cx - square_width / 2;
+    let corner_y = pen.cy - square_width / 2;
+
+    let grid_i = pen.square_numbers[0];
+    let grid_j = pen.square_numbers[1];
+
+    console.log(pen);
+
     if (pen.special == null) {
-    // if(true){
-      
-      let polygon = pen.polygon.flat();
+      if (pen.land == "magma") {
+        var render_container = new PIXI.Container();
 
-      let ground = new PIXI.Graphics();
-      ground.beginFill(0xFFFFFF);
-      ground.drawPolygon(polygon);
-      ground.endFill();
-
-      ground.grey_color = 0xFFFFFF;
-
-      if (pen.land == null || pen.land == "grass") {
-        ground.true_color = grass_color;
-      } else if (pen.land == "water") {
-        ground.true_color = water_color;
-      } else if (pen.land == "sand") {
-        ground.true_color = sand_color;
-      } else if (pen.land == "forest") {
-        ground.true_color = forest_color;
-      } else if (pen.land == "watergrass") {
-        ground.true_color = water_color;
-      } else if (pen.land == "waterice") {
-        ground.true_color = water_color;
-      }
-
-      ground.tint = ground.true_color;
-      pen.land_object.addChild(ground);
-
-      if (pen.land == "watergrass" || pen.land == "waterice") {
-        let super_ground = new PIXI.Graphics();
-        super_ground.beginFill(0xFFFFFF);
-
-        let polygon_left = [];
-        for (let k = 0; k < pen.polygon.length; k++) {
-          if (pen.polygon[k][0] <= pen.cx) {
-            polygon_left.push(pen.polygon[k][0])
-            polygon_left.push(pen.polygon[k][1]);
+        let terrain_grid = [];
+        for (let x = 0; x < square_width/100; x++) {
+          terrain_grid[x] = [];
+          for (let y = 0; y < square_width/100; y++) {
+            terrain_grid[x][y] = 0;
           }
         }
-        polygon_left.push(polygon_left[0])
-        polygon_left.push(polygon_left[1]);
-        super_ground.drawPolygon(polygon_left);
-        super_ground.endFill();
 
-        super_ground.grey_color = 0xFEFEFE;
-        if (pen.land == "watergrass") {
-          super_ground.true_color = grass_color;
-        } else if (pen.land == "waterice") {
-          super_ground.true_color = ice_color;
+        for (let x = 0; x < square_width/100; x++) {
+          for (let y = 0; y < square_width/100; y++) {
+            let points_inside = 0;
+            for (r = 0; r < 30; r++) {
+              let test_point = [corner_x + 100 * x + 100 * Math.random(), corner_y + 100 * y + 100 * Math.random()];
+              if (pointInsidePolygon(test_point, pen.polygon)) {
+                points_inside += 1;
+              }
+            }
+            if (points_inside >= 18) terrain_grid[x][y] = 1;
+          }
         }
 
-        super_ground.tint = super_ground.true_color;
-        pen.land_object.addChild(super_ground);
+        let grid_size = square_width/100;
+        let tg = terrain_grid;
+        for (let x = 0; x < grid_size; x++) {
+          for (let y = 0; y < grid_size; y++) {
+            let square = null;
+            if (terrain_grid[x][y] == 1) {
+              // center tile
+              if (checkNeighbor(tg, x, y, "w", 1)
+                && checkNeighbor(tg, x, y, "e", 1)
+                && checkNeighbor(tg, x, y, "n", 1)
+                && checkNeighbor(tg, x, y, "s", 1)) {
+                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+              } 
+              // north facing tile
+              else if (checkNeighbor(tg, x, y, "w", 1)
+                && checkNeighbor(tg, x, y, "e", 1)
+                && !checkNeighbor(tg, x, y, "n", 1)) {
+                if (grid_j > 0 && this.zoo_squares[grid_i][grid_j-1].pen != null &&
+                  this.zoo_squares[grid_i][grid_j-1].pen.land == pen.land) {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+                } else {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_n_v1.png"));
+                }
+              }
+              // south facing tile
+              else if (checkNeighbor(tg, x, y, "w", 1)
+                && checkNeighbor(tg, x, y, "e", 1)
+                && !checkNeighbor(tg, x, y, "s", 1)) {
+                if (grid_j < this.zoo_size - 1 && this.zoo_squares[grid_i][grid_j+1].pen != null &&
+                  this.zoo_squares[grid_i][grid_j+1].pen.land == pen.land) {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+                } else {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_s_v1.png"));
+                }
+              }
+              // west facing tile
+              else if (checkNeighbor(tg, x, y, "n", 1)
+                && checkNeighbor(tg, x, y, "s", 1)
+                && !checkNeighbor(tg, x, y, "w", 1)) {
+                if (grid_i > 0 && this.zoo_squares[grid_i-1][grid_j].pen != null &&
+                  this.zoo_squares[grid_i-1][grid_j].pen.land == pen.land) {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+                } else {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_w_v1.png"));
+                }
+              }
+              // east facing tile
+              else if (checkNeighbor(tg, x, y, "n", 1)
+                && checkNeighbor(tg, x, y, "s", 1)
+                && !checkNeighbor(tg, x, y, "e", 1)) {
+                if (grid_i < this.zoo_size - 1 && this.zoo_squares[grid_i+1][grid_j].pen != null &&
+                  this.zoo_squares[grid_i+1][grid_j].pen.land == pen.land) {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+                } else {
+                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_e_v1.png"));
+                }
+                
+              }
+              // northwest facing tile
+              else if (!checkNeighbor(tg, x, y, "w", 1)
+                && checkNeighbor(tg, x, y, "e", 1)
+                && !checkNeighbor(tg, x, y, "n", 1)) {
+
+                // if (grid_i > 0 && this.zoo_squares[grid_i-1][grid_j].pen != null &&
+                //   this.zoo_squares[grid_i-1][grid_j].pen.land == pen.land
+                //   && grid_j > 0 && this.zoo_squares[grid_i][grid_j-1].pen != null &&
+                //   this.zoo_squares[grid_i][grid_j-1].pen.land == pen.land) {
+                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+                // } else if (grid_i > 0 && this.zoo_squares[grid_i-1][grid_j].pen != null &&
+                //   this.zoo_squares[grid_i-1][grid_j].pen.land == pen.land) {
+                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_n_v1.png"));
+                // } else if (grid_j > 0 && this.zoo_squares[grid_i][grid_j-1].pen != null &&
+                //   this.zoo_squares[grid_i][grid_j-1].pen.land == pen.land) {
+                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_w_v1.png"));
+                // } else {
+                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_nw_v1.png"));
+                // }
+                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_nw_v1.png"));
+              }
+              // northeast facing tile
+              else if (checkNeighbor(tg, x, y, "w", 1)
+                && !checkNeighbor(tg, x, y, "e", 1)
+                && !checkNeighbor(tg, x, y, "n", 1)) {
+                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_ne_v1.png"));
+              }
+              // southwest facing tile
+              else if (!checkNeighbor(tg, x, y, "w", 1)
+                && checkNeighbor(tg, x, y, "e", 1)
+                && !checkNeighbor(tg, x, y, "s", 1)) {
+                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_sw_v1.png"));
+              }
+              // southeast facing tile
+              else if (checkNeighbor(tg, x, y, "w", 1)
+                && !checkNeighbor(tg, x, y, "e", 1)
+                && !checkNeighbor(tg, x, y, "s", 1)) {
+                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_se_v1.png"));
+              }
+
+
+              if (square != null) {
+                square.position.set(100 * x, 100 * y);
+                render_container.addChild(square);
+              }
+              // let square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
+              // square.position.set(100 * x, 100 * y);
+              // square.scale.set(0.98, 0.98);
+              // square.alpha = 0.4;
+              // render_container.addChild(square);
+            }
+          }
+        }
+
+        // let nw = [200, 200, "nw"];
+        // let ne = [600, 200, "ne"];
+        // let sw = [200, 600, "sw"];
+        // let se = [600, 600, "se"];
+
+        // if (pen.location.e_edge == false) {
+        //   ne = [800, 200, "n"];
+        //   se = [800, 600, "s"];
+
+
+        // }
+
+        // if (pen.location.w_edge == false) {
+        //   nw = [0, 200, "n"];
+        //   sw = [0, 600, "s"];
+        // }
+
+        // if (pen.location.n_edge == false) {
+        //   nw = [200, 0, "w"];
+        //   ne = [600, 0, "e"];
+        // }
+
+        // if (pen.location.s_edge == false) {
+        //   sw = [200, 800, "w"];
+        //   se = [600, 800, "e"];
+        // }
+
+        // let top_left = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + nw[2] + "_v1.png"));
+        // top_left.position.set(nw[0], nw[1]);
+        // render_container.addChild(top_left);
+        // let top_right = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + ne[2] + "_v1.png"));
+        // top_right.position.set(ne[0], ne[1]);
+        // render_container.addChild(top_right);
+        // let bottom_left = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + sw[2] + "_v1.png"));
+        // bottom_left.position.set(sw[0], sw[1]);
+        // render_container.addChild(bottom_left);
+        // let bottom_right = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + se[2] + "_v1.png"));
+        // bottom_right.position.set(se[0], se[1]);
+        // render_container.addChild(bottom_right);
+
+        var terrain_texture = this.renderer.generateTexture(render_container,
+        PIXI.SCALE_MODES.LINEAR,
+        1,
+        new PIXI.Rectangle(0, 0, 1024, 1024));
+
+        var terrain_sprite = new PIXI.Sprite(terrain_texture);
+        terrain_sprite.anchor.set(0, 0);
+        terrain_sprite.position.set(corner_x, corner_y);
+       
+        if (pen.land == "grass") {
+          terrain_sprite.true_color = grass_color;
+        } else if (pen.land == "forest") {
+          terrain_sprite.true_color = forest_color;
+        }
+
+        terrain_sprite.grey_color = 0xFFFFFF;
+        terrain_sprite.tint = terrain_sprite.true_color;
+        pen.land_object.addChild(terrain_sprite);
+
+      } else {
+
+        ///////
+        /////// Old style
+        ///////
+        let polygon = pen.polygon.flat();
+
+        let ground = new PIXI.Graphics();
+        ground.beginFill(0xFFFFFF);
+        ground.drawPolygon(polygon);
+        ground.endFill();
+
+        ground.grey_color = 0xFFFFFF;
+
+        if (pen.land == null || pen.land == "grass") {
+          ground.true_color = grass_color;
+        } else if (pen.land == "water") {
+          ground.true_color = water_color;
+        } else if (pen.land == "sand") {
+          ground.true_color = sand_color;
+        } else if (pen.land == "forest") {
+          ground.true_color = forest_color;
+        } else if (pen.land == "watergrass") {
+          ground.true_color = water_color;
+        } else if (pen.land == "waterice") {
+          ground.true_color = water_color;
+        }
+
+        ground.tint = ground.true_color;
+        pen.land_object.addChild(ground);
+
+        if (pen.land == "watergrass" || pen.land == "waterice") {
+          let super_ground = new PIXI.Graphics();
+          super_ground.beginFill(0xFFFFFF);
+
+          let polygon_left = [];
+          for (let k = 0; k < pen.polygon.length; k++) {
+            if (pen.polygon[k][0] <= pen.cx) {
+              polygon_left.push(pen.polygon[k][0])
+              polygon_left.push(pen.polygon[k][1]);
+            }
+          }
+          polygon_left.push(polygon_left[0])
+          polygon_left.push(polygon_left[1]);
+          super_ground.drawPolygon(polygon_left);
+          super_ground.endFill();
+
+          super_ground.grey_color = 0xFEFEFE;
+          if (pen.land == "watergrass") {
+            super_ground.true_color = grass_color;
+          } else if (pen.land == "waterice") {
+            super_ground.true_color = ice_color;
+          }
+
+          super_ground.tint = super_ground.true_color;
+          pen.land_object.addChild(super_ground);
+        }
+        ///////
+        ///////
+        ///////
+
+        if (pen.land == "forest" || pen.land == "grass") {
+
+          var render_container = new PIXI.Container();
+
+          for (let k = 0; k < pen.polygon.length; k++) {
+            let p1 = pen.polygon[k];
+            let p2 = pen.polygon[0];
+            if (k < pen.polygon.length - 1) p2 = pen.polygon[k+1];
+
+            let d = distance(p1[0], p1[1], p2[0], p2[1]);
+            let fixed_d = null;
+            for (let l = 50; l <= 300; l += 50) {
+              if (fixed_d == null || Math.abs(l - d) < Math.abs(fixed_d - d)) {
+                fixed_d = l;
+              }
+            }
+
+            let rescale = d / fixed_d;
+            // if (rescale < 0.5 && rescale >= 0.2) {
+            //   console.log("Value");
+            //   console.log(rescale);
+            //   console.log(d);
+            //   console.log(fixed_d);
+            // }
+            let angle = 180/Math.PI * Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
+            if (rescale > 0.5 && rescale < 2 && (Math.abs(angle) < 80 || Math.abs(angle) > 100)) {
+              let edging = new PIXI.Sprite(PIXI.Texture.from(
+                "Art/Terrain/edging_" + fixed_d + "_" + Math.ceil(Math.random() * 3) + ".png"));
+              let x = (p1[0] + p2[0])/2;
+              let y = (p1[1] + p2[1])/2;
+              edging.position.set(x - corner_x, y - corner_y);
+              edging.anchor.set(0.5, 0.5);
+              edging.angle = angle;
+              edging.scale.set(rescale, 1);
+              //if (edging.angle > 90 || edging.angle < -90) edging.tint = 0x000000; // no shadow for these
+              render_container.addChild(edging);
+
+              let fence_shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_shadow.png"));
+              fence_shadow.anchor.set(0.5, 0.5);
+              fence_shadow.angle = edging.angle;
+              fence_shadow.position.set(edging.position.x, edging.position.y);
+              fence_shadow.scale.set(d / 300, 1);
+              render_container.addChild(fence_shadow);
+            }
+          }
+
+
+          var terrain_texture = this.renderer.generateTexture(render_container,
+            PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+
+          var terrain_sprite = new PIXI.Sprite(terrain_texture);
+          terrain_sprite.anchor.set(0, 0);
+          terrain_sprite.position.set(corner_x - 50, corner_y - 50);
+         
+          if (pen.land == "grass") {
+            terrain_sprite.true_color = grass_color;
+          } else if (pen.land == "forest") {
+            terrain_sprite.true_color = forest_color;
+          }
+
+          terrain_sprite.grey_color = 0xFFFFFF;
+          terrain_sprite.tint = terrain_sprite.true_color;
+          pen.land_object.addChild(terrain_sprite);
+        }
+
       }
+
+      
+
 
       let border_polygon = pen.polygon;
       let top_objects = [];
@@ -1107,14 +1393,12 @@ Game.prototype.drawMap = function() {
         if (highest_top_point == null || border_point[1] - top_y < highest_top_point) highest_top_point = border_point[1] - top_y;
         if (lowest_bottom_point == null || border_point[1] - top_y > lowest_bottom_point) lowest_bottom_point = border_point[1] - top_y;
       }
-      console.log("Yop," + highest_top_point);
-      console.log("Yip," + lowest_bottom_point);
 
       for (let p = 0; p < border_polygon.length; p++) {
         let border_point = [border_polygon[p][0], border_polygon[p][1]];
 
-        let post = new PIXI.Sprite(PIXI.Texture.from("Art/fence_post_v2.png"));
-        post.anchor.set(0.5, 0.85);
+        let post = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_post_v3.png"));
+        post.anchor.set(0.5, 0.78);
         
         if (border_point[1] - top_y < lowest_bottom_point - 70) {
           top_objects.push(post);
@@ -1185,7 +1469,6 @@ Game.prototype.drawMap = function() {
         1,
         new PIXI.Rectangle(-50, -100, 1024, 1024));
 
-      console.log(top_x + "," + top_y + "," + highest_top_point);
       var top_fence_sprite = new PIXI.Sprite(top_texture);
       top_fence_sprite.anchor.set(0, 0);
       top_fence_sprite.position.set(-50, -100 - highest_top_point);
@@ -1203,7 +1486,6 @@ Game.prototype.drawMap = function() {
         1,
         new PIXI.Rectangle(-50, -200, 1024, 1024));
 
-      console.log(bottom_x + "," + bottom_y + "," + lowest_bottom_point);
       var bottom_fence_sprite = new PIXI.Sprite(bottom_texture);
       bottom_fence_sprite.anchor.set(0, 0);
       // bottom_fence_sprite.tint = 0x000000;
