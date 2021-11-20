@@ -813,14 +813,15 @@ Game.prototype.makeMapPens = function() {
         }
         // Push a duplicate of the first point.
         smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
+        polygon = smooth_polygon;
 
 
         // Now remove points that are too close to each other and add points
         // when they're too far
         for(let c = 0; c < 2; c++) {
-          let reduced_polygon = [[smooth_polygon[0][0], smooth_polygon[0][1]]];
-          for (let m = 1; m < smooth_polygon.length; m++) {
-            let point = smooth_polygon[m];
+          let reduced_polygon = [[polygon[0][0], polygon[0][1]]];
+          for (let m = 1; m < polygon.length; m++) {
+            let point = polygon[m];
             let previous_point = reduced_polygon[reduced_polygon.length - 1];
             if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 180) {
               let blend_point = blendPoints([point, previous_point], [0.5, 0.5]);
@@ -831,20 +832,113 @@ Game.prototype.makeMapPens = function() {
             }
 
           }
-          smooth_polygon = reduced_polygon;
+          polygon = reduced_polygon;
         }
+
+
+        // Now check the north neighbor and find and copy the common boundary.
+        let northern_border = [];
+        if (j > 0 && this.zoo_squares[i][j].n_edge == false
+          && this.zoo_squares[i][j - 1].pen != null
+          && this.zoo_squares[i][j - 1].pen.special == null) {
+          console.log("I'm " + i + "," + j + " and I have a northern neighbor.");
+          let points_of_contact = [];
+
+          let neighbor_polygon = this.zoo_squares[i][j - 1].pen.polygon;
+
+          for (let m = 0; m < polygon.length; m++) {
+            let point = polygon[m];
+            for (let n = 0; n < neighbor_polygon.length; n++) {
+              let neighbor_point = neighbor_polygon[n];
+              if (distance(point[0], point[1], neighbor_point[0], neighbor_point[1]) < 1) {
+                points_of_contact.push([point, m, n]);
+              }
+            }
+          }
+
+          console.log(points_of_contact.length);
+
+          if (points_of_contact.length >= 2) {
+            let replaced_polygon = [];
+            let m1 = points_of_contact[0][1];
+            let m2 = points_of_contact[1][1];
+            let n1 = points_of_contact[0][2];
+            let n2 = points_of_contact[1][2];
+            for (let p = 0; p < m1; p++) {
+              replaced_polygon.push(polygon[p]);
+            }
+            for (let p = n1; p > n2; p--) {
+              replaced_polygon.push(neighbor_polygon[p]);
+              northern_border.push(neighbor_polygon[p]);
+            }
+            northern_border.push(polygon[m2]);
+            for (let p = m2; p < polygon.length; p++) {
+              replaced_polygon.push(polygon[p]);
+            }
+
+            polygon = replaced_polygon;
+          }
+        }
+
+        // Now check the north neighbor and find and copy the common boundary.
+        // This works differently BECAUSE THE WESTERN BORDER STARTS WITH
+        // A POINT OF CONTACT.
+        // let western_border = [];
+        // if (i > 0 && this.zoo_squares[i][j].w_edge == false
+        //   && this.zoo_squares[i-1][j].pen != null
+        //   && this.zoo_squares[i-1][j].pen.special == null) {
+        //   console.log("I'm " + i + "," + j + " and I have a western neighbor.");
+        //   let points_of_contact = [];
+
+        //   let neighbor_polygon = this.zoo_squares[i-1][j].pen.polygon;
+
+        //   for (let m = 0; m < polygon.length; m++) {
+        //     let point = polygon[m];
+        //     for (let n = 0; n < neighbor_polygon.length; n++) {
+        //       let neighbor_point = neighbor_polygon[n];
+        //       if (distance(point[0], point[1], neighbor_point[0], neighbor_point[1]) < 1) {
+        //         points_of_contact.push([point, m, n]);
+        //       }
+        //     }
+        //   }
+
+        //   console.log(points_of_contact.length);
+
+        //   if (points_of_contact.length >= 2) {
+        //     let replaced_polygon = [];
+        //     let m1 = points_of_contact[0][1];
+        //     let m2 = points_of_contact[1][1];
+        //     let n1 = points_of_contact[0][2];
+        //     let n2 = points_of_contact[1][2];
+        //     for (let p = 0; p < m1; p++) {
+        //       replaced_polygon.push(polygon[p]);
+        //     }
+        //     for (let p = n1; p > n2; p--) {
+        //       replaced_polygon.push(neighbor_polygon[p]);
+        //       northern_border.push(neighbor_polygon[p]);
+        //     }
+        //     northern_border.push(polygon[m2]);
+        //     for (let p = m2; p < polygon.length; p++) {
+        //       replaced_polygon.push(polygon[p]);
+        //     }
+
+        //     polygon = replaced_polygon;
+        //   }
+        // }
         
 
         this.zoo_pens.push({
           use: false,
           outer: false,
-          polygon: smooth_polygon,
-          polygon_flat: smooth_polygon.flat(),
+          polygon: polygon,
+          polygon_flat: polygon.flat(),
           cx: square_width * i + square_width / 2,
           cy: square_width * j + square_width / 2,
           animal: null,
           special: null,
           land: "grass",
+          northern_border: northern_border,
+          //western_border: western_border,
           decorations: ["grass", "tree", "bush", "rock"],
           decoration_objects: [],
           land_object: null,
@@ -1048,8 +1142,6 @@ Game.prototype.drawMap = function() {
 
     let grid_i = pen.square_numbers[0];
     let grid_j = pen.square_numbers[1];
-
-    console.log(pen);
 
     if (pen.special == null) {
       if (pen.land == "magma") {
@@ -1308,7 +1400,7 @@ Game.prototype.drawMap = function() {
         ///////
         ///////
 
-        if (pen.land == "forest" || pen.land == "grass") {
+        if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand") {
 
           var render_container = new PIXI.Container();
 
@@ -1334,8 +1426,15 @@ Game.prototype.drawMap = function() {
             // }
             let angle = 180/Math.PI * Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
             if (rescale > 0.5 && rescale < 2 && (Math.abs(angle) < 80 || Math.abs(angle) > 100)) {
-              let edging = new PIXI.Sprite(PIXI.Texture.from(
-                "Art/Terrain/edging_" + fixed_d + "_" + Math.ceil(Math.random() * 3) + ".png"));
+              let root_name = "Art/Terrain/edging_";
+              let dice = 3;
+              if (angle <= 90 && angle >= -90) root_name = "Art/Terrain/edging_shadow_";
+              if (pen.land == "sand") {
+                root_name = "Art/Terrain/edging_reverse_shadow_"
+                if (angle <= 90 && angle >= -90) root_name = "Art/Terrain/edging_reverse_";
+                dice = 1;
+              }
+              let edging = new PIXI.Sprite(PIXI.Texture.from(root_name + fixed_d + "_" + Math.ceil(Math.random() * dice) + ".png"));
               let x = (p1[0] + p2[0])/2;
               let y = (p1[1] + p2[1])/2;
               edging.position.set(x - corner_x, y - corner_y);
@@ -1366,6 +1465,8 @@ Game.prototype.drawMap = function() {
             terrain_sprite.true_color = grass_color;
           } else if (pen.land == "forest") {
             terrain_sprite.true_color = forest_color;
+          } else if (pen.land == "sand") {
+            terrain_sprite.true_color = sand_color;
           }
 
           terrain_sprite.grey_color = 0xFFFFFF;
@@ -1377,7 +1478,14 @@ Game.prototype.drawMap = function() {
 
       
 
-
+      // Make the border fence, split into top and bottom sections,
+      // and add these to the list of decorations (the thing that gets
+      // sorted and drawn in order so things appear at the right depth).
+      // The fence consists of posts whose bottoms appear to be on the polygon points,
+      // and rails which are just quads drawn from post to post.
+      // We find them all, then sort them by depth, then draw them in order,
+      // then store the result to a texture object. All the values are shifted
+      // to fit in the texture, then the texture is shifted back to the proper location.
       let border_polygon = pen.polygon;
       let top_objects = [];
       let bottom_objects = [];
@@ -1388,18 +1496,21 @@ Game.prototype.drawMap = function() {
       let highest_top_point = null;
       let lowest_bottom_point = null;
 
+      // compute highest and lowest points
       for (let p = 0; p < border_polygon.length; p++) {
         let border_point = [border_polygon[p][0], border_polygon[p][1]];
         if (highest_top_point == null || border_point[1] - top_y < highest_top_point) highest_top_point = border_point[1] - top_y;
         if (lowest_bottom_point == null || border_point[1] - top_y > lowest_bottom_point) lowest_bottom_point = border_point[1] - top_y;
       }
 
+      // iterate the polygon
       for (let p = 0; p < border_polygon.length; p++) {
         let border_point = [border_polygon[p][0], border_polygon[p][1]];
 
-        let post = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_post_v3.png"));
+        let post = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_post.png"));
         post.anchor.set(0.5, 0.78);
         
+        // add a fence post to either top or bottom
         if (border_point[1] - top_y < lowest_bottom_point - 70) {
           top_objects.push(post);
           post.position.set(border_point[0] - top_x, border_point[1] - top_y);
@@ -1409,19 +1520,23 @@ Game.prototype.drawMap = function() {
         }
         
 
+        // Draw the rails
         let fence = new PIXI.Graphics();
         let next_point = border_polygon[0];
         if (p < border_polygon.length - 1) {
           next_point = [border_polygon[p + 1][0],border_polygon[p + 1][1]];
         }
         
+        // figure out if we're drawing from post A to post B or post B to post A,
         if (next_point[1] < border_point[1]) {
+          // then draw a line
           fence.lineStyle(12, 0x462D16, 1);
           fence.moveTo(-3, -23).lineTo(
             next_point[0] - border_point[0], next_point[1] - border_point[1] - 23 - 3);
           fence.lineStyle(8, pen_color, 1);
           fence.moveTo(0, -30).lineTo(
             next_point[0] - border_point[0], next_point[1] - border_point[1] - 30);
+          // and add it to either top or bottom
           if (border_point[1] - top_y < lowest_bottom_point - 70) {
             fence.position.set(border_point[0] - top_x, border_point[1] - 6 - top_y);
             top_objects.push(fence);
@@ -1445,6 +1560,8 @@ Game.prototype.drawMap = function() {
           }
         }
       }
+
+      // sort the top and bottom fences by y depth
       top_objects.sort(function comp(a, b) {
         return (a.y > b.y) ? 1 : -1;
       });
@@ -1452,9 +1569,11 @@ Game.prototype.drawMap = function() {
         return (a.y > b.y) ? 1 : -1;
       });
 
+      // make containers
       var top_fence_render_container = new PIXI.Container();
       var bottom_fence_render_container = new PIXI.Container();
 
+      // add everything to the containers
       for (let p = 0; p < top_objects.length; p++) {
         top_fence_render_container.addChild(top_objects[p]);
       }
@@ -1463,7 +1582,8 @@ Game.prototype.drawMap = function() {
         bottom_fence_render_container.addChild(bottom_objects[p]);
       }
       
-
+      // render the stuff in the top container to a texture, and use that
+      // texture to make the top fence sprite, and add that to this.decorations.
       var top_texture = this.renderer.generateTexture(top_fence_render_container,
         PIXI.SCALE_MODES.LINEAR,
         1,
@@ -1481,6 +1601,8 @@ Game.prototype.drawMap = function() {
       // pen.land_object.addChild(top_fence_sprite);
       this.decorations.push(top_fence);
 
+      // render the stuff in the bottom container to a texture, and use that
+      // texture to make the bottom fence sprite, and add that to this.decorations.
       var bottom_texture = this.renderer.generateTexture(bottom_fence_render_container,
         PIXI.SCALE_MODES.LINEAR,
         1,
@@ -1498,7 +1620,6 @@ Game.prototype.drawMap = function() {
       bottom_fence.grey_color = 0xFFFFFF;
       // pen.land_object.addChild(bottom_fence_sprite);
       this.decorations.push(bottom_fence);
-
 
     }
 
@@ -2533,11 +2654,11 @@ Game.prototype.displayMap = function() {
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = false;
   }
-  for (let i = 0; i < this.decorations.length; i++) {
-    if (this.decorations[i].type == "fence") {
-      this.decorations[i].visible = false;
-    }
-  }
+  // for (let i = 0; i < this.decorations.length; i++) {
+  //   if (this.decorations[i].type == "fence") {
+  //     this.decorations[i].visible = false;
+  //   }
+  // }
   this.player.scale.set(3 * 0.72,3 * 0.72);
   this.player.red_circle.visible = true;
   this.map_border.visible = true;
@@ -2583,11 +2704,11 @@ Game.prototype.hideMap = function() {
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = true;
   }
-  for (let i = 0; i < this.decorations.length; i++) {
-    if (this.decorations[i].type == "fence") {
-      this.decorations[i].visible = true;
-    }
-  }
+  // for (let i = 0; i < this.decorations.length; i++) {
+  //   if (this.decorations[i].type == "fence") {
+  //     this.decorations[i].visible = true;
+  //   }
+  // }
   this.player.scale.set(0.72,0.72);
   this.player.red_circle.visible = false;
   this.map_border.visible = false;
