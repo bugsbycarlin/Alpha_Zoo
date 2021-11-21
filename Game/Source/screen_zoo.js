@@ -110,7 +110,7 @@ Game.prototype.resetZooScreen = function() {
   this.populateZoo();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  this.greyAllActivePens();
+  // this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -848,7 +848,7 @@ Game.prototype.makeMapPens = function() {
           outer: false,
           polygon: polygon,
           polygon_flat: polygon.flat(),
-          inner_polygon: null,
+          inner_polygon: [],
           cx: square_width * i + square_width / 2,
           cy: square_width * j + square_width / 2,
           animal: null,
@@ -900,6 +900,7 @@ Game.prototype.makeMapPens = function() {
           land_object: null,
           animal_objects: null,
           state: "ungrey",
+          inner_polygon: null,
           square_numbers: [i,j],
           location: this.zoo_squares[i][j],
         });
@@ -942,6 +943,7 @@ Game.prototype.makeMapPens = function() {
           land_object: null,
           animal_objects: null,
           state: "ungrey",
+          inner_polygon: null,
           square_numbers: [i,j],
           location: this.zoo_squares[i][j],
         });
@@ -1006,9 +1008,9 @@ Game.prototype.designatePens = function() {
         pen.land = animals[new_animal].land;
         pen.decorations = animals[new_animal].decorations;
 
-        if (pen.land == "water") {
-          pen.inner_polygon = shrinkPolygon(pen.polygon, pen.cx, pen.cy, 0.92);
-        }
+        // if (pen.land == "water") {
+        //   pen.inner_polygon = shrinkPolygon(pen.polygon, pen.cx, pen.cy, 0.92);
+        // }
       }
     }
   }
@@ -1030,8 +1032,10 @@ Game.prototype.swapPens = function() {
     if (i1 != i2 || j1 != j2) {
       if (this.zoo_squares[i1][j1].pen != null &&
         this.zoo_squares[i1][j1].pen.special == null
+        && this.zoo_squares[i1][j1].pen.animal != null
         && this.zoo_squares[i2][j2].pen != null &&
         this.zoo_squares[i2][j2].pen.special == null
+        && this.zoo_squares[i2][j2].pen.animal != null
         && this.zoo_squares[i1][j1].pen.location.section == this.zoo_squares[i2][j2].pen.location.section) {
         swaps_considered +=1;
 
@@ -1074,10 +1078,9 @@ Game.prototype.swapPens = function() {
           this.zoo_squares[i1][j1].pen.decorations = this.zoo_squares[i2][j2].pen.decorations;
           this.zoo_squares[i2][j2].pen.decorations = temp_3;
 
-          let temp_4 = this.zoo_squares[i1][j1].pen.inner_polygon;
-          this.zoo_squares[i1][j1].pen.inner_polygon = this.zoo_squares[i2][j2].pen.inner_polygon;
-          this.zoo_squares[i2][j2].pen.inner_polygon = temp_4;
-
+          // let temp_4 = this.zoo_squares[i1][j1].pen.inner_polygon;
+          // this.zoo_squares[i1][j1].pen.inner_polygon = this.zoo_squares[i2][j2].pen.inner_polygon;
+          // this.zoo_squares[i2][j2].pen.inner_polygon = temp_4;
 
           swaps_performed += 1;
         }
@@ -1391,7 +1394,12 @@ Game.prototype.drawMap = function() {
         ///////
 
         let polygon = pen.polygon;
-        if (pen.land == "water") polygon = pen.inner_polygon;
+        if (pen.land == "water") {
+          pen.inner_polygon = shrinkPolygon(pen.polygon, pen.cx, pen.cy, 0.92);
+
+          polygon = pen.inner_polygon;
+          //console.log(polygon);
+        }
 
         let flat_polygon = polygon.flat();
 
