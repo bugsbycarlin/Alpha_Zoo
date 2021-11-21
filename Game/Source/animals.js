@@ -385,6 +385,7 @@ animals = {
   "SWAN": {
     mouth: [321, 287],
     butt: [218, 382],
+    decorations: ["rock", "grass"],
     land: "water",
     food: "herbivore",
     speed: 0.8,
@@ -764,8 +765,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
             animal.delay = 500 + 2000 * Math.random();
             animal.delay_time = self.markTime();
 
-            console.log(animal.type);
-            console.log(animal.sprite);
             if (animal.animated) animal.sprite.gotoAndStop(0);
 
             if (Math.random() < 0.75) animal.maybeJumpIntoATree();

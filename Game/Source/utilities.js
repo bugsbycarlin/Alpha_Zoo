@@ -100,6 +100,7 @@ function shuffleArray(array) {
 }
 
 
+// check if north/south/east/west neighbors of an element in a 2d array exist and match val
 function checkNeighbor(array, x, y, dir, val) {
   if (dir == "w") {
     return (x > 0 && (array[x-1][y] == val));
@@ -111,6 +112,22 @@ function checkNeighbor(array, x, y, dir, val) {
     return (y < array[x].length - 1 && (array[x][y+1] == val));
   }
 }
+
+
+
+// given a polygon, center coordinates, and a shrink factor,
+// make a new polygon that has been shrunk towards the center
+// by the shrink factor
+function shrinkPolygon(polygon, cx, cy, shrink_factor) {
+  let new_polygon = [];
+  for (let i = 0; i < polygon.length; i++) {
+    let p = polygon[i];
+    let new_point = [cx + (p[0] - cx) * shrink_factor, cy + (p[1] - cy) * shrink_factor];
+    new_polygon.push(new_point);
+  }
+  return new_polygon;
+}
+
 
 
 function detectMobileBrowser() {

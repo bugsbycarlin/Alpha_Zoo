@@ -104,12 +104,13 @@ Game.prototype.resetZooScreen = function() {
 
   // Populate the map with things
   this.designatePens();
+  this.swapPens();
   this.drawMap();
   this.playerAndBoundaries();
   this.populateZoo();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  this.greyAllActivePens();
+  // this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -932,6 +933,7 @@ Game.prototype.makeMapPens = function() {
           outer: false,
           polygon: polygon,
           polygon_flat: polygon.flat(),
+          inner_polygon: null,
           cx: square_width * i + square_width / 2,
           cy: square_width * j + square_width / 2,
           animal: null,
@@ -1076,21 +1078,164 @@ Game.prototype.designatePens = function() {
   }
   
   for (let i = 0; i < this.zoo_pens.length; i++) {
-    if (this.zoo_pens[i].special == null) {
-      let s = this.zoo_pens[i].location.section;
+    let pen = this.zoo_pens[i];
+    if (pen.special == null) {
+      let s = pen.location.section;
 
       if (s != null && s.length > 0) {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
         // new_animal = "PENGUIN";
-        // new_animal = "GOOSE";
-        this.zoo_pens[i].animal = new_animal;
-        this.zoo_pens[i].land = animals[new_animal].land;
-        this.zoo_pens[i].decorations = animals[new_animal].decorations;
+        // new_animal = "SWAN";
+        pen.animal = new_animal;
+        pen.land = animals[new_animal].land;
+        pen.decorations = animals[new_animal].decorations;
+
+        if (pen.land == "water") {
+          pen.inner_polygon = shrinkPolygon(pen.polygon, pen.cx, pen.cy, 0.92);
+        }
       }
     }
   }
 }
+
+
+// Spend a few iterations swapping zoo pens to try to increase the number of neighbors with the same terrain.
+Game.prototype.swapPens = function() {
+  this.countLikeNeighbors();
+
+  let swaps_considered = 0;
+  let swaps_performed = 0;
+  for (let k = 0; k < 500; k++) {
+    let i1 = Math.floor(Math.random() * this.zoo_size);
+    let j1 = Math.floor(Math.random() * this.zoo_size);
+    let i2 = Math.floor(Math.random() * this.zoo_size);
+    let j2 = Math.floor(Math.random() * this.zoo_size);
+
+    if (i1 != i2 || j1 != j2) {
+      if (this.zoo_squares[i1][j1].pen != null &&
+        this.zoo_squares[i1][j1].pen.special == null
+        && this.zoo_squares[i2][j2].pen != null &&
+        this.zoo_squares[i2][j2].pen.special == null
+        && this.zoo_squares[i1][j1].pen.location.section == this.zoo_squares[i2][j2].pen.location.section) {
+        swaps_considered +=1;
+
+        let land1 = this.zoo_squares[i1][j1].pen.land;
+        let land2 = this.zoo_squares[i2][j2].pen.land;
+
+        let stack_1 = 0;
+        if (this.neighborLand(i1,j1,"n") == land1) stack_1 += 1;
+        if (this.neighborLand(i1,j1,"s") == land1) stack_1 += 1;
+        if (this.neighborLand(i1,j1,"e") == land1) stack_1 += 1;
+        if (this.neighborLand(i1,j1,"w") == land1) stack_1 += 1;
+        if (this.neighborLand(i2,j2,"n") == land2) stack_1 += 1;
+        if (this.neighborLand(i2,j2,"s") == land2) stack_1 += 1;
+        if (this.neighborLand(i2,j2,"e") == land2) stack_1 += 1;
+        if (this.neighborLand(i2,j2,"w") == land2) stack_1 += 1;
+
+        let stack_2 = 0;
+        if (this.neighborLand(i1,j1,"n") == land2) stack_2 += 1;
+        if (this.neighborLand(i1,j1,"s") == land2) stack_2 += 1;
+        if (this.neighborLand(i1,j1,"e") == land2) stack_2 += 1;
+        if (this.neighborLand(i1,j1,"w") == land2) stack_2 += 1;
+        if (this.neighborLand(i2,j2,"n") == land1) stack_2 += 1;
+        if (this.neighborLand(i2,j2,"s") == land1) stack_2 += 1;
+        if (this.neighborLand(i2,j2,"e") == land1) stack_2 += 1;
+        if (this.neighborLand(i2,j2,"w") == land1) stack_2 += 1;
+
+        if (stack_2 > stack_1) {
+
+          console.log("Swapping " + this.zoo_squares[i1][j1].pen.animal + " and " + this.zoo_squares[i2][j2].pen.animal)
+
+          let temp_1 = this.zoo_squares[i1][j1].pen.animal;
+          this.zoo_squares[i1][j1].pen.animal = this.zoo_squares[i2][j2].pen.animal;
+          this.zoo_squares[i2][j2].pen.animal = temp_1;
+
+          let temp_2 = this.zoo_squares[i1][j1].pen.land;
+          this.zoo_squares[i1][j1].pen.land = this.zoo_squares[i2][j2].pen.land;
+          this.zoo_squares[i2][j2].pen.land = temp_2;
+
+          let temp_3 = this.zoo_squares[i1][j1].pen.decorations;
+          this.zoo_squares[i1][j1].pen.decorations = this.zoo_squares[i2][j2].pen.decorations;
+          this.zoo_squares[i2][j2].pen.decorations = temp_3;
+
+          let temp_4 = this.zoo_squares[i1][j1].pen.inner_polygon;
+          this.zoo_squares[i1][j1].pen.inner_polygon = this.zoo_squares[i2][j2].pen.inner_polygon;
+          this.zoo_squares[i2][j2].pen.inner_polygon = temp_4;
+
+
+          swaps_performed += 1;
+        }
+      }
+    }
+  }
+  console.log("Swaps considered: " + swaps_considered);
+  console.log("Swaps performed: " + swaps_performed);
+
+  this.countLikeNeighbors();
+}
+
+
+// count how many shared lands there are.
+// for now, this does not count half lands (eg water neighboring watergrass)
+Game.prototype.countLikeNeighbors = function() {
+  let neighbor_count = 0;
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      if (this.zoo_squares[i][j].pen != null
+          && this.zoo_squares[i][j].pen.special == null) {
+
+        let land = this.zoo_squares[i][j].pen.land;
+
+        // north
+        if (this.neighborLand(i,j,"n") == land) neighbor_count += 1;
+
+        // south
+        if (this.neighborLand(i,j,"s") == land) neighbor_count += 1;
+
+        // east
+        if (this.neighborLand(i,j,"e") == land) neighbor_count += 1;
+
+        // west
+        if (this.neighborLand(i,j,"w") == land) neighbor_count += 1;
+      }
+    }
+  }
+
+  console.log("There are " + neighbor_count + " neighboring land borders.");
+}
+
+
+Game.prototype.neighborLand = function(i, j, direction) {
+  if (direction == "n") {
+    // north
+    if (i > 0 && this.zoo_squares[i-1][j].pen != null
+      && this.zoo_squares[i-1][j].pen.special == null) {
+      return this.zoo_squares[i-1][j].pen.land;
+    }
+  } else if (direction == "s") {
+    // south
+    if (i < this.zoo_size - 1 && this.zoo_squares[i+1][j].pen != null
+      && this.zoo_squares[i+1][j].pen.special == null) {
+      return this.zoo_squares[i+1][j].pen.land;
+    }
+  } else if (direction == "w") {
+    // west
+    if (j > 0 && this.zoo_squares[i][j-1].pen != null
+      && this.zoo_squares[i][j-1].pen.special == null) {
+      return this.zoo_squares[i][j-1].pen.land;
+    }
+  } else if (direction == "e") {
+    // east
+    if (j < this.zoo_size - 1 && this.zoo_squares[i][j+1].pen != null
+      && this.zoo_squares[i][j+1].pen.special == null) {
+      return this.zoo_squares[i][j+1].pen.land;
+    }
+  }
+
+  return null;
+}
+
 
 Game.prototype.debugDrawMapGroups = function() {
   for (let i = 0; i < this.zoo_size; i++) {
@@ -1230,21 +1375,6 @@ Game.prototype.drawMap = function() {
               else if (!checkNeighbor(tg, x, y, "w", 1)
                 && checkNeighbor(tg, x, y, "e", 1)
                 && !checkNeighbor(tg, x, y, "n", 1)) {
-
-                // if (grid_i > 0 && this.zoo_squares[grid_i-1][grid_j].pen != null &&
-                //   this.zoo_squares[grid_i-1][grid_j].pen.land == pen.land
-                //   && grid_j > 0 && this.zoo_squares[grid_i][grid_j-1].pen != null &&
-                //   this.zoo_squares[grid_i][grid_j-1].pen.land == pen.land) {
-                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-                // } else if (grid_i > 0 && this.zoo_squares[grid_i-1][grid_j].pen != null &&
-                //   this.zoo_squares[grid_i-1][grid_j].pen.land == pen.land) {
-                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_n_v1.png"));
-                // } else if (grid_j > 0 && this.zoo_squares[grid_i][grid_j-1].pen != null &&
-                //   this.zoo_squares[grid_i][grid_j-1].pen.land == pen.land) {
-                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_w_v1.png"));
-                // } else {
-                //   square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_nw_v1.png"));
-                // }
                 square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_nw_v1.png"));
               }
               // northeast facing tile
@@ -1344,11 +1474,15 @@ Game.prototype.drawMap = function() {
         ///////
         /////// Old style
         ///////
-        let polygon = pen.polygon.flat();
+
+        let polygon = pen.polygon;
+        if (pen.land == "water") polygon = pen.inner_polygon;
+
+        let flat_polygon = polygon.flat();
 
         let ground = new PIXI.Graphics();
         ground.beginFill(0xFFFFFF);
-        ground.drawPolygon(polygon);
+        ground.drawPolygon(flat_polygon);
         ground.endFill();
 
         ground.grey_color = 0xFFFFFF;
@@ -1400,14 +1534,14 @@ Game.prototype.drawMap = function() {
         ///////
         ///////
 
-        if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand") {
+        if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand" || pen.land == "water") {
 
           var render_container = new PIXI.Container();
 
-          for (let k = 0; k < pen.polygon.length; k++) {
-            let p1 = pen.polygon[k];
-            let p2 = pen.polygon[0];
-            if (k < pen.polygon.length - 1) p2 = pen.polygon[k+1];
+          for (let k = 0; k < polygon.length; k++) {
+            let p1 = polygon[k];
+            let p2 = polygon[0];
+            if (k < polygon.length - 1) p2 = polygon[k+1];
 
             let d = distance(p1[0], p1[1], p2[0], p2[1]);
             let fixed_d = null;
@@ -1425,11 +1559,11 @@ Game.prototype.drawMap = function() {
             //   console.log(fixed_d);
             // }
             let angle = 180/Math.PI * Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
-            if (rescale > 0.5 && rescale < 2 && (Math.abs(angle) < 80 || Math.abs(angle) > 100)) {
+            if (rescale > 0.5 && rescale < 2 && (Math.abs(angle) < 80 || Math.abs(angle) > 100 || pen.land == "water")) {
               let root_name = "Art/Terrain/edging_";
               let dice = 3;
               if (angle <= 90 && angle >= -90) root_name = "Art/Terrain/edging_shadow_";
-              if (pen.land == "sand") {
+              if (pen.land == "sand" || pen.land == "water") {
                 root_name = "Art/Terrain/edging_reverse_shadow_"
                 if (angle <= 90 && angle >= -90) root_name = "Art/Terrain/edging_reverse_";
                 dice = 1;
@@ -1467,6 +1601,8 @@ Game.prototype.drawMap = function() {
             terrain_sprite.true_color = forest_color;
           } else if (pen.land == "sand") {
             terrain_sprite.true_color = sand_color;
+          } else if (pen.land == "water") {
+            terrain_sprite.true_color = water_color;
           }
 
           terrain_sprite.grey_color = 0xFFFFFF;
