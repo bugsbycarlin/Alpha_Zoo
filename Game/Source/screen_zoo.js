@@ -110,7 +110,7 @@ Game.prototype.resetZooScreen = function() {
   this.populateZoo();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  // this.greyAllActivePens();
+  this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -789,55 +789,17 @@ Game.prototype.makeMapPens = function() {
         }
 
         // Now do smoothing on any corner with an "s" in it.
-        let smooth_polygon = [];
-        let smoothing_factor = 0.7;
-        let l = polygon.length;
-        for (let m = 0; m < l; m++) {
-          let point = polygon[m];
-          if (polygon[m].length > 2 && polygon[m][2] == "s") {
-            // pre could go to l - 2 and post could go to 0 instead.
-            let pre_point = m > 0 ? polygon[m - 1] : polygon[l - 1];
-            let post_point = m < l - 1 ? polygon[m + 1] : polygon[0];
-
-            let start_point = blendPoints([point, pre_point], [smoothing_factor, 1 - smoothing_factor]);
-            let end_point = blendPoints([point, post_point], [smoothing_factor, 1 - smoothing_factor]);
-
-            smooth_polygon.push(start_point);
-            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.5, 0.3, 0.2]));
-            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.333, 0.333, 0.333]));
-            smooth_polygon.push(blendPoints([start_point, point, end_point], [0.2, 0.3, 0.5]));
-            smooth_polygon.push(end_point);
-
-          } else {
-            smooth_polygon.push(point);
-          }
-        }
-        // Push a duplicate of the first point.
-        smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
-        polygon = smooth_polygon;
-
+        polygon = smoothPolygon(polygon, 0.7, function(x) {return (x.length > 2 && x[2] == "s")});
 
         // Now remove points that are too close to each other and add points
         // when they're too far
         for(let c = 0; c < 2; c++) {
-          let reduced_polygon = [[polygon[0][0], polygon[0][1]]];
-          for (let m = 1; m < polygon.length; m++) {
-            let point = polygon[m];
-            let previous_point = reduced_polygon[reduced_polygon.length - 1];
-            if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 180) {
-              let blend_point = blendPoints([point, previous_point], [0.5, 0.5]);
-              reduced_polygon.push(blend_point);
-            }
-            if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= 60) {
-              reduced_polygon.push([point[0], point[1]]);
-            }
-
-          }
-          polygon = reduced_polygon;
+          polygon = evenPolygon(polygon, 60, 180);
         }
 
-
         // Now check the north neighbor and find and copy the common boundary.
+        // Note: if you end up doing the western border, do it a little differently
+        // BECAUSE THE WESTERN BORDER STARTS WITH A POINT OF CONTACT.
         let northern_border = [];
         if (j > 0 && this.zoo_squares[i][j].n_edge == false
           && this.zoo_squares[i][j - 1].pen != null
@@ -880,53 +842,6 @@ Game.prototype.makeMapPens = function() {
             polygon = replaced_polygon;
           }
         }
-
-        // Now check the north neighbor and find and copy the common boundary.
-        // This works differently BECAUSE THE WESTERN BORDER STARTS WITH
-        // A POINT OF CONTACT.
-        // let western_border = [];
-        // if (i > 0 && this.zoo_squares[i][j].w_edge == false
-        //   && this.zoo_squares[i-1][j].pen != null
-        //   && this.zoo_squares[i-1][j].pen.special == null) {
-        //   console.log("I'm " + i + "," + j + " and I have a western neighbor.");
-        //   let points_of_contact = [];
-
-        //   let neighbor_polygon = this.zoo_squares[i-1][j].pen.polygon;
-
-        //   for (let m = 0; m < polygon.length; m++) {
-        //     let point = polygon[m];
-        //     for (let n = 0; n < neighbor_polygon.length; n++) {
-        //       let neighbor_point = neighbor_polygon[n];
-        //       if (distance(point[0], point[1], neighbor_point[0], neighbor_point[1]) < 1) {
-        //         points_of_contact.push([point, m, n]);
-        //       }
-        //     }
-        //   }
-
-        //   console.log(points_of_contact.length);
-
-        //   if (points_of_contact.length >= 2) {
-        //     let replaced_polygon = [];
-        //     let m1 = points_of_contact[0][1];
-        //     let m2 = points_of_contact[1][1];
-        //     let n1 = points_of_contact[0][2];
-        //     let n2 = points_of_contact[1][2];
-        //     for (let p = 0; p < m1; p++) {
-        //       replaced_polygon.push(polygon[p]);
-        //     }
-        //     for (let p = n1; p > n2; p--) {
-        //       replaced_polygon.push(neighbor_polygon[p]);
-        //       northern_border.push(neighbor_polygon[p]);
-        //     }
-        //     northern_border.push(polygon[m2]);
-        //     for (let p = m2; p < polygon.length; p++) {
-        //       replaced_polygon.push(polygon[p]);
-        //     }
-
-        //     polygon = replaced_polygon;
-        //   }
-        // }
-        
 
         this.zoo_pens.push({
           use: false,

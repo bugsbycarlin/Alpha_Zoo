@@ -114,6 +114,16 @@ function checkNeighbor(array, x, y, dir, val) {
 }
 
 
+// points and weights should match length and be nonzero length
+function blendPoints(points, weights) {
+  let new_point = [0,0];
+  for (let i = 0; i < points.length; i++) {
+    new_point[0] += points[i][0] * weights[i];
+    new_point[1] += points[i][1] * weights[i];
+  }
+  return new_point;
+}
+
 
 // given a polygon, center coordinates, and a shrink factor,
 // make a new polygon that has been shrunk towards the center
@@ -128,6 +138,57 @@ function shrinkPolygon(polygon, cx, cy, shrink_factor) {
   return new_polygon;
 }
 
+
+// smooth a polygon by introducing blending points
+// filter condition allows you to choose which points to smooth
+function smoothPolygon(polygon, smoothing_factor, filter_condition) {
+  let smooth_polygon = [];
+  let l = polygon.length;
+  for (let m = 0; m < l; m++) {
+    let point = polygon[m];
+    //if (polygon[m].length > 2 && polygon[m][2] == "s") {
+    if (filter_condition(polygon[m]) == true) {
+      // pre could go to l - 2 and post could go to 0 instead.
+      let pre_point = m > 0 ? polygon[m - 1] : polygon[l - 1];
+      let post_point = m < l - 1 ? polygon[m + 1] : polygon[0];
+
+      let start_point = blendPoints([point, pre_point], [smoothing_factor, 1 - smoothing_factor]);
+      let end_point = blendPoints([point, post_point], [smoothing_factor, 1 - smoothing_factor]);
+
+      smooth_polygon.push(start_point);
+      smooth_polygon.push(blendPoints([start_point, point, end_point], [0.5, 0.3, 0.2]));
+      smooth_polygon.push(blendPoints([start_point, point, end_point], [0.333, 0.333, 0.333]));
+      smooth_polygon.push(blendPoints([start_point, point, end_point], [0.2, 0.3, 0.5]));
+      smooth_polygon.push(end_point);
+
+    } else {
+      smooth_polygon.push(point);
+    }
+  }
+  // Push a duplicate of the first point.
+  smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
+  return smooth_polygon;
+}
+
+
+// even out the polygon by removing points that are too close to each other
+// and adding points when the existing points are too far
+function evenPolygon(polygon, min_length, max_length) {
+  let adjusted_polygon = [[polygon[0][0], polygon[0][1]]];
+  for (let m = 1; m < polygon.length; m++) {
+    let point = polygon[m];
+    let previous_point = adjusted_polygon[adjusted_polygon.length - 1];
+    if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= max_length) {
+      let blend_point = blendPoints([point, previous_point], [0.5, 0.5]);
+      adjusted_polygon.push(blend_point);
+    }
+    if (distance(point[0], point[1], previous_point[0], previous_point[1]) >= min_length) {
+      adjusted_polygon.push([point[0], point[1]]);
+    }
+
+  }
+  return adjusted_polygon;
+}
 
 
 function detectMobileBrowser() {
@@ -210,17 +271,6 @@ function addDedupeSort(some_list, other_list) {
       return (a.score < b.score || a.score == b.score && b.name < a.name) ? 1 : -1;
     })
   });
-}
-
-
-// points and weights should match length and be nonzero length
-function blendPoints(points, weights) {
-  let new_point = [0,0];
-  for (let i = 0; i < points.length; i++) {
-    new_point[0] += points[i][0] * weights[i];
-    new_point[1] += points[i][1] * weights[i];
-  }
-  return new_point;
 }
 
 
