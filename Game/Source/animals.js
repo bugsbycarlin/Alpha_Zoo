@@ -14,7 +14,8 @@ animals = {
     food: "carnivore",
   },
   "HIPPO": {
-    land: "watergrass",
+    land: "grass",
+    pond: "large",
     decorations: ["rock", "grass"],
     mouth: [320, 344],
     butt: [166, 335],
@@ -27,7 +28,8 @@ animals = {
     food: "herbivore",
   },
   "TURTLE": {
-    land: "watergrass",
+    land: "grass",
+    pond: "large",
     decorations: ["rock", "grass"],
     mouth: [314, 351],
     butt: [196, 372],
@@ -175,7 +177,8 @@ animals = {
     food: "omnivore",
   },
   "ALLIGATOR": {
-    land: "watergrass",
+    land: "grass",
+    pond: "large",
     decorations: ["rock", "grass"],
     mouth: [354, 364],
     butt: [165, 392],
@@ -376,7 +379,8 @@ animals = {
   "FLAMINGO": {
     mouth: [320, 234],
     butt: [220, 326],
-    land: "watergrass",
+    land: "grass",
+    pond: "large",
     food: ["micro"],
     speed: 0.4,
     min: 3,
@@ -394,7 +398,8 @@ animals = {
   "DUCK": {
     mouth: [314, 307],
     butt: [229, 382],
-    land: "watergrass",
+    land: "grass",
+    pond: "large",
     food: ["fish", "micro", "greens"],
     speed: 1,
     min: 2,
@@ -403,7 +408,8 @@ animals = {
   "GOOSE": {
     mouth: [334, 267],
     butt: [219, 373],
-    land: "watergrass",
+    land: "grass",
+    pond: "large",
     food: ["micro", "greens"],
     speed: 1,
     min: 2,
@@ -508,6 +514,8 @@ tree_touch_points["ORANGUTAN"][3] = [[-24, 22], [-68, 55], [27, 54], [98, 27], [
 
 for (const [name, data] of Object.entries(animals)) {
   if (!("land" in data)) data["land"] = "grass";
+  if (!("pond" in data)) data["pond"] = false;
+  if (!("terrace" in data)) data["terrace"] = false;
   // if (!("land" in data)) data["land"] = "waterice";
   if (!("decorations" in data)) data["decorations"] = ["grass", "grass", "rock", "grass", "tree", "bush", "rock"];
   if (!("movement" in data)) data["movement"] = "bounce";
