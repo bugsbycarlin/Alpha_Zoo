@@ -146,7 +146,7 @@ animals = {
     food: "omnivore",
   },
   "POLAR_BEAR": {
-    land: "waterice",
+    land: "ice",
     decorations: ["rock", "rock"],
     sound: "bear",
     mouth: [314, 327],
@@ -154,7 +154,7 @@ animals = {
     food: ["steak", "fish"],
   },
   "PENGUIN": {
-    land: "waterice",
+    land: "ice",
     decorations: ["rock", "rock"],
     mouth: [258, 341],
     butt: [257, 392],
@@ -163,7 +163,7 @@ animals = {
     food: ["fish"],
   },
   "SEAL": {
-    land: "waterice",
+    land: "ice",
     decorations: ["rock", "rock"],
     mouth: [299, 344],
     butt: [200, 382],
@@ -524,7 +524,6 @@ for (const [name, data] of Object.entries(animals)) {
   if (!("land" in data)) data["land"] = "grass";
   if (!("pond" in data)) data["pond"] = false;
   if (!("terrace" in data)) data["terrace"] = false;
-  // if (!("land" in data)) data["land"] = "waterice";
   if (!("decorations" in data)) data["decorations"] = ["grass", "grass", "rock", "grass", "tree", "bush", "rock"];
   if (!("movement" in data)) data["movement"] = "bounce";
   if (!("last_sound" in data)) data["last_sound"] = null;

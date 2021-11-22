@@ -1513,6 +1513,8 @@ Game.prototype.drawMap = function() {
           ground.tint = sand_color;
         } else if (pen.land == "forest") {
           ground.tint = forest_color;
+        } else if (pen.land == "ice") {
+          ground.tint = ice_color;
         }
 
         render_container.addChild(ground);
@@ -1538,36 +1540,9 @@ Game.prototype.drawMap = function() {
           console.log("Drawing a pond for " + pen.animal);
           this.drawEdging(render_container, "water", corner_x, corner_y, pen.pond);
         }
-        // if (pen.land == "watergrass" || pen.land == "waterice") {
-        //   let super_ground = new PIXI.Graphics();
-        //   super_ground.beginFill(0xFFFFFF);
-
-        //   let polygon_left = [];
-        //   for (let k = 0; k < pen.polygon.length; k++) {
-        //     if (pen.polygon[k][0] <= pen.cx) {
-        //       polygon_left.push(pen.polygon[k][0])
-        //       polygon_left.push(pen.polygon[k][1]);
-        //     }
-        //   }
-        //   polygon_left.push(polygon_left[0])
-        //   polygon_left.push(polygon_left[1]);
-        //   super_ground.drawPolygon(polygon_left);
-        //   super_ground.endFill();
-
-        //   super_ground.grey_color = 0xFEFEFE;
-        //   if (pen.land == "watergrass") {
-        //     super_ground.true_color = grass_color;
-        //   } else if (pen.land == "waterice") {
-        //     super_ground.true_color = ice_color;
-        //   }
-
-        //   super_ground.tint = super_ground.true_color;
-        //   pen.land_object.addChild(super_ground);
-        // }
-
 
         if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand" || pen.land == "water") {
-          this.drawEdging(render_container, pen.land, corner_x, corner_y, polygon, true, true);
+          this.drawEdging(render_container, pen.land, corner_x, corner_y, polygon, true, pen.land != "water");
         }
 
         var terrain_texture = this.renderer.generateTexture(render_container,
@@ -1736,10 +1711,12 @@ Game.prototype.drawMap = function() {
 
 
 Game.prototype.drawEdging = function(render_container, land, corner_x, corner_y, polygon, ignore_sides=false, add_fence_shadow=false) {
-  for (let k = 0; k < polygon.length; k++) {
+  let edgings = [];
+  let shadows = [];
+  for (let k = 0; k < polygon.length - 1; k++) {
     let p1 = polygon[k];
     let p2 = polygon[0];
-    if (k < polygon.length - 1) p2 = polygon[k+1];
+    if (k < polygon.length) p2 = polygon[k+1];
 
     let d = distance(p1[0], p1[1], p2[0], p2[1]);
     let fixed_d = null;
@@ -1758,17 +1735,40 @@ Game.prototype.drawEdging = function(render_container, land, corner_x, corner_y,
     // }
     let angle = 180/Math.PI * Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
     if (rescale > 0.5 && rescale < 2 && (Math.abs(angle) < 80 || Math.abs(angle) > 100 || land == "water" || ignore_sides == false)) {
-      let root_name = "Art/Terrain/edging_";
+      
       let dice = 3;
+      let x = (p1[0] + p2[0])/2;
+      let y = (p1[1] + p2[1])/2;
+
+      // if ((angle >= 90 || angle <= -90) && land == "water") {
+      //   // add basic riverbank
+      //   let riverbank = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/basic_riverbank.png"));
+      //   riverbank.scale.set(rescale, 1);
+      //   riverbank.anchor.set(0.5, 0.5);
+      //   riverbank.alpha = 0.4;
+      //   riverbank.angle = angle;
+      //   riverbank.position.set(x - corner_x, y - corner_y);
+      //   render_container.addChild(riverbank);
+      // }
+
+      let root_name = "Art/Terrain/edging_";
       if (angle <= 90 && angle >= -90) root_name = "Art/Terrain/edging_shadow_";
-      if (land == "sand" || land == "water") {
+      if (land == "sand") {
         root_name = "Art/Terrain/edging_reverse_shadow_"
         if (angle <= 90 && angle >= -90) root_name = "Art/Terrain/edging_reverse_";
         dice = 1;
       }
+      if (land == "water") {
+        if (angle > 100 || angle < -100) {
+          root_name = "Art/Terrain/edging_reverse_bank_"
+        } else {
+          root_name = "Art/Terrain/edging_reverse_";
+        }
+        dice = 1;
+      }
+      
       let edging = new PIXI.Sprite(PIXI.Texture.from(root_name + fixed_d + "_" + Math.ceil(Math.random() * dice) + ".png"));
-      let x = (p1[0] + p2[0])/2;
-      let y = (p1[1] + p2[1])/2;
+
       edging.position.set(x - corner_x, y - corner_y);
       edging.anchor.set(0.5, 0.5);
       edging.angle = angle;
@@ -1782,9 +1782,17 @@ Game.prototype.drawEdging = function(render_container, land, corner_x, corner_y,
         edging.tint = sand_color;
       } else if (land == "water") {
         edging.tint = water_color;
+        if (angle > 100 || angle < -100) {
+          // edging.tint = 0x42b2d2;
+          //edging.tint = 0x4e6d71;
+          edging.tint = 0xFFFFFF;
+        } else {
+          edging.tint = water_color; 
+        }
       }
 
-      render_container.addChild(edging);
+      //render_container.addChild(edging);
+      edgings.push(edging);
 
       if (add_fence_shadow) {
         let fence_shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_shadow.png"));
@@ -1792,9 +1800,22 @@ Game.prototype.drawEdging = function(render_container, land, corner_x, corner_y,
         fence_shadow.angle = edging.angle;
         fence_shadow.position.set(edging.position.x, edging.position.y);
         fence_shadow.scale.set(d / 300, 1);
-        render_container.addChild(fence_shadow);
+        //render_container.addChild(fence_shadow);
+        shadows.push(fence_shadow)
       }
     }
+  }
+  edgings.sort(function(a,b) {
+      return b.y - a.y;
+  });
+  shadows.sort(function(a,b) {
+      return b.y - a.y;
+  });
+  for (let i = 0; i < edgings.length; i++) {
+    render_container.addChild(edgings[i]);
+  }
+  for (let i = 0; i < shadows.length; i++) {
+    render_container.addChild(shadows[i]);
   }
 }
 
