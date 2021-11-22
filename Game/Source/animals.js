@@ -65,21 +65,25 @@ animals = {
   },
   "GIRAFFE": {
     mouth: [332, 198],
+    pond: "small",
     butt: [168, 319],
     food: "herbivore",
   },
   "ZEBRA": {
     mouth: [317, 318],
     butt: [183, 342],
+    pond: "small",
     food: "herbivore",
   },
   "HORSE": {
     mouth: [316, 347],
     butt: [179, 334],
+    pond: "small",
     food: "herbivore",
   },
   "ELEPHANT": {
     land: "sand",
+    pond: "small",
     mouth: [311, 307],
     butt: [167, 328],
     food: "herbivore",
@@ -213,6 +217,7 @@ animals = {
     mouth: [316, 351],
     butt: [180, 327],
     food: "herbivore",
+    pond: "small",
   },
   "YAK": {
     mouth: [316, 352],
@@ -227,6 +232,7 @@ animals = {
   },
   "PIG": {
     land: "sand",
+    pond: "small",
     mouth: [313, 354],
     butt: [178, 319],
     food: "omnivore",
@@ -292,6 +298,7 @@ animals = {
     mouth: [343, 291],
     butt: [183, 363],
     land: "sand",
+    pond: "small",
     food: "herbivore",
   },
   "GOAT": {
@@ -310,6 +317,7 @@ animals = {
   "BEAVER": {
     mouth: [260, 316],
     butt: [229, 390],
+    pond: "any",
     land: "forest",
     sound: "capybara",
     food: "herbivore",
@@ -575,7 +583,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   //   animal.addChild(animal.water_fill);
   // }
 
-  if (pen.land == "water" || pen.land == "watergrass" || pen.land == "waterice") {
+  if (pen.land == "water" || pen.pond != null) {
     animal.water_mask = new PIXI.Graphics();
     animal.water_mask.beginFill(water_color);
     animal.water_mask.drawRect(-128, -5, 256, -384);
@@ -785,9 +793,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           if (Math.random() < 0.1) animal.maybeJumpIntoATree();
 
           if (Math.random() > 0.5) {
-            if (pen.land == "water" 
-              || (pen.land == "watergrass" && animal.x > pen.cx)
-              || (pen.land == "waterice" && animal.x > pen.cx)) {
+            if (pen.land == "water" ||
+              (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true)) {
               let droplet = new PIXI.Sprite(PIXI.Texture.from("Art/water_droplet.png"));
               droplet.scale.set(animal_scale * 0.75);
               droplet.anchor.set(0.5,0.5);
@@ -907,8 +914,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       // }
 
       if ((animal.water_mask != null) && 
-        (pen.land == "water" || (pen.land == "watergrass" && animal.x > pen.cx) 
-          || (pen.land == "waterice" && animal.x > pen.cx))) {
+        (pen.land == "water" || (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true))) {
         animal.mask = animal.water_mask;
         animal.water_mask.visible = true;
       } else if (animal.water_mask != null) {

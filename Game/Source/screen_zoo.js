@@ -1020,6 +1020,14 @@ Game.prototype.designatePens = function() {
 }
 
 
+Game.prototype.getPenByAnimal = function(animal) {
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+    if (this.zoo_pens[i].animal == animal) return this.zoo_pens[i];
+  }
+  return null;
+}
+
+
 // Spend a few iterations swapping zoo pens to try to increase the number of neighbors with the same terrain.
 Game.prototype.swapPens = function() {
   this.countLikeNeighbors();
@@ -1181,32 +1189,61 @@ Game.prototype.prepPondsAndTerraces = function() {
         }
 
         
-        // large ponds are built by slicing the pen at an angle, making
-        // a polygon out of all the pen points on one side of the angle,
-        // and shrinking that polygon slightly away from the edges.
+        
         if (choice == "large") {
+          // a large pond is built by slicing the pen at an angle, making
+          // a polygon out of all the pen points on one side of the angle,
+          // and shrinking that polygon slightly away from the edges.
           let new_pond = [];
           
           let angle = Math.random() * 180;
           for (let j = 0; j < pen.polygon.length - 1; j++) {
             let point = pen.polygon[j];
             let point_angle = Math.atan2(point[1] - pen.cy, point[0] - pen.cx) * 180/Math.PI;
-            if (point_angle >= angle - 180 && point_angle <= angle) {
+            if (point_angle >= angle - 200 && point_angle <= angle + 20) {
+
               new_pond.push([point[0], point[1]]);
             }
           }
 
-          new_pond.push([new_pond[0][0], new_pond[0][1]]); // duplicate the last point
+          let last_point = new_pond[new_pond.length - 1]
+          let first_point = new_pond[0]
+          let mid_point = blendPoints([[pen.cx, pen.cy], last_point, first_point], [0.3, 0.35, 0.35]);
+
+          new_pond.push(mid_point)
+          new_pond.push(first_point); // duplicate the last point
           new_pond = evenPolygon(new_pond, 60, 180);
-          new_pond = shrinkPolygon(new_pond, pen.cx, pen.cy, 0.92);
+          new_pond = shrinkPolygon(new_pond, pen.cx, pen.cy, 0.85);
 
 
           pen.pond = new_pond;
+        } else if (choice == "small") {
+          // a small pond is built by finding a point a random angle and distance from the center,
+          // then making a wonky circle around the point, keeping all points that are inside the pen,
+          // then shrinking this wonky circle a bit.
+
+          let angle = Math.random() * 180;
+          let distance = 100 + Math.random() * 100;
+          let pond_x = pen.cx + distance * Math.cos(angle * Math.PI / 180);
+          let pond_y = pen.cy + distance * Math.sin(angle * Math.PI / 180);
+
+          let new_pond = [];
+          for (let j = 0; j < 360; j+= 25 + Math.random() * 10) {
+            let point_x = pond_x + (80 + Math.random() * 40) * Math.cos(j * Math.PI / 180);
+            let point_y = pond_y + (80 + Math.random() * 40) * Math.sin(j * Math.PI / 180);
+            if (pointInsidePolygon([point_x, point_y], pen.polygon)) {
+              new_pond.push([point_x, point_y]);
+            }
+          }
+
+          if (new_pond.length > 0) {
+            new_pond.push([new_pond[0][0], new_pond[0][1]]);
+          }
+          new_pond = evenPolygon(new_pond, 40, 180);
+          new_pond = shrinkPolygon(new_pond, pond_x, pond_y, 0.95);
+
+          pen.pond = new_pond;
         }
-
-
-
-
       }
     }
   }
@@ -1933,88 +1970,95 @@ Game.prototype.populateZoo = function() {
   let sheet = PIXI.Loader.shared.resources["Art/Decorations/trees.json"].spritesheet;
 
   for (let i = 0; i < this.zoo_pens.length; i++) {
-  // for (let i = 0; i < voronoi_size; i++) {
-    // if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null && this.voronoi_metadata[i].group != 5000) {
-      if (this.zoo_pens[i].decorations != null) {
-        let decoration_number = 5;
-        // if (this.zoo_pens[i].animal != null && animals[this.zoo_pens[i].animal].movement == "arboreal") {
-        //   decoration_number = 10;
-        // }
-        if (this.zoo_pens[i].land == "forest") decoration_number = 10;
-        for (let t = 0; t < decoration_number; t++) {
-          if (Math.random() > 0.3) {
-            let decoration_type = pick(this.zoo_pens[i].decorations);
-            let decoration = null;
-            if (decoration_type != "tree") {
-              decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
-            }
-            if (decoration_type == "tree") {
-              decoration = new PIXI.Container();
-              decoration.tree_number = Math.ceil(Math.random() * 3)
-              let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
-              shadow.anchor.set(0.5, 0.5);
-              shadow.position.set(0,25);
-              decoration.addChild(shadow);
-              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              tree.gotoAndStop(decoration.tree_number - 1);
-              tree.anchor.set(0.5, 0.85);
-              decoration.addChild(tree);
-              this.shakers.push(decoration);
-            }
-            decoration.type = decoration_type;
-            let edge = pick(this.zoo_pens[i].polygon);
-            let fraction = 0.3 + 0.5 * Math.random();
-            decoration.position.set(
-              (1-fraction) * this.zoo_pens[i].cx + (fraction) * edge[0],
-              (1-fraction) * this.zoo_pens[i].cy + (fraction) * edge[1]);
+    let pen = this.zoo_pens[i];
+    if (pen.decorations != null) {
+      let decoration_number = 5;
+      // if (pen.animal != null && animals[pen.animal].movement == "arboreal") {
+      //   decoration_number = 10;
+      // }
+      if (pen.land == "forest") decoration_number = 10;
+      for (let t = 0; t < decoration_number; t++) {
+        if (Math.random() > 0.3) {
+          let decoration_type = pick(pen.decorations);
+          let decoration = null;
+          if (decoration_type != "tree") {
+            decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
+          }
+          if (decoration_type == "tree") {
+            decoration = new PIXI.Container();
+            decoration.tree_number = Math.ceil(Math.random() * 3)
+            let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
+            shadow.anchor.set(0.5, 0.5);
+            shadow.position.set(0,25);
+            decoration.addChild(shadow);
+            let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+            tree.gotoAndStop(decoration.tree_number - 1);
+            tree.anchor.set(0.5, 0.85);
+            decoration.addChild(tree);
+            this.shakers.push(decoration);
+          }
+          decoration.type = decoration_type;
+          let edge = pick(pen.polygon);
+          let fraction = 0.3 + 0.5 * Math.random();
+          decoration.position.set(
+            (1-fraction) * pen.cx + (fraction) * edge[0],
+            (1-fraction) * pen.cy + (fraction) * edge[1]);
+          if (decoration_type == "tree" && 
+            pen.pond != null
+            && pointInsidePolygon([decoration.position.x, decoration.position.y], pen.pond)) {
+            // protect against putting trees in ponds.
+          } else {
+            // okay, it's cool, you can add it.
             decoration.scale.set(1.2, 1.2);
             if (decoration_type != "tree") {
               decoration.anchor.set(0.5,0.9);
             }
             this.decorations.push(decoration);
-            this.zoo_pens[i].decoration_objects.push(decoration);
+            pen.decoration_objects.push(decoration);
           }
-        }
-      }
-
-      if (this.zoo_pens[i].animal != null) {
-        this.animals_available += 1;
-        this.zoo_pens[i].animal_objects = [];
-        let animal_name = this.zoo_pens[i].animal;
-
-        let num_animals_here = animals[animal_name].min + Math.floor(Math.random() * (1 + animals[animal_name].max - animals[animal_name].min))
-
-        for (let n = 0; n < num_animals_here; n++) {
           
-          let x = this.zoo_pens[i].cx - 60 + 120 * Math.random();
-          let y = this.zoo_pens[i].cy - 60 + 120 * Math.random();
-          if (this.pointInPen(x, y) == this.zoo_pens[i]) { // don't make animals outside the pen
-
-            let animal = this.makeAnimal(animal_name, this.zoo_pens[i]);
-            animal.position.set(x, y);
-            // animal.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
-            this.decorations.push(animal);
-            this.zoo_pens[i].animal_objects.push(animal);
-            this.animals.push(animal);
-            this.shakers.push(animal);
-            this.shakers.push(this.zoo_pens[i].land_object);
-          }
         }
       }
+    }
 
-      if (this.zoo_pens[i].special == "FERRIS_WHEEL") {
-        this.ferris_wheel = this.makeFerrisWheel(this.zoo_pens[i]);
-        this.ferris_wheel.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy + 180);
-        this.decorations.push(this.ferris_wheel);
-        this.zoo_pens[i].special_object = this.ferris_wheel;
+    if (pen.animal != null) {
+      this.animals_available += 1;
+      pen.animal_objects = [];
+      let animal_name = pen.animal;
+
+      let num_animals_here = animals[animal_name].min + Math.floor(Math.random() * (1 + animals[animal_name].max - animals[animal_name].min))
+
+      for (let n = 0; n < num_animals_here; n++) {
+        
+        let x = pen.cx - 60 + 120 * Math.random();
+        let y = pen.cy - 60 + 120 * Math.random();
+        if (this.pointInPen(x, y) == pen) { // don't make animals outside the pen
+
+          let animal = this.makeAnimal(animal_name, pen);
+          animal.position.set(x, y);
+          // animal.position.set(pen.cx, pen.cy);
+          this.decorations.push(animal);
+          pen.animal_objects.push(animal);
+          this.animals.push(animal);
+          this.shakers.push(animal);
+          this.shakers.push(pen.land_object);
+        }
       }
+    }
 
-      if (this.zoo_pens[i].special == "CAFE") {
-        this.cafe = this.makeCafeExterior(this.zoo_pens[i]);
-        this.cafe.position.set(this.zoo_pens[i].cx, this.zoo_pens[i].cy);
-        this.decorations.push(this.cafe);
-        this.zoo_pens[i].special_object = this.cafe;
-      }  
+    if (pen.special == "FERRIS_WHEEL") {
+      this.ferris_wheel = this.makeFerrisWheel(pen);
+      this.ferris_wheel.position.set(pen.cx, pen.cy + 180);
+      this.decorations.push(this.ferris_wheel);
+      pen.special_object = this.ferris_wheel;
+    }
+
+    if (pen.special == "CAFE") {
+      this.cafe = this.makeCafeExterior(pen);
+      this.cafe.position.set(pen.cx, pen.cy);
+      this.decorations.push(this.cafe);
+      pen.special_object = this.cafe;
+    }  
   }
 
   // Add lots of trees just outside the perimeter.
