@@ -801,7 +801,7 @@ Game.prototype.makeMapPens = function() {
         }
 
         // Now do smoothing on any corner with an "s" in it.
-        polygon = smoothPolygon(polygon, 0.7, function(x) {return (x.length > 2 && x[2] == "s")});
+        polygon = specialSmoothPolygon(polygon, 0.7, function(x) {return (x.length > 2 && x[2] == "s")});
 
         // Now remove points that are too close to each other and add points
         // when they're too far
@@ -1014,7 +1014,7 @@ Game.prototype.designatePens = function() {
       if (s != null && s.length > 0) {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
-        // new_animal = "PENGUIN";
+        new_animal = "BROWN_BEAR";
         // new_animal = "SWAN";
         // new_animal = "COW";
         // new_animal = "OTTER"
@@ -1022,7 +1022,7 @@ Game.prototype.designatePens = function() {
         pen.land = animals[new_animal].land;
         pen.decorations = animals[new_animal].decorations;
         pen.pond_choice = animals[new_animal].pond;
-        pen.terrace = animals[new_animal].terrace;
+        pen.terrace_choice = animals[new_animal].terrace;
 
         // if (pen.land == "water") {
         //   pen.inner_polygon = shrinkPolygon(pen.polygon, pen.cx, pen.cy, 0.92);
@@ -1106,6 +1106,10 @@ Game.prototype.swapPens = function() {
           this.zoo_squares[i1][j1].pen.pond_choice = this.zoo_squares[i2][j2].pen.pond_choice;
           this.zoo_squares[i2][j2].pen.pond_choice = temp_4;
 
+          let temp_5 = this.zoo_squares[i1][j1].pen.terrace_choice;
+          this.zoo_squares[i1][j1].pen.terrace_choice = this.zoo_squares[i2][j2].pen.terrace_choice;
+          this.zoo_squares[i2][j2].pen.terrace_choice = temp_5;
+
           swaps_performed += 1;
         }
       }
@@ -1183,6 +1187,7 @@ Game.prototype.prepPondsAndTerraces = function() {
 
   for (let i = 0; i < this.zoo_pens.length; i++) {
     let pen = this.zoo_pens[i];
+    let dividing_angle = null;
 
     if (pen.land != null && pen.special == null && pen.animal != null) {
 
@@ -1200,8 +1205,6 @@ Game.prototype.prepPondsAndTerraces = function() {
             choice = "small";
           }
         }
-
-        
         
         if (choice == "large") {
           // a large pond is built by slicing the pen at an angle, making
@@ -1210,6 +1213,11 @@ Game.prototype.prepPondsAndTerraces = function() {
           let new_pond = [];
           
           let angle = Math.random() * 180;
+          if (pen.terrace_choice == true) {
+            angle = 180 - Math.random() * 20;
+            dividing_angle = angle;
+            //if (angle > 20) angle = 200 - angle;
+          }
           for (let j = 0; j < pen.polygon.length - 1; j++) {
             let point = pen.polygon[j];
             let point_angle = Math.atan2(point[1] - pen.cy, point[0] - pen.cx) * 180/Math.PI;
@@ -1258,6 +1266,158 @@ Game.prototype.prepPondsAndTerraces = function() {
           }
           
         }
+      }
+
+      if (pen.terrace_choice == true) {
+        let new_terrace = [];
+        let angle = dividing_angle;
+        if (dividing_angle == null) {
+          angle = 180 - Math.random() * 20;
+          dividing_angle = angle;
+        }
+
+        for (let j = 0; j < pen.polygon.length - 1; j++) {
+          let point = pen.polygon[j];
+          let point_angle = Math.atan2(point[1] - pen.cy, point[0] - pen.cx) * 180/Math.PI;
+          if (point_angle <= angle - 200 || point_angle >= angle + 20) {
+            new_terrace.push([point[0], point[1]]);
+          }
+        }
+
+        for (let j = 0; j < new_terrace.length; j++) {
+          let t = new_terrace[j];
+          while(!pointInsidePolygon([t[0], t[1]], pen.polygon)
+            || (pen.pond != null && pointInsidePolygon([t[0], t[1]], pen.pond))) {
+            t[0] = pen.cx + (t[0] - pen.cx) * 0.9;
+            t[1] = (pen.cy - 50) + (t[1] - (pen.cy - 50)) * 0.9;
+          }
+        }
+
+        new_terrace.push([new_terrace[0][0], new_terrace[0][1]]);
+        new_terrace = evenPolygon(new_terrace, 60, 130);
+        new_terrace = smoothPolygon(new_terrace, 0.5);
+        new_terrace = shrinkPolygon(new_terrace, pen.cx, pen.cy, 0.9);
+
+        // jitter
+        for (let j = 0; j < new_terrace.length; j++) {
+          let t = new_terrace[j];
+          t[1] = t[1] - 10 + Math.random() * 20;
+        }
+
+        // drop the bottoms if they can be dropped without crossing the pond or pen boundaries
+        for (let j = 0; j < new_terrace.length; j++) {
+          let t = new_terrace[j];
+          if (pointInsidePolygon([t[0], t[1] - 10], new_terrace)
+            && pointInsidePolygon([t[0], t[1] + 60], pen.polygon) 
+            && (pen.pond == null || !pointInsidePolygon([t[0], t[1] + 60], pen.pond) )) {
+            t[1] += 30;
+          }
+          if (pointInsidePolygon([t[0], t[1] - 10], new_terrace)
+            && pointInsidePolygon([t[0], t[1] + 60], pen.polygon) 
+            && (pen.pond == null || !pointInsidePolygon([t[0], t[1] + 40], pen.pond) )) {
+            t[1] += 20;
+          }
+        }
+
+
+        pen.terrace = [new_terrace];
+
+        let iterations = Math.ceil(Math.random() * 3);
+        for (let m = 0; m < iterations; m++) {
+          let last_terrace = pen.terrace[pen.terrace.length - 1];
+          top_point = null;
+          for (let j = 0; j < last_terrace.length; j++) {
+            if (top_point == null || last_terrace[j][1] < top_point[1]) {
+              top_point = [last_terrace[j][0], last_terrace[j][1]];
+            }
+          }
+          let new_terrace = shrinkPolygon(last_terrace, top_point[0], top_point[1] + 10, 0.6 + Math.random() * 0.25);
+          let fixed_terrace = [];
+          for (let j = 0; j < new_terrace.length; j++) {
+            new_terrace[j][1] = new_terrace[j][1] - 10 + Math.random() * 20;
+            if (pointInsidePolygon([new_terrace[j][0], new_terrace[j][1]], last_terrace)) {
+              fixed_terrace.push([new_terrace[j][0], new_terrace[j][1]]);
+            }
+          }
+          fixed_terrace = evenPolygon(fixed_terrace, 60, 130);
+          fixed_terrace = smoothPolygon(fixed_terrace, 0.5);
+          pen.terrace.push(fixed_terrace);
+        }
+
+        // for (let m = 0; m < 2; m++) {
+        //   let new_terrace = [];
+        //   let last_terrace = pen.terrace[pen.terrace.length - 1];
+        //   let cx = 0;
+        //   let cy = 0;
+        //   for (let j = 0; j < last_terrace.length; j++) {
+        //     cx += last_terrace[j][0];
+        //     cy += last_terrace[j][1];
+        //   }
+        //   cx /= last_terrace.length;
+        //   cy /= last_terrace.length;
+        //   if (pointInsidePolygon([cx, cy], last_terrace)) {
+        //     let adj_x = -50/(m+1) + 100/(m+1) * Math.random();
+        //     let adj_y = -50/(m+1) + 100/(m+1) * Math.random();
+        //     let shrink = 0.88 + 0.09 * Math.random();
+        //     for (let j = 0; j < last_terrace.length; j++) {
+        //       let ltt = last_terrace[j];
+        //       new_terrace.push([adj_x + cx + (ltt[0] - cx) * shrink, adj_y + cy + (ltt[0] - cy) * shrink]);
+        //     }
+
+        //     for (let j = 0; j < new_terrace.length; j++) {
+        //       let t = new_terrace[j];
+        //       while(!pointInsidePolygon([t[0], t[1]], last_terrace)) {
+        //         t[0] = cx + (t[0] - cx) * 0.9;
+        //         t[1] = cy + (t[1] - cy) * 0.9;
+        //       }
+        //     }
+
+        //     new_terrace.push([new_terrace[0][0], new_terrace[0][1]]);
+        //     new_terrace = evenPolygon(new_terrace, 50, 150);
+        //     new_terrace = smoothPolygon(new_terrace, 0.5);
+        //     new_terrace = shrinkPolygon(new_terrace, cx, cy, 0.95);
+        //     pen.terrace.push(new_terrace);
+        //   } else {
+        //     console.log("outside!")
+        //   }
+        // }
+        
+        // let distance_multiplier = 100;
+
+        // let terrace_x = null;
+        // let terrace_y = null;
+        // do {
+        //   console.log("terrace base location iteration");
+        //   let angle = Math.random() * 180;
+        //   let distance = distance_multiplier + Math.random() * distance_multiplier;
+        //   terrace_x = pen.cx + distance * Math.cos(angle * Math.PI / 180);
+        //   terrace_y = pen.cy + distance * Math.sin(angle * Math.PI / 180) - 30;
+        //   distance_multiplier -= 10;
+        // } while(distance_multiplier >= 0 || terrace_x == null || !pointInsidePolygon([terrace_x, terrace_y], pen.polygon)
+        //   || (pen.pond != null && pointInsidePolygon([terrace_x, terrace_y], pen.pond)))
+
+
+        // if (terrace_x != null && pointInsidePolygon([terrace_x, terrace_y], pen.polygon)
+        //   && (pen.pond == null || !pointInsidePolygon([terrace_x, terrace_y], pen.pond))) {
+
+        //   for (let j = 0; j < 360; j+= 25 + Math.random() * 10) {
+        //     let point_x = terrace_x + (300 + Math.random() * 100) * Math.cos(j * Math.PI / 180);
+        //     let point_y = terrace_y + (200 + Math.random() * 60) * Math.sin(j * Math.PI / 180);
+            
+        //     new_terrace.push([point_x, point_y]);
+        //   }
+
+        //   for (let j = 0; j < new_terrace.length; j++) {
+        //     let t = new_terrace[j];
+        //     while(!pointInsidePolygon([t[0], t[1]], pen.polygon)
+        //       || (pen.pond != null && pointInsidePolygon([t[0], t[1]], pen.pond))) {
+        //       t[0] = terrace_x + (t[0] - terrace_x) * 0.9;
+        //       t[1] = terrace_y + (t[1] - terrace_y) * 0.9;
+        //     }
+        //   }
+
+        //   pen.terrace = new_terrace;
+        // }
       }
     }
   }
@@ -1552,6 +1712,10 @@ Game.prototype.drawMap = function() {
 
         if (pen.pond != null) {
           this.drawPond(render_container, pen.land, corner_x, corner_y, pen.pond);
+        }
+
+        if (pen.terrace != null) {
+          this.drawTerrace(render_container, pen.land, corner_x, corner_y, pen.terrace)
         }
 
         // if (pen.pond != null && (pen.land == "ice" || pen.land == "rock")) {
@@ -1851,14 +2015,10 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
       let rescale = d / fixed_d;
       let angle = 180/Math.PI * Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
     
-      if (rescale > 0.5 && rescale < 2) {
-        console.log("yes");
-        console.log(fixed_d);
+      if (rescale > 0.5 && rescale < 2 && Math.abs(Math.abs(angle) - 90) > 20) {
         let dice = 3;
         let x = (p1[0] + p2[0])/2;
         let y = (p1[1] + p2[1])/2;
-
-        console.log("Art/Terrain/bank_lines_" + fixed_d + "_" + Math.ceil(Math.random() * dice) + ".png");
 
         let bright_bit = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/bank_lines_" + fixed_d + "_" + Math.ceil(Math.random() * dice) + ".png"));
 
@@ -1874,6 +2034,161 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
 
   if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
     this.drawEdging(render_container, "water", land, corner_x, corner_y, polygon);
+  }
+}
+
+
+Game.prototype.drawTerrace = function(render_container, land, corner_x, corner_y, terraces) {
+  for (let i = 0; i < terraces.length; i++) {
+    polygon = terraces[i];
+
+
+    // let last_terrace = pen.terrace[pen.terrace.length - 1];
+    //       top_point = null;
+    //       for (let j = 0; j < last_terrace.length; j++) {
+    //         if (top_point == null || last_terrace[j][1] < top_point[1]) {
+    //           top_point = [last_terrace[j][0], last_terrace[j][1]];
+    //         }
+    //       }
+  
+    console.log(i);
+
+    let outline_polygon = [];
+    for (let j = 0; j < polygon.length; j++) {
+      outline_polygon.push(polygon[j][0] - corner_x);
+      outline_polygon.push(polygon[j][1] - corner_y - 22);
+    }
+    let tint = 1 - (0.7 + 0.1 * Math.random());
+    let outline_color = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+    if (land != "ice") outline_color = PIXI.utils.rgb2hex([1 - tint/2, 1 - tint/2, 1 - tint/2]);
+
+    let flat_terrace_polygon = [];
+    for (let j = 0; j < polygon.length; j++) {
+      flat_terrace_polygon.push(polygon[j][0] - corner_x);
+      flat_terrace_polygon.push(polygon[j][1] - corner_y - 20);
+    }
+
+    let terrace = new PIXI.Graphics();
+    terrace.beginFill(outline_color);
+    terrace.drawPolygon(outline_polygon);
+    terrace.endFill();
+    terrace.beginFill(0xFFFFFF);
+    terrace.drawPolygon(flat_terrace_polygon);
+    terrace.endFill();
+
+    if (land == null || land == "grass") {
+      terrace.tint = grass_color;
+    } else if (land == "water") {
+      terrace.tint = water_color;
+    } else if (land == "sand") {
+      terrace.tint = sand_color;
+    } else if (land == "forest") {
+      terrace.tint = forest_color;
+    } else if (land == "ice") {
+      terrace.tint = ice_color;
+    } else if (land == "rock") {
+      terrace.tint = rock_color;
+    }
+
+    render_container.addChild(terrace);
+
+    let terrace_polygon = [];
+    for (let j = 0; j < polygon.length; j++) {
+      terrace_polygon.push([polygon[j][0], polygon[j][1] - 20]);
+    }
+
+    this.drawTerraceEdging(render_container, land, corner_x, corner_y, polygon);
+    if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+      this.drawEdging(render_container, land, null, corner_x, corner_y, terrace_polygon)
+    }
+
+    //terrace.tint = PIXI.utils.rgb2hex([1 - i/10, 1 - i/10, 1 - i/10]);
+
+    // if (land == null || land == "grass") {
+    //   terrace.tint = grass_color;
+    // } else if (land == "water") {
+    //   terrace.tint = water_color;
+    // } else if (land == "sand") {
+    //   terrace.tint = sand_color;
+    // } else if (land == "forest") {
+    //   terrace.tint = forest_color;
+    // } else if (land == "ice") {
+    //   terrace.tint = ice_color;
+    // } else if (land == "rock") {
+    //   terrace.tint = rock_color;
+    // }
+    // terrace.tint = water_color;
+
+    // else if (land == "rock") {
+    //     if (p2[1] < p1[1]) {
+    //       let tint = 0.6 + 0.15 * Math.random();
+    //       riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+    //     } else {
+    //       let tint = 0.7 + 0.15 * Math.random();
+    //       riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+    //     }
+    //   } else if (land == "ice") {
+    //     if (p2[1] < p1[1]) {
+    //       let tint = 1 - (0.7 + 0.1 * Math.random());
+    //       riverbank_section.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+    //     } else {
+    //       let tint = 1 - (0.8 + 0.1 * Math.random());
+    //       riverbank_section.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+    //     }
+    //   }
+
+  }
+}
+
+
+Game.prototype.drawTerraceEdging = function(render_container, land, corner_x, corner_y, polygon) {
+  for (let k = 0; k < polygon.length - 1; k++) {
+    let p1 = polygon[k];
+    let p2 = polygon[0];
+    if (k < polygon.length) p2 = polygon[k+1];
+
+    edging_depth = 20;
+
+    // only do this when one or the other points are "underneath" the polygon,
+    // in the sense that we could send a ray up and the end point would be inside the polygon.
+    if (pointInsidePolygon([p1[0], p1[1] - 10], polygon)
+      || pointInsidePolygon([p2[0], p2[1] - 10], polygon)) {
+
+      let rock_edging = new PIXI.Graphics();
+      if (land == "rock") rock_edging.beginFill(rock_color);
+      if (land == "ice") rock_edging.beginFill(ice_color);
+      if (land != "ice" && land != "rock") rock_edging.beginFill(brown_rock_color);
+      rock_edging.drawPolygon([
+        p1[0] - corner_x, p1[1] - corner_y,
+        p1[0] - corner_x, p1[1] - edging_depth - corner_y,
+        p2[0] - corner_x, p2[1] - edging_depth - corner_y,
+        p2[0] - corner_x, p2[1] - corner_y,
+        p1[0] - corner_x, p1[1] - corner_y,
+      ]);
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+        if (p2[1] < p1[1]) {
+          let tint = 0.6 + 0.25 * Math.random();
+          rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      } else if (land == "ice") {
+        if (p1[1] < p2[1]) {
+          let tint = 1 - (0.7 + 0.1 * Math.random());
+          rock_edging.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        } else {
+          let tint = 1 - (0.8 + 0.1 * Math.random());
+          rock_edging.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        }
+      } else if (land == "rock") {
+        if (p1[1] < p2[1]) {
+          let tint = 0.7 + 0.1 * Math.random();
+          rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        } else {
+          let tint = 0.8 + 0.1 * Math.random();
+          rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      }
+      render_container.addChild(rock_edging);
+    }
   }
 }
 

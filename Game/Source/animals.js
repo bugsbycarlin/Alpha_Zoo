@@ -40,6 +40,7 @@ animals = {
     land: "rock",
     decorations: ["rock", "grass"],
     pond: "large",
+    terrace: true,
     mouth: [303, 333],
     butt: [221, 405],
     min: 2,
@@ -134,6 +135,7 @@ animals = {
   },
   "BROWN_BEAR": {
     sound: "bear",
+    terrace: true,
     mouth: [314, 327],
     butt: [188, 338],
     land: "forest",
@@ -141,6 +143,7 @@ animals = {
   },
   "BLACK_BEAR": {
     sound: "bear",
+    terrace: true,
     mouth: [314, 327],
     butt: [188, 338],
     land: "forest",
@@ -148,6 +151,7 @@ animals = {
   },
   "POLAR_BEAR": {
     land: "ice",
+    terrace: true,
     decorations: ["rock", "rock"],
     sound: "bear",
     pond: "large",
@@ -908,6 +912,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       //   animal.water_fill.x = animal.sprite.x;
       // }
 
+      animal.height_container.y = 0;
       if ((animal.water_mask != null) && 
         (pen.land == "water" || (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true))) {
         animal.mask = animal.water_mask;
@@ -917,6 +922,17 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         animal.mask = null;
         animal.water_mask.visible = false;
         animal.height_container.y = 0;
+      }
+
+      if (pen.terrace != null && pen.terrace.length > 0) {
+        let height = 0;
+        for (let k = 0; k < pen.terrace.length; k++) {
+          let terrace = pen.terrace[k];
+          if (pointInsidePolygon([animal.x, animal.y], terrace)) {
+            height += 20;
+          }
+        }
+        animal.height_container.y -= height;
       }
     }
   }

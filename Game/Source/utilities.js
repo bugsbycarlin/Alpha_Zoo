@@ -141,7 +141,7 @@ function shrinkPolygon(polygon, cx, cy, shrink_factor) {
 
 // smooth a polygon by introducing blending points
 // filter condition allows you to choose which points to smooth
-function smoothPolygon(polygon, smoothing_factor, filter_condition) {
+function specialSmoothPolygon(polygon, smoothing_factor, filter_condition) {
   let smooth_polygon = [];
   let l = polygon.length;
   for (let m = 0; m < l; m++) {
@@ -164,6 +164,34 @@ function smoothPolygon(polygon, smoothing_factor, filter_condition) {
     } else {
       smooth_polygon.push(point);
     }
+  }
+  // Push a duplicate of the first point.
+  smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
+  return smooth_polygon;
+}
+
+
+function smoothPolygon(polygon, smoothing_factor) {
+  let smooth_polygon = [];
+  let l = polygon.length;
+  for (let m = 0; m < l; m++) {
+    let point = polygon[m];
+    //if (polygon[m].length > 2 && polygon[m][2] == "s") {
+
+      // pre could go to l - 2 and post could go to 0 instead.
+      let pre_point = m > 0 ? polygon[m - 1] : polygon[l - 1];
+      let post_point = m < l - 1 ? polygon[m + 1] : polygon[0];
+
+      let pre_mid = blendPoints([point, pre_point], [smoothing_factor, 1 - smoothing_factor]);
+      let post_mid = blendPoints([point, post_point], [smoothing_factor, 1 - smoothing_factor]);
+
+      let mid_mid = blendPoints([pre_mid, post_mid], [0.5, 0.5]);
+
+      let blend = blendPoints([mid_mid, point], [0.5, 0.5]);
+
+
+      smooth_polygon.push(blend);
+      smooth_polygon.push(post_mid);    
   }
   // Push a duplicate of the first point.
   smooth_polygon.push([smooth_polygon[0][0],smooth_polygon[0][1]]);
