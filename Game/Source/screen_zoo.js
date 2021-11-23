@@ -42,10 +42,12 @@ let path_color = 0xf9e6bb;
 let grass_color = 0xb1d571;
 let forest_color = 0x518f40;
 let ice_color = 0xFAFAFF;
+let rock_color = 0xCECECE;
 let sand_color = 0xf3cca0;
 let water_color = 0x42b2d2;
 let brown_rock_color = 0x744c29;
 let underwater_rock_color = 0x676b5c;
+let underwater_grey_rock_color = 0x82aab6;
 let sign_color = 0xc09f57;
 let pen_color = 0x754c25;
 let pen_shadow_color = 0x4d321a;
@@ -1015,6 +1017,7 @@ Game.prototype.designatePens = function() {
         // new_animal = "PENGUIN";
         // new_animal = "SWAN";
         // new_animal = "COW";
+        // new_animal = "OTTER"
         pen.animal = new_animal;
         pen.land = animals[new_animal].land;
         pen.decorations = animals[new_animal].decorations;
@@ -1528,6 +1531,8 @@ Game.prototype.drawMap = function() {
             ground.tint = forest_color;
           } else if (pen.land == "ice") {
             ground.tint = ice_color;
+          } else if (pen.land == "rock") {
+            ground.tint = rock_color;
           }
 
           render_container.addChild(ground);
@@ -1537,6 +1542,10 @@ Game.prototype.drawMap = function() {
           }
         }
 
+        if (pen.land == "ice" || pen.land == "rock") {
+          this.drawRockEdging(render_container, pen.land, corner_x, corner_y, polygon);
+        }
+
         if (pen.land == "water") {
           this.drawPond(render_container, pen.land, corner_x, corner_y, pen.inner_polygon);
         }
@@ -1544,6 +1553,10 @@ Game.prototype.drawMap = function() {
         if (pen.pond != null) {
           this.drawPond(render_container, pen.land, corner_x, corner_y, pen.pond);
         }
+
+        // if (pen.pond != null && (pen.land == "ice" || pen.land == "rock")) {
+        //   this.drawRockPond(render_container, pen.land, corner_x, corner_y, pen.pond);
+        // }
 
         if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand" || pen.land == "water") {
           this.drawFenceShadow(render_container, corner_x, corner_y, pen.polygon);
@@ -1743,9 +1756,15 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
     if (pointInsidePolygon([p1[0], p1[1] + 10], polygon)
       || pointInsidePolygon([p2[0], p2[1] + 10], polygon)) {
       
-      // main brown section
+      // main section
       let riverbank_section = new PIXI.Graphics();
-      riverbank_section.beginFill(brown_rock_color);
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+        riverbank_section.beginFill(brown_rock_color);
+      } else if (land == "ice") {
+        riverbank_section.beginFill(ice_color);
+      } else if (land == "rock") {
+        riverbank_section.beginFill(rock_color);
+      }
       riverbank_section.drawPolygon([
         p1[0] - corner_x, p1[1] - corner_y,
         p2[0] - corner_x, p2[1] - corner_y,
@@ -1753,15 +1772,39 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
         p1[0] - corner_x, p1[1] + riverbank_depth - corner_y,
         p1[0] - corner_x, p1[1] - corner_y,
       ]);
-      if (p2[1] < p1[1]) {
-        let tint = 0.6 + 0.25 * Math.random();
-        riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+        if (p2[1] < p1[1]) {
+          let tint = 0.6 + 0.25 * Math.random();
+          riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      } else if (land == "rock") {
+        if (p2[1] < p1[1]) {
+          let tint = 0.6 + 0.15 * Math.random();
+          riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        } else {
+          let tint = 0.7 + 0.15 * Math.random();
+          riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      } else if (land == "ice") {
+        if (p2[1] < p1[1]) {
+          let tint = 1 - (0.7 + 0.1 * Math.random());
+          riverbank_section.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        } else {
+          let tint = 1 - (0.8 + 0.1 * Math.random());
+          riverbank_section.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        }
       }
       render_container.addChild(riverbank_section);
 
       // weird shadowy color underbank
       let underbank_section = new PIXI.Graphics();
-      underbank_section.beginFill(underwater_rock_color);
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+        underbank_section.beginFill(underwater_rock_color);
+      } else if (land == "ice") {
+        underbank_section.beginFill(ice_color);
+      } else if (land == "rock") {
+        underbank_section.beginFill(underwater_grey_rock_color);
+      }
       underbank_section.drawPolygon([
         p1[0] - corner_x, p1[1] + riverbank_depth - corner_y,
         p2[0] - corner_x, p2[1] + riverbank_depth - corner_y,
@@ -1769,15 +1812,32 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
         p1[0] - corner_x, p1[1] + riverbank_depth * 1.7 - corner_y,
         p1[0] - corner_x, p1[1] + riverbank_depth - corner_y,
       ]);
-      if (p2[1] < p1[1]) {
-        let tint = 0.4 + 0.25 * Math.random();
-        underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
-      } else {
-        let tint = 0.6 + 0.3 * Math.random();
-        underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+        if (p2[1] < p1[1]) {
+          let tint = 0.4 + 0.25 * Math.random();
+          underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        } else {
+          let tint = 0.6 + 0.3 * Math.random();
+          underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      } else if (land == "rock") {
+        if (p2[1] < p1[1]) {
+          let tint = 0.6 + 0.25 * Math.random();
+          underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        } else {
+          let tint = 0.7 + 0.3 * Math.random();
+          underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      } else if (land == "ice") {
+        if (p2[1] < p1[1]) {
+          let tint = 1 - (0.4 + 0.1 * Math.random());
+          underbank_section.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        } else {
+          let tint = 1 - (0.5 + 0.1 * Math.random());
+          underbank_section.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        }
       }
       render_container.addChild(underbank_section);
-
 
       // bright bits
       let d = distance(p1[0], p1[1], p2[0], p2[1]);
@@ -1812,7 +1872,55 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
     }
   }
 
-  this.drawEdging(render_container, "water", land, corner_x, corner_y, polygon);
+  if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+    this.drawEdging(render_container, "water", land, corner_x, corner_y, polygon);
+  }
+}
+
+
+Game.prototype.drawRockEdging = function(render_container, land, corner_x, corner_y, polygon) {
+  for (let k = 0; k < polygon.length - 1; k++) {
+    let p1 = polygon[k];
+    let p2 = polygon[0];
+    if (k < polygon.length) p2 = polygon[k+1];
+
+    edging_depth = 8;
+
+    // only do this when one or the other points are "underneath" the polygon,
+    // in the sense that we could send a ray up and the end point would be inside the polygon.
+    if (pointInsidePolygon([p1[0], p1[1] - 10], polygon)
+      || pointInsidePolygon([p2[0], p2[1] - 10], polygon)) {
+
+      let rock_edging = new PIXI.Graphics();
+      if (land == "rock") rock_edging.beginFill(rock_color);
+      if (land == "ice") rock_edging.beginFill(ice_color);
+      rock_edging.drawPolygon([
+        p1[0] - corner_x, p1[1] - corner_y,
+        p1[0] - corner_x, p1[1] - edging_depth - corner_y,
+        p2[0] - corner_x, p2[1] - edging_depth - corner_y,
+        p2[0] - corner_x, p2[1] - corner_y,
+        p1[0] - corner_x, p1[1] - corner_y,
+      ]);
+      if (land == "ice") {
+        if (p1[1] < p2[1]) {
+          let tint = 1 - (0.7 + 0.1 * Math.random());
+          rock_edging.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        } else {
+          let tint = 1 - (0.8 + 0.1 * Math.random());
+          rock_edging.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+        }
+      } else if (land == "rock") {
+        if (p1[1] < p2[1]) {
+          let tint = 0.7 + 0.1 * Math.random();
+          rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        } else {
+          let tint = 0.8 + 0.1 * Math.random();
+          rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+        }
+      }
+      render_container.addChild(rock_edging);
+    }
+  }
 }
 
 

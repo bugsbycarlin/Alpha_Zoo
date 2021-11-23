@@ -37,8 +37,9 @@ animals = {
     food: "omnivore",
   },
   "OTTER": {
-    land: "water", // should be water rock, with a tiered rock
+    land: "rock",
     decorations: ["rock", "grass"],
+    pond: "large",
     mouth: [303, 333],
     butt: [221, 405],
     min: 2,
@@ -149,6 +150,7 @@ animals = {
     land: "ice",
     decorations: ["rock", "rock"],
     sound: "bear",
+    pond: "large",
     mouth: [314, 327],
     butt: [188, 338],
     food: ["steak", "fish"],
@@ -546,6 +548,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   let self = this;
 
   let animal = new PIXI.Container();
+  animal.height_container = new PIXI.Container();
+  animal.addChild(animal.height_container);
 
   animal.pen = pen;
   animal.type = animal_type;
@@ -562,7 +566,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.sprite.scale.set(animal_scale, animal_scale);
   animal.sprite.anchor.set(0.5,0.75);
 
-  animal.addChild(animal.sprite);
+  animal.height_container.addChild(animal.sprite);
 
   animal.movement = animals[animal.type].movement;
 
@@ -572,28 +576,19 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     animal.arboreal_duration = 0;
   }
 
-
-  // if (pen.land == "water") {
-  //   animal.water_fill = PIXI.Sprite.from(PIXI.Texture.WHITE);
-  //   animal.water_fill.width = 192 * animal_scale;
-  //   animal.water_fill.height = 100 * animal_scale;
-  //   animal.water_fill.tint = water_color;
-  //   animal.water_fill.anchor.set(0.5,1);
-  //   animal.water_fill.position.set(0,90*animal_scale);
-  //   animal.addChild(animal.water_fill);
-  // }
-
   if (pen.land == "water" || pen.pond != null) {
     animal.water_mask = new PIXI.Graphics();
     animal.water_mask.beginFill(water_color);
     animal.water_mask.drawRect(-128, -5, 256, -384);
     animal.water_mask.endFill();
-    animal.addChild(animal.water_mask);
+    animal.height_container.addChild(animal.water_mask);
     if (pen.land == "water") {
       animal.mask = animal.water_mask;
       animal.water_mask.visible = true;
+      animal.height_container.y = 20;
     } else {
       animal.water_mask.visible = false;
+      animal.height_container.y = 0;
     }
   }
 
@@ -803,7 +798,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
               droplet.vy = -3 + -2 * Math.random();
               droplet.gravity = 1;
               droplet.floor = 10;
-              animal.addChild(droplet);
+              animal.height_container.addChild(droplet);
               self.freefalling.push(droplet);
             }
           }
@@ -917,9 +912,11 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         (pen.land == "water" || (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true))) {
         animal.mask = animal.water_mask;
         animal.water_mask.visible = true;
+        animal.height_container.y = 20;
       } else if (animal.water_mask != null) {
         animal.mask = null;
         animal.water_mask.visible = false;
+        animal.height_container.y = 0;
       }
     }
   }
