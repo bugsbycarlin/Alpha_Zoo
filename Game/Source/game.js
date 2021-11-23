@@ -146,7 +146,6 @@ class Game {
       .add("Art/Terrain/edging_shadow_250_3.png")
       .add("Art/Terrain/edging_shadow_300_3.png")
 
-
       .add("Art/Terrain/edging_reverse_50_1.png")
       .add("Art/Terrain/edging_reverse_100_1.png")
       .add("Art/Terrain/edging_reverse_150_1.png")
@@ -159,6 +158,16 @@ class Game {
       .add("Art/Terrain/edging_reverse_shadow_200_1.png")
       .add("Art/Terrain/edging_reverse_shadow_250_1.png")
       .add("Art/Terrain/edging_reverse_shadow_300_1.png")
+
+      .add("Art/Terrain/bank_lines_50_3.png")
+      .add("Art/Terrain/bank_lines_50_2.png")
+      .add("Art/Terrain/bank_lines_50_1.png")
+      .add("Art/Terrain/bank_lines_100_3.png")
+      .add("Art/Terrain/bank_lines_100_2.png")
+      .add("Art/Terrain/bank_lines_100_1.png")
+      .add("Art/Terrain/bank_lines_150_2.png")
+      .add("Art/Terrain/bank_lines_150_3.png")
+      .add("Art/Terrain/bank_lines_150_1.png")
 
 
       .add("Art/Animals/parrot.json")

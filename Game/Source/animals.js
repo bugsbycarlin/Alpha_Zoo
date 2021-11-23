@@ -226,6 +226,7 @@ animals = {
   },
   "CAPYBARA": {
     land: "sand",
+    pond: "any",
     mouth: [281, 342],
     butt: [183, 376],
     food: "herbivore",
