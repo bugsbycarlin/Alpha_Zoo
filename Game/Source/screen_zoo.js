@@ -141,7 +141,7 @@ Game.prototype.resetZooScreen = function() {
   this.addAnimalsAndDecorations();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  // this.greyAllActivePens();
+  this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -1996,11 +1996,15 @@ Game.prototype.drawMap = function() {
         }
 
         if (pen.land == "grass" || pen.land == "forest") {
-          this.dappleGround(render_container, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
+          this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
         }
 
         if (pen.land == "sand") {
-          this.sandTexture(render_container, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
+          this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]), 1, true);
+        }
+
+        if (pen.land == "ice" || pen.land == "rock") {
+          this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]), 1);
         }
 
         if (pen.terrace != null) {
@@ -2216,7 +2220,7 @@ Game.prototype.drawMap = function() {
 
 
 // Obviously, create beautiful ground texture effects for grass and forest land.
-Game.prototype.dappleGround = function(render_container, corner_x, corner_y, polygon_yes, polygons_no, probability=0.15, conservative_borders=false) {
+Game.prototype.dappleGround = function(render_container, land, corner_x, corner_y, polygon_yes, polygons_no, probability=0.15, conservative_borders=false) {
   console.log(polygons_no.length);
   let terrain_grid = [];
   for (let x = 0; x < square_width/40; x++) {
@@ -2255,6 +2259,21 @@ Game.prototype.dappleGround = function(render_container, corner_x, corner_y, pol
   }
 
   // if conservative borders, switch off any grid point whose neighbors are off.
+  if (conservative_borders) {
+    for (let x = 0; x < square_width/40; x++) {
+      for (let y = 0; y < square_width/40; y++) {
+        if (x == 0 || terrain_grid[x-1][y] == 0) terrain_grid[x][y] = -1;
+        if (x == terrain_grid.length - 1 || terrain_grid[x+1][y] == 0) terrain_grid[x][y] = -1;
+        if (y == 0 || terrain_grid[x][y-1] == 0) terrain_grid[x][y] = -1;
+        if (y == terrain_grid[x].length - 1 || terrain_grid[x][y+1] == 0) terrain_grid[x][y] = -1;
+      }
+    }
+    for (let x = 0; x < square_width/40; x++) {
+      for (let y = 0; y < square_width/40; y++) {
+        if (terrain_grid[x][y] == -1) terrain_grid[x][y] = 0;
+      }
+    }
+  }
 
   for (let x = 0; x < square_width/40; x++) {
     for (let y = 0; y < square_width/40; y++) {
@@ -2262,29 +2281,117 @@ Game.prototype.dappleGround = function(render_container, corner_x, corner_y, pol
 
         // console.log("starting here")
         if (Math.random() < probability) {
-          let doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_round.png"));
-          if (Math.random() < 0.4) {
-            doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_grass.png"));
+
+          if (land == "grass" || land == "forest") {
+            let doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_round.png"));
+            if (Math.random() < 0.4) {
+              doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_grass.png"));
+            }
+
+            doodad.alpha = 0.1 + 0.2 * Math.random();
+
+            if (Math.random() < 0.5) {
+              doodad.tint = 0x000000;
+              doodad.alpha = 0.05 + 0.1 * Math.random();
+            }
+
+            let scale = 0.6 + 0.3 * Math.random();
+            doodad.scale.set(scale, scale);
+            doodad.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20)
+
+            render_container.addChild(doodad);
+          } else if (land == "sand") {
+            if (Math.random() < 0.1) {
+              let doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_grass.png"));
+
+              if (Math.random() < 0.5) {
+                doodad.tint = forest_color;
+              } else {
+                doodad.tint = grass_color;
+              }
+
+              let scale = 0.6 + 0.3 * Math.random();
+              doodad.scale.set(scale, scale);
+              doodad.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20);
+              render_container.addChild(doodad);
+            } else {
+              let swoop_polygon = [];
+              let rise = -3 + 10 * Math.random();
+              let y_val = Math.random() * 20;
+              let distance = 6 + Math.floor(Math.random() * 7);
+
+              let doodad = new PIXI.Graphics();
+              doodad.beginFill(0xeda064);
+              for (let i = 0; i <= distance; i++) {
+                swoop_polygon.push(10 * i + 40 * x);
+                swoop_polygon.push(y_val + 5 * Math.sin((i+2)/8 * 2 * Math.PI) - i/8 * rise + 40 * y + 20);
+              }
+              for (let i = distance - 1; i >= 0; i--) {
+                swoop_polygon.push(10 * i + 40 * x);
+                swoop_polygon.push(y_val + 5 * Math.sin((i+2)/8 * 2 * Math.PI) - i/8 * rise + 40 * y + 20 - 0.375*(i-distance/2)*(i-distance/2) + 6);
+              }
+              doodad.drawPolygon(swoop_polygon);
+              doodad.endFill();
+
+              doodad.alpha = 0.2 + 0.1 * Math.random();
+
+              render_container.addChild(doodad);
+            }
+          // } else if (land == "rice") {
+          //   let doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_round.png"));
+
+          //   //doodad.alpha = 0.05 + 0.1 * Math.random();
+
+          //   let tint = 1 - (0.7 + 0.1 * Math.random());
+          //   doodad.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+          //   doodad.alpha = 0.2 + 0.2 * Math.random();
+
+          //   let scale = 0.2 + 0.15 * Math.random();
+          //   doodad.scale.set(scale, scale);
+          //   doodad.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20)
+
+          //   render_container.addChild(doodad);
+          // } 
+          } else if (land == "ice" || land == "rock") {
+            let angle = (Math.random() * 360) * 180 / Math.PI;
+            let n_gon = new PIXI.Graphics();
+            n_gon.beginFill(0xFFFFFF);
+            let gon = [];
+            let sides = 3 + Math.floor(Math.random() * 4);
+            for (let k = 0; k < sides; k++) {
+              gon.push(30 * Math.cos(angle + k * 2 * Math.PI / sides));
+              gon.push(30 * Math.sin(angle + k * 2 * Math.PI / sides));
+            }
+            gon.push(30 * Math.cos(angle));
+            gon.push(30 * Math.sin(angle));
+            n_gon.drawPolygon(gon);
+            n_gon.endFill();
+
+            let tint = 1 - (0.7 + 0.1 * Math.random());
+            if (land == "ice") {
+              n_gon.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
+              n_gon.alpha = 0.2 + 0.2 * Math.random();
+              
+            } else if (land == "rock") {
+              n_gon.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint, 1 - tint]);
+              n_gon.alpha = 0.3 + 0.4 * Math.random();
+            }
+            
+            // n_gon.angle = Math.random() * 360;
+            let scale = 0.2 + 0.2 * Math.random();
+            n_gon.scale.set(scale, scale * 0.75);
+            n_gon.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20)
+
+            render_container.addChild(n_gon);
           }
-
-          doodad.alpha = 0.1 + 0.2 * Math.random();
-
-          if (Math.random() < 0.5) {
-            doodad.tint = 0x000000;
-            doodad.alpha = 0.05 + 0.1 * Math.random();
-          }
-
-          let scale = 0.6 + 0.3 * Math.random();
-          doodad.scale.set(scale, scale);
-          doodad.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20)
-
-          render_container.addChild(doodad);
         }
-        // console.log("done");
       }
     }
   }
 }
+
+
+
 
 
 // Duh, create a nice set of decorative effects for sand lands.
@@ -2617,12 +2724,17 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
     }
 
     if (land == "forest" || land == "grass") {
-      this.dappleGround(terrace_container, corner_x, corner_y, terrace_polygon, [], 0.4);
+      this.dappleGround(terrace_container, land, corner_x, corner_y, terrace_polygon, [], 0.4);
       check_polygons.push(terrace_polygon);
     }
 
     if (land == "sand") {
-      this.sandTexture(terrace_container, corner_x, corner_y, terrace_polygon, [], 0.2);
+      this.dappleGround(terrace_container, land, corner_x, corner_y, terrace_polygon, [], 0.2, true);
+      check_polygons.push(terrace_polygon);
+    }
+
+    if (land == "ice" || land == "rock") {
+      this.dappleGround(terrace_container, land, corner_x, corner_y, terrace_polygon, [], 1);
       check_polygons.push(terrace_polygon);
     }
 
