@@ -50,8 +50,7 @@ let brown_rock_color = 0x744c29;
 let underwater_rock_color = 0x676b5c;
 let underwater_grey_rock_color = 0x82aab6;
 let sign_color = 0xc09f57;
-let pen_color = 0x754c25;
-let pen_shadow_color = 0x4d321a;
+let fence_color = 0x754c25;
 
 let edging_depth = 25;
 
@@ -73,7 +72,7 @@ let edging_depth = 25;
 // let underwater_rock_color = 0x676b5c;
 // let underwater_grey_rock_color = 0x82aab6;
 // let sign_color = 0xc09f57;
-// let pen_color = 0x754c25;
+// let fence_color = 0x754c25;
 // let pen_shadow_color = 0x4d321a;
 
 
@@ -81,9 +80,6 @@ let edging_depth = 25;
 let steak_color = 0x954a4a;
 let greens_color = 0x3c713a;
 let fruit_color = 0x70527d;
-
-let greyscale_pen_color = 0x8a8a8a;
-let greyscale_pen_shadow_color = 0x5b5b5b;
 
 let poop_color = 0x644b38;
 
@@ -141,7 +137,7 @@ Game.prototype.resetZooScreen = function() {
   this.addAnimalsAndDecorations();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  // this.greyAllActivePens();
+  this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -1039,7 +1035,7 @@ Game.prototype.designatePens = function() {
       if (s != null && s.length > 0) {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
-        new_animal = "BROWN_BEAR";
+        // new_animal = "BROWN_BEAR";
         // new_animal = "POLAR_BEAR";
         // new_animal = "SWAN";
         // new_animal = "COW";
@@ -1354,11 +1350,6 @@ Game.prototype.prepPondsAndTerraces = function() {
             && (pen.pond == null || !pointInsidePolygon([t[0], t[1] + 60], pen.pond) )) {
             t[1] += 30;
           }
-          // if (pointInsidePolygon([t[0], t[1] - 10], new_terrace)
-          //   && pointInsidePolygon([t[0], t[1] + 60], pen.polygon) 
-          //   && (pen.pond == null || !pointInsidePolygon([t[0], t[1] + 40], pen.pond) )) {
-          //   t[1] += 20;
-          // }
         }
 
 
@@ -1385,81 +1376,6 @@ Game.prototype.prepPondsAndTerraces = function() {
           fixed_terrace = smoothPolygon(fixed_terrace, 0.5);
           pen.terrace.push(fixed_terrace);
         }
-
-        // for (let m = 0; m < 2; m++) {
-        //   let new_terrace = [];
-        //   let last_terrace = pen.terrace[pen.terrace.length - 1];
-        //   let cx = 0;
-        //   let cy = 0;
-        //   for (let j = 0; j < last_terrace.length; j++) {
-        //     cx += last_terrace[j][0];
-        //     cy += last_terrace[j][1];
-        //   }
-        //   cx /= last_terrace.length;
-        //   cy /= last_terrace.length;
-        //   if (pointInsidePolygon([cx, cy], last_terrace)) {
-        //     let adj_x = -50/(m+1) + 100/(m+1) * Math.random();
-        //     let adj_y = -50/(m+1) + 100/(m+1) * Math.random();
-        //     let shrink = 0.88 + 0.09 * Math.random();
-        //     for (let j = 0; j < last_terrace.length; j++) {
-        //       let ltt = last_terrace[j];
-        //       new_terrace.push([adj_x + cx + (ltt[0] - cx) * shrink, adj_y + cy + (ltt[0] - cy) * shrink]);
-        //     }
-
-        //     for (let j = 0; j < new_terrace.length; j++) {
-        //       let t = new_terrace[j];
-        //       while(!pointInsidePolygon([t[0], t[1]], last_terrace)) {
-        //         t[0] = cx + (t[0] - cx) * 0.9;
-        //         t[1] = cy + (t[1] - cy) * 0.9;
-        //       }
-        //     }
-
-        //     new_terrace.push([new_terrace[0][0], new_terrace[0][1]]);
-        //     new_terrace = evenPolygon(new_terrace, 50, 150);
-        //     new_terrace = smoothPolygon(new_terrace, 0.5);
-        //     new_terrace = shrinkPolygon(new_terrace, cx, cy, 0.95);
-        //     pen.terrace.push(new_terrace);
-        //   } else {
-        //     console.log("outside!")
-        //   }
-        // }
-        
-        // let distance_multiplier = 100;
-
-        // let terrace_x = null;
-        // let terrace_y = null;
-        // do {
-        //   console.log("terrace base location iteration");
-        //   let angle = Math.random() * 180;
-        //   let distance = distance_multiplier + Math.random() * distance_multiplier;
-        //   terrace_x = pen.cx + distance * Math.cos(angle * Math.PI / 180);
-        //   terrace_y = pen.cy + distance * Math.sin(angle * Math.PI / 180) - 30;
-        //   distance_multiplier -= 10;
-        // } while(distance_multiplier >= 0 || terrace_x == null || !pointInsidePolygon([terrace_x, terrace_y], pen.polygon)
-        //   || (pen.pond != null && pointInsidePolygon([terrace_x, terrace_y], pen.pond)))
-
-
-        // if (terrace_x != null && pointInsidePolygon([terrace_x, terrace_y], pen.polygon)
-        //   && (pen.pond == null || !pointInsidePolygon([terrace_x, terrace_y], pen.pond))) {
-
-        //   for (let j = 0; j < 360; j+= 25 + Math.random() * 10) {
-        //     let point_x = terrace_x + (300 + Math.random() * 100) * Math.cos(j * Math.PI / 180);
-        //     let point_y = terrace_y + (200 + Math.random() * 60) * Math.sin(j * Math.PI / 180);
-            
-        //     new_terrace.push([point_x, point_y]);
-        //   }
-
-        //   for (let j = 0; j < new_terrace.length; j++) {
-        //     let t = new_terrace[j];
-        //     while(!pointInsidePolygon([t[0], t[1]], pen.polygon)
-        //       || (pen.pond != null && pointInsidePolygon([t[0], t[1]], pen.pond))) {
-        //       t[0] = terrace_x + (t[0] - terrace_x) * 0.9;
-        //       t[1] = terrace_y + (t[1] - terrace_y) * 0.9;
-        //     }
-        //   }
-
-        //   pen.terrace = new_terrace;
-        // }
       }
     }
   }
@@ -2027,154 +1943,9 @@ Game.prototype.drawMap = function() {
         terrain_sprite.position.set(corner_x - 50, corner_y - 50);
 
         pen.land_object.addChild(terrain_sprite);
-
       }
 
-      
-
-      // Make the border fence, split into top and bottom sections,
-      // and add these to the list of decorations (the thing that gets
-      // sorted and drawn in order so things appear at the right depth).
-      // The fence consists of posts whose bottoms appear to be on the polygon points,
-      // and rails which are just quads drawn from post to post.
-      // We find them all, then sort them by depth, then draw them in order,
-      // then store the result to a texture object. All the values are shifted
-      // to fit in the texture, then the texture is shifted back to the proper location.
-      let border_polygon = pen.polygon;
-      let top_objects = [];
-      let bottom_objects = [];
-      let top_x = pen.cx - square_width / 2;
-      let top_y = pen.cy - square_width / 2;
-      let bottom_x = pen.cx - square_width / 2;
-      let bottom_y = pen.cy;
-      let highest_top_point = null;
-      let lowest_bottom_point = null;
-
-      // compute highest and lowest points
-      for (let p = 0; p < border_polygon.length; p++) {
-        let border_point = [border_polygon[p][0], border_polygon[p][1]];
-        if (highest_top_point == null || border_point[1] - top_y < highest_top_point) highest_top_point = border_point[1] - top_y;
-        if (lowest_bottom_point == null || border_point[1] - top_y > lowest_bottom_point) lowest_bottom_point = border_point[1] - top_y;
-      }
-
-      // iterate the polygon
-      for (let p = 0; p < border_polygon.length; p++) {
-        let border_point = [border_polygon[p][0], border_polygon[p][1]];
-
-        let post = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_post.png"));
-        post.anchor.set(0.5, 0.78);
-        
-        // add a fence post to either top or bottom
-        if (border_point[1] - top_y < lowest_bottom_point - 70) {
-          top_objects.push(post);
-          post.position.set(border_point[0] - top_x, border_point[1] - top_y);
-        } else {
-          bottom_objects.push(post);
-          post.position.set(border_point[0] - bottom_x, border_point[1] - bottom_y);
-        }
-        
-
-        // Draw the rails
-        let fence = new PIXI.Graphics();
-        let next_point = border_polygon[0];
-        if (p < border_polygon.length - 1) {
-          next_point = [border_polygon[p + 1][0],border_polygon[p + 1][1]];
-        }
-        
-        // figure out if we're drawing from post A to post B or post B to post A,
-        if (next_point[1] < border_point[1]) {
-          // then draw a line
-          fence.lineStyle(12, 0x462D16, 1);
-          fence.moveTo(-3, -23).lineTo(
-            next_point[0] - border_point[0], next_point[1] - border_point[1] - 23 - 3);
-          fence.lineStyle(8, pen_color, 1);
-          fence.moveTo(0, -30).lineTo(
-            next_point[0] - border_point[0], next_point[1] - border_point[1] - 30);
-          // and add it to either top or bottom
-          if (border_point[1] - top_y < lowest_bottom_point - 70) {
-            fence.position.set(border_point[0] - top_x, border_point[1] - 6 - top_y);
-            top_objects.push(fence);
-          } else {
-            fence.position.set(border_point[0] - bottom_x, border_point[1] - 6 - bottom_y)
-            bottom_objects.push(fence);
-          }
-        } else {
-          fence.lineStyle(12, 0x462D16, 1);
-          fence.moveTo(-3, -23).lineTo(
-            border_point[0] - next_point[0], border_point[1] - next_point[1] - 23 - 3);
-          fence.lineStyle(8, pen_color, 1);
-          fence.moveTo(0, -30).lineTo(
-            border_point[0] - next_point[0], border_point[1] - next_point[1] - 30);
-          if (next_point[1] - top_y < lowest_bottom_point - 70) {
-            fence.position.set(next_point[0] - top_x, next_point[1] - 6 - top_y);
-            top_objects.push(fence);
-          } else {
-            fence.position.set(next_point[0] - bottom_x, next_point[1] - 6 - bottom_y);
-            bottom_objects.push(fence);
-          }
-        }
-      }
-
-      // sort the top and bottom fences by y depth
-      top_objects.sort(function comp(a, b) {
-        return (a.y > b.y) ? 1 : -1;
-      });
-      bottom_objects.sort(function comp(a, b) {
-        return (a.y > b.y) ? 1 : -1;
-      });
-
-      // make containers
-      var top_fence_render_container = new PIXI.Container();
-      var bottom_fence_render_container = new PIXI.Container();
-
-      // add everything to the containers
-      for (let p = 0; p < top_objects.length; p++) {
-        top_fence_render_container.addChild(top_objects[p]);
-      }
-
-      for (let p = 0; p < bottom_objects.length; p++) {
-        bottom_fence_render_container.addChild(bottom_objects[p]);
-      }
-      
-      // render the stuff in the top container to a texture, and use that
-      // texture to make the top fence sprite, and add that to this.decorations.
-      var top_texture = this.renderer.generateTexture(top_fence_render_container,
-        PIXI.SCALE_MODES.LINEAR,
-        1,
-        new PIXI.Rectangle(-50, -100, 1024, 1024));
-
-      var top_fence_sprite = new PIXI.Sprite(top_texture);
-      top_fence_sprite.anchor.set(0, 0);
-      top_fence_sprite.position.set(-50, -100 - highest_top_point);
-      top_fence = new PIXI.Container();
-      top_fence.type = "fence";
-      top_fence.addChild(top_fence_sprite);
-      top_fence.position.set(top_x, top_y + highest_top_point);
-      top_fence.true_color = 0xFFFFFF;
-      top_fence.grey_color = 0xFFFFFF;
-      // pen.land_object.addChild(top_fence_sprite);
-      this.decorations.push(top_fence);
-
-      // render the stuff in the bottom container to a texture, and use that
-      // texture to make the bottom fence sprite, and add that to this.decorations.
-      var bottom_texture = this.renderer.generateTexture(bottom_fence_render_container,
-        PIXI.SCALE_MODES.LINEAR,
-        1,
-        new PIXI.Rectangle(-50, -200, 1024, 1024));
-
-      var bottom_fence_sprite = new PIXI.Sprite(bottom_texture);
-      bottom_fence_sprite.anchor.set(0, 0);
-      // bottom_fence_sprite.tint = 0x000000;
-      bottom_fence_sprite.position.set(-50, -200 - lowest_bottom_point + square_width/2);
-      bottom_fence = new PIXI.Container();
-      bottom_fence.type = "fence";
-      bottom_fence.addChild(bottom_fence_sprite);
-      bottom_fence.position.set(bottom_x, bottom_y + lowest_bottom_point - square_width/2);
-      bottom_fence.true_color = 0xFFFFFF;
-      bottom_fence.grey_color = 0xFFFFFF;
-      // pen.land_object.addChild(bottom_fence_sprite);
-      this.decorations.push(bottom_fence);
-
+      this.drawFence(pen.polygon, corner_x, corner_y);
     }
 
     this.terrain.push(pen.land_object)
@@ -2758,61 +2529,6 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
   // pen.land_object.addChild(terrace_container);
   pen.decoration_objects.push(terrace_container);
   this.decorations.push(terrace_container);
-
-    // make containers
-      // var top_fence_render_container = new PIXI.Container();
-      // var bottom_fence_render_container = new PIXI.Container();
-
-      // // add everything to the containers
-      // for (let p = 0; p < top_objects.length; p++) {
-      //   top_fence_render_container.addChild(top_objects[p]);
-      // }
-
-      // for (let p = 0; p < bottom_objects.length; p++) {
-      //   bottom_fence_render_container.addChild(bottom_objects[p]);
-      // }
-      
-      // render the stuff in the top container to a texture, and use that
-      // texture to make the top fence sprite, and add that to this.decorations.
-      // var top_texture = this.renderer.generateTexture(top_fence_render_container,
-      //   PIXI.SCALE_MODES.LINEAR,
-      //   1,
-      //   new PIXI.Rectangle(-50, -100, 1024, 1024));
-
-      // var top_fence_sprite = new PIXI.Sprite(top_texture);
-      // top_fence_sprite.anchor.set(0, 0);
-      // top_fence_sprite.position.set(-50, -100 - highest_top_point);
-      // top_fence = new PIXI.Container();
-      // top_fence.type = "fence";
-      // top_fence.addChild(top_fence_sprite);
-      // top_fence.position.set(top_x, top_y + highest_top_point);
-      // top_fence.true_color = 0xFFFFFF;
-      // top_fence.grey_color = 0xFFFFFF;
-      // // pen.land_object.addChild(top_fence_sprite);
-      // this.decorations.push(top_fence);
-
-      // // render the stuff in the bottom container to a texture, and use that
-      // // texture to make the bottom fence sprite, and add that to this.decorations.
-      // var bottom_texture = this.renderer.generateTexture(bottom_fence_render_container,
-      //   PIXI.SCALE_MODES.LINEAR,
-      //   1,
-      //   new PIXI.Rectangle(-50, -200, 1024, 1024));
-
-      // var bottom_fence_sprite = new PIXI.Sprite(bottom_texture);
-      // bottom_fence_sprite.anchor.set(0, 0);
-      // // bottom_fence_sprite.tint = 0x000000;
-      // bottom_fence_sprite.position.set(-50, -200 - lowest_bottom_point + square_width/2);
-      // bottom_fence = new PIXI.Container();
-      // bottom_fence.type = "fence";
-      // bottom_fence.addChild(bottom_fence_sprite);
-      // bottom_fence.position.set(bottom_x, bottom_y + lowest_bottom_point - square_width/2);
-      // bottom_fence.true_color = 0xFFFFFF;
-      // bottom_fence.grey_color = 0xFFFFFF;
-      // // pen.land_object.addChild(bottom_fence_sprite);
-      // this.decorations.push(bottom_fence);
-
-
-
 }
 
 
@@ -2863,48 +2579,6 @@ Game.prototype.drawTerraceEdging = function(render_container, land, corner_x, co
         }
       }
       render_container.addChild(rock_edging);
-
-      // extra to make the brown rocks pretty
-      // if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
-      //   let extra_edging = new PIXI.Graphics();
-      //   extra_edging.beginFill(0x83552d);
-      //   let gon = [
-      //     p1[0] - corner_x, p1[1] - corner_y,
-      //     p2[0] - corner_x, p2[1] - corner_y];
-      //   let val = 10;
-      //   for (let i = 9; i > 0; i--) {
-      //     gon.push(i/10 * (p2[0] - corner_x) + (10-i)/10 * (p1[0] - corner_x));
-      //     gon.push(i/10 * (p2[1] - corner_y) + (10-i)/10 * (p1[1] - corner_y) + val);
-      //     if (i > 4) val += 2;
-      //     if (i <= 4) val -= 2;
-      //   }
-      //   gon.push(p1[0] - corner_x);
-      //   gon.push(p1[1] - corner_y);
-      //   extra_edging.drawPolygon(gon);
-      //   extra_edging.endFill();
-      //   extra_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
-      //   render_container.addChild(extra_edging);
-
-
-      //   let extra_edging_2 = new PIXI.Graphics();
-      //   extra_edging_2.beginFill(0x9a6333);
-      //   gon = [
-      //     p1[0] - corner_x, p1[1] - corner_y,
-      //     p2[0] - corner_x, p2[1] - corner_y];
-      //   val = 6;
-      //   for (let i = 9; i > 0; i--) {
-      //     gon.push(i/10 * (p2[0] - corner_x) + (10-i)/10 * (p1[0] - corner_x));
-      //     gon.push(i/10 * (p2[1] - corner_y) + (10-i)/10 * (p1[1] - corner_y) + val);
-      //     if (i > 4) val += 1.3;
-      //     if (i <= 4) val -= 1.3;
-      //   }
-      //   gon.push(p1[0] - corner_x);
-      //   gon.push(p1[1] - corner_y);
-      //   extra_edging_2.drawPolygon(gon);
-      //   extra_edging_2.endFill();
-      //   extra_edging_2.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
-      //   render_container.addChild(extra_edging_2);
-      // }
     }
   }
 }
@@ -3051,6 +2725,150 @@ Game.prototype.drawEdging = function(render_container, land, second_land, corner
   // for (let i = 0; i < edgings.length; i++) {
   //   render_container.addChild(edgings[i]);
   // }
+}
+
+
+Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
+  // Make the border fence, split into top and bottom sections,
+  // and add these to the list of decorations (the thing that gets
+  // sorted and drawn in order so things appear at the right depth).
+  // The fence consists of posts whose bottoms appear to be on the polygon points,
+  // and rails which are just quads drawn from post to post.
+  // We find them all, then sort them by depth, then draw them in order,
+  // then store the result to a texture object. All the values are shifted
+  // to fit in the texture, then the texture is shifted back to the proper location.
+  
+  let top_objects = [];
+  let bottom_objects = [];
+  let highest_top_point = null;
+  let lowest_bottom_point = null;
+
+  // let border_polygon = pen.polygon;
+  // let top_x = pen.cx - square_width / 2;
+  // let top_y = pen.cy - square_width / 2;
+  // let bottom_x = pen.cx - square_width / 2;
+  // let bottom_y = pen.cy;
+
+  // compute highest and lowest points
+  for (let p = 0; p < polygon.length; p++) {
+    let border_point = [polygon[p][0], polygon[p][1]];
+    if (highest_top_point == null || border_point[1] - corner_y < highest_top_point) highest_top_point = border_point[1] - corner_y;
+    if (lowest_bottom_point == null || border_point[1] - corner_y > lowest_bottom_point) lowest_bottom_point = border_point[1] - corner_y;
+  }
+
+  // iterate the polygon
+  for (let p = 0; p < polygon.length; p++) {
+    let point = [polygon[p][0], polygon[p][1]];
+
+    let post = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/fence_post.png"));
+    post.anchor.set(0.5, 0.78);
+    
+    // add a fence post to either top or bottom
+    if (point[1] - corner_y < lowest_bottom_point - 70) {
+      top_objects.push(post);
+      post.position.set(point[0] - corner_x, point[1] - corner_y);
+    } else {
+      bottom_objects.push(post);
+      post.position.set(point[0] - corner_x, point[1] - (corner_y + square_width/2));
+    }
+    
+
+    // Draw the rails
+    let fence = new PIXI.Graphics();
+    let next_point = polygon[0];
+    if (p < polygon.length - 1) {
+      next_point = [polygon[p + 1][0],polygon[p + 1][1]];
+    }
+    
+    // figure out if we're drawing from post A to post B or post B to post A,
+    if (next_point[1] < point[1]) {
+      // then draw a line
+      fence.lineStyle(12, 0x462D16, 1);
+      fence.moveTo(-3, -23).lineTo(
+        next_point[0] - point[0], next_point[1] - point[1] - 23 - 3);
+      fence.lineStyle(8, fence_color, 1);
+      fence.moveTo(0, -30).lineTo(
+        next_point[0] - point[0], next_point[1] - point[1] - 30);
+      // and add it to either top or bottom
+      if (point[1] - corner_y < lowest_bottom_point - 70) {
+        fence.position.set(point[0] - corner_x, point[1] - 6 - corner_y);
+        top_objects.push(fence);
+      } else {
+        fence.position.set(point[0] - corner_x, point[1] - 6 - (corner_y + square_width/2))
+        bottom_objects.push(fence);
+      }
+    } else {
+      fence.lineStyle(12, 0x462D16, 1);
+      fence.moveTo(-3, -23).lineTo(
+        point[0] - next_point[0], point[1] - next_point[1] - 23 - 3);
+      fence.lineStyle(8, fence_color, 1);
+      fence.moveTo(0, -30).lineTo(
+        point[0] - next_point[0], point[1] - next_point[1] - 30);
+      if (next_point[1] - corner_y < lowest_bottom_point - 70) {
+        fence.position.set(next_point[0] - corner_x, next_point[1] - 6 - corner_y);
+        top_objects.push(fence);
+      } else {
+        fence.position.set(next_point[0] - corner_x, next_point[1] - 6 - (corner_y + square_width/2));
+        bottom_objects.push(fence);
+      }
+    }
+  }
+
+  // sort the top and bottom fences by y depth
+  top_objects.sort(function comp(a, b) {
+    return (a.y > b.y) ? 1 : -1;
+  });
+  bottom_objects.sort(function comp(a, b) {
+    return (a.y > b.y) ? 1 : -1;
+  });
+
+  // make containers
+  var top_fence_render_container = new PIXI.Container();
+  var bottom_fence_render_container = new PIXI.Container();
+
+  // add everything to the containers
+  for (let p = 0; p < top_objects.length; p++) {
+    top_fence_render_container.addChild(top_objects[p]);
+  }
+
+  for (let p = 0; p < bottom_objects.length; p++) {
+    bottom_fence_render_container.addChild(bottom_objects[p]);
+  }
+  
+  // render the stuff in the top container to a texture, and use that
+  // texture to make the top fence sprite, and add that to this.decorations.
+  var top_texture = this.renderer.generateTexture(top_fence_render_container,
+    PIXI.SCALE_MODES.LINEAR,
+    1,
+    new PIXI.Rectangle(-50, -100, 1024, 1024));
+
+  var top_fence_sprite = new PIXI.Sprite(top_texture);
+  top_fence_sprite.anchor.set(0, 0);
+  top_fence_sprite.position.set(-50, -100 - highest_top_point);
+  top_fence = new PIXI.Container();
+  top_fence.type = "fence";
+  top_fence.addChild(top_fence_sprite);
+  top_fence.position.set(corner_x, corner_y + highest_top_point);
+  // pen.land_object.addChild(top_fence_sprite);
+  this.decorations.push(top_fence);
+
+  // render the stuff in the bottom container to a texture, and use that
+  // texture to make the bottom fence sprite, and add that to this.decorations.
+  var bottom_texture = this.renderer.generateTexture(bottom_fence_render_container,
+    PIXI.SCALE_MODES.LINEAR,
+    1,
+    new PIXI.Rectangle(-50, -200, 1024, 1024));
+
+  var bottom_fence_sprite = new PIXI.Sprite(bottom_texture);
+  bottom_fence_sprite.anchor.set(0, 0);
+  // bottom_fence_sprite.tint = 0x000000;
+  bottom_fence_sprite.position.set(-50, -200 - lowest_bottom_point + square_width/2);
+  bottom_fence = new PIXI.Container();
+  bottom_fence.type = "fence";
+  bottom_fence.addChild(bottom_fence_sprite);
+  bottom_fence.position.set(corner_x, (corner_y + square_width/2) + lowest_bottom_point - square_width/2);
+  // pen.land_object.addChild(bottom_fence_sprite);
+  this.decorations.push(bottom_fence);
 }
 
 
