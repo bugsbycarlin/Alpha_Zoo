@@ -141,7 +141,7 @@ Game.prototype.resetZooScreen = function() {
   this.addAnimalsAndDecorations();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  this.greyAllActivePens();
+  // this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -1045,7 +1045,7 @@ Game.prototype.designatePens = function() {
         // new_animal = "SWAN";
         // new_animal = "COW";
         // new_animal = "OTTER";
-        new_animal = "MEERKAT";
+        // new_animal = "MEERKAT";
         pen.animal = new_animal;
         pen.land = animals[new_animal].land;
         pen.decorations = animals[new_animal].decorations;
@@ -1999,6 +1999,10 @@ Game.prototype.drawMap = function() {
           this.dappleGround(render_container, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
         }
 
+        if (pen.land == "sand") {
+          this.sandTexture(render_container, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
+        }
+
         if (pen.terrace != null) {
           this.drawTerrace(pen, pen.land, corner_x, corner_y, pen.terrace, pen.pond)
         }
@@ -2177,82 +2181,41 @@ Game.prototype.drawMap = function() {
 }
 
 
-// TACO CHIP STYLE
-// Game.prototype.dappleGround = function(render_container, corner_x, corner_y, polygon_yes, polygons_no, conservative_borders=false) {
-//   console.log(polygons_no.length);
-//   let terrain_grid = [];
-//   for (let x = 0; x < square_width/40; x++) {
-//     terrain_grid[x] = [];
-//     for (let y = 0; y < square_width/40; y++) {
-//       terrain_grid[x][y] = 0;
-//     }
-//   }
+// TACO CHIP STYLE DAPPLES
+// for (let x = 0; x < square_width/40; x++) {
+//   for (let y = 0; y < square_width/40; y++) {
+//     if (terrain_grid[x][y] == 1) {
+//       let angle = (Math.random() * 360) * 180 / Math.PI;
+//       let triangle = new PIXI.Graphics();
+//       triangle.beginFill(0xFFFFFF);
+//       triangle.drawPolygon([
+//         30 * Math.cos(angle), 30 * Math.sin(angle),
+//         30 * Math.cos(angle + 4 * Math.PI / 3), 30 * Math.sin(angle + 4 * Math.PI / 3),
+//         30 * Math.cos(angle + 2 * Math.PI / 3), 30 * Math.sin(angle + 2 * Math.PI / 3),
+//         30 * Math.cos(angle + 0), 30 * Math.sin(angle + 0),
+//       ]);
+//       triangle.endFill();
 
-//   for (let x = 0; x < square_width/40; x++) {
-//     for (let y = 0; y < square_width/40; y++) {
-//       let points = [
-//         [corner_x + 40 * x, corner_y + 40 * y],
-//         [corner_x + 40 * (x+1), corner_y + 40 * y],
-//         [corner_x + 40 * (x+1), corner_y + 40 * (y+1)],
-//         [corner_x + 40 * x, corner_y + 40 * (y+1)],
-//       ]
-//       terrain_grid[x][y] = 1;
-//       for (let i = 0; i < points.length; i++) {
-//         if (!pointInsidePolygon(points[i], polygon_yes)) {
-//           terrain_grid[x][y] = 0;
-//           break;
-//         }
-//       }
-//       if (terrain_grid[x][y] == 1) {
-//         for (let i = 0; i < points.length; i++) {
-//           for (let j = 0; j < polygons_no.length; j++) {
-//             if (pointInsidePolygon(points[i], polygons_no[j])) {
-//               terrain_grid[x][y] = 0;
-//               break;
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
+//       triangle.alpha = 0.1 + 0.2 * Math.random();
 
-//   // if conservative borders, switch off any grid point whose neighbors are off.
-
-//   for (let x = 0; x < square_width/40; x++) {
-//     for (let y = 0; y < square_width/40; y++) {
-//       if (terrain_grid[x][y] == 1) {
-//         let angle = (Math.random() * 360) * 180 / Math.PI;
-//         let triangle = new PIXI.Graphics();
-//         triangle.beginFill(0xFFFFFF);
-//         triangle.drawPolygon([
-//           30 * Math.cos(angle), 30 * Math.sin(angle),
-//           30 * Math.cos(angle + 4 * Math.PI / 3), 30 * Math.sin(angle + 4 * Math.PI / 3),
-//           30 * Math.cos(angle + 2 * Math.PI / 3), 30 * Math.sin(angle + 2 * Math.PI / 3),
-//           30 * Math.cos(angle + 0), 30 * Math.sin(angle + 0),
-//         ]);
-//         triangle.endFill();
-
-//         triangle.alpha = 0.1 + 0.2 * Math.random();
-
-//         if (Math.random() < 0.5) {
-//           triangle.tint = 0x000000;
-//           triangle.alpha = 0.05 + 0.1 * Math.random();
-//         }
-
-        
-//         // triangle.angle = Math.random() * 360;
-//         let scale = 0.2 + 0.4 * Math.random();
-//         triangle.scale.set(scale, scale * 0.75);
-//         triangle.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20)
-
-//         render_container.addChild(triangle);
+//       if (Math.random() < 0.5) {
+//         triangle.tint = 0x000000;
+//         triangle.alpha = 0.05 + 0.1 * Math.random();
 //       }
 
+      
+//       // triangle.angle = Math.random() * 360;
+//       let scale = 0.2 + 0.4 * Math.random();
+//       triangle.scale.set(scale, scale * 0.75);
+//       triangle.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20)
+
+//       render_container.addChild(triangle);
 //     }
 //   }
 // }
 
 
+// Obviously, create beautiful ground texture effects for grass and forest land.
 Game.prototype.dappleGround = function(render_container, corner_x, corner_y, polygon_yes, polygons_no, probability=0.15, conservative_borders=false) {
   console.log(polygons_no.length);
   let terrain_grid = [];
@@ -2318,6 +2281,124 @@ Game.prototype.dappleGround = function(render_container, corner_x, corner_y, pol
           render_container.addChild(doodad);
         }
         // console.log("done");
+      }
+    }
+  }
+}
+
+
+// Duh, create a nice set of decorative effects for sand lands.
+Game.prototype.sandTexture = function(render_container, corner_x, corner_y, polygon_yes, polygons_no, probability=1) {
+  console.log(polygons_no.length);
+  let terrain_grid = [];
+  for (let x = 0; x < square_width/40; x++) {
+    terrain_grid[x] = [];
+    for (let y = 0; y < square_width/40; y++) {
+      terrain_grid[x][y] = 0;
+    }
+  }
+
+  for (let x = 0; x < square_width/40; x++) {
+    for (let y = 0; y < square_width/40; y++) {
+      let points = [
+        [corner_x + 40 * x, corner_y + 40 * y],
+        [corner_x + 40 * (x+1), corner_y + 40 * y],
+        [corner_x + 40 * (x+1), corner_y + 40 * (y+1)],
+        [corner_x + 40 * x, corner_y + 40 * (y+1)],
+      ]
+      terrain_grid[x][y] = 1;
+      for (let i = 0; i < points.length; i++) {
+        if (!pointInsidePolygon(points[i], polygon_yes)) {
+          terrain_grid[x][y] = 0;
+          break;
+        }
+      }
+      if (terrain_grid[x][y] == 1) {
+        for (let i = 0; i < points.length; i++) {
+          for (let j = 0; j < polygons_no.length; j++) {
+            if (pointInsidePolygon(points[i], polygons_no[j])) {
+              terrain_grid[x][y] = 0;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // conservative borders; switch off any grid point whose neighbors are off.
+  //for (let i = 0; i < 2; i++) {
+    for (let x = 0; x < square_width/40; x++) {
+      for (let y = 0; y < square_width/40; y++) {
+        if (x == 0 || terrain_grid[x-1][y] == 0) terrain_grid[x][y] = -1;
+        if (x == terrain_grid.length - 1 || terrain_grid[x+1][y] == 0) terrain_grid[x][y] = -1;
+        if (y == 0 || terrain_grid[x][y-1] == 0) terrain_grid[x][y] = -1;
+        if (y == terrain_grid[x].length - 1 || terrain_grid[x][y+1] == 0) terrain_grid[x][y] = -1;
+      }
+    }
+    for (let x = 0; x < square_width/40; x++) {
+      for (let y = 0; y < square_width/40; y++) {
+        if (terrain_grid[x][y] == -1) terrain_grid[x][y] = 0;
+      }
+    }
+  //}
+
+  for (let x = 0; x < square_width/40; x++) {
+    for (let y = 0; y < square_width/40; y++) {
+      if (terrain_grid[x][y] == 1) {
+
+        // console.log("starting here")
+        if (Math.random() < probability) {
+
+          let doodad = null;
+          if (Math.random() < 0.1) {
+            doodad = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/light_grass.png"));
+
+            if (Math.random() < 0.5) {
+              doodad.tint = forest_color;
+            } else {
+              doodad.tint = grass_color;
+            }
+
+            let scale = 0.6 + 0.3 * Math.random();
+            doodad.scale.set(scale, scale);
+            doodad.position.set(40 * x + 10 + Math.random() * 20, 40 * y + 10 + Math.random() * 20);
+            render_container.addChild(doodad);
+          } else {
+            let doodad = new PIXI.Graphics();
+            doodad.beginFill(0xeda064);
+
+            let swoop_polygon = [];
+            let rise = -3 + 10 * Math.random();
+            let y_val = Math.random() * 20;
+            let distance = 6 + Math.floor(Math.random() * 7);
+            for (let i = 0; i <= distance; i++) {
+              swoop_polygon.push(10 * i + 40 * x);
+              swoop_polygon.push(y_val + 5 * Math.sin((i+2)/8 * 2 * Math.PI) - i/8 * rise + 40 * y + 20);
+            }
+            for (let i = distance - 1; i >= 0; i--) {
+              swoop_polygon.push(10 * i + 40 * x);
+              // swoop_polygon.push(10 * Math.sin(i/8 * 2 * Math.PI) + i/8 * rise - (8 * 0.0625 * (i-4)*(i-4) - 8) + 40 * y + 20);
+              swoop_polygon.push(y_val + 5 * Math.sin((i+2)/8 * 2 * Math.PI) - i/8 * rise + 40 * y + 20 - 0.375*(i-distance/2)*(i-distance/2) + 6);
+            }
+            doodad.alpha = 0.2 + 0.1 * Math.random();
+
+            doodad.drawPolygon(swoop_polygon);
+
+            doodad.endFill();
+
+            // doodad.alpha = 0.1 + 0.2 * Math.random();
+
+            // if (Math.random() < 0.5) {
+            //   doodad.tint = 0x000000;
+            //   doodad.alpha = 0.05 + 0.1 * Math.random();
+            // }
+            render_container.addChild(doodad);
+          }
+
+
+          
+        }
       }
     }
   }
@@ -2537,6 +2618,11 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
 
     if (land == "forest" || land == "grass") {
       this.dappleGround(terrace_container, corner_x, corner_y, terrace_polygon, [], 0.4);
+      check_polygons.push(terrace_polygon);
+    }
+
+    if (land == "sand") {
+      this.sandTexture(terrace_container, corner_x, corner_y, terrace_polygon, [], 0.2);
       check_polygons.push(terrace_polygon);
     }
 
