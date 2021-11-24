@@ -101,13 +101,6 @@ class Game {
       .add("Art/Terrain/fence_post.png")
       .add("Art/Terrain/fence_shadow.png")
 
-      .add("Art/Terrain/edging_reverse_bank_50_1.png")
-      .add("Art/Terrain/edging_reverse_bank_100_1.png")
-      .add("Art/Terrain/edging_reverse_bank_150_1.png")
-      .add("Art/Terrain/edging_reverse_bank_200_1.png")
-      .add("Art/Terrain/edging_reverse_bank_250_1.png")
-      .add("Art/Terrain/edging_reverse_bank_300_1.png")
-
       .add("Art/Terrain/edging_50_1.png")
       .add("Art/Terrain/edging_100_1.png")
       .add("Art/Terrain/edging_150_1.png")
