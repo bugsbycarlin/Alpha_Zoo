@@ -100,6 +100,27 @@ function shuffleArray(array) {
 }
 
 
+// limited while loop which quits after limit number of tries
+function nTries(action, condition, limit) {
+  do {
+    action()
+    limit -= 1;
+  } while(limit > 0 && condition() == true)
+}
+
+// example:
+// let values = null;
+// let tries = 1;
+// nTries(function() {
+//   values = Math.floor(Math.random() * 100);
+//   console.log(tries + ": " + values);
+//   tries += 1;
+// }, function() {
+//   return values != 65
+// }, 100);
+// result: sometimes this quits early with a 65, sometimes it runs to 100 tries with no result.
+
+
 // check if north/south/east/west neighbors of an element in a 2d array exist and match val
 function checkNeighbor(array, x, y, dir, val) {
   if (dir == "w") {

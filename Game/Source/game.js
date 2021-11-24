@@ -169,6 +169,8 @@ class Game {
       .add("Art/Terrain/bank_lines_150_3.png")
       .add("Art/Terrain/bank_lines_150_1.png")
 
+      .add("Art/Terrain/light_grass.png")
+      .add("Art/Terrain/light_round.png")
 
       .add("Art/Animals/parrot.json")
       .add("Art/Animals/owl.json")

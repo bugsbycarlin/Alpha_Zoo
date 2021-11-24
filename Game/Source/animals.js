@@ -135,6 +135,7 @@ animals = {
   },
   "BROWN_BEAR": {
     sound: "bear",
+    pond: "any",
     terrace: true,
     mouth: [314, 327],
     butt: [188, 338],
@@ -143,6 +144,7 @@ animals = {
   },
   "BLACK_BEAR": {
     sound: "bear",
+    pond: "small",
     terrace: true,
     mouth: [314, 327],
     butt: [188, 338],
@@ -161,6 +163,8 @@ animals = {
   },
   "PENGUIN": {
     land: "ice",
+    terrace: true,
+    pond: "large",
     decorations: ["rock", "rock"],
     mouth: [258, 341],
     butt: [257, 392],
@@ -170,6 +174,7 @@ animals = {
   },
   "SEAL": {
     land: "ice",
+    pond: "large",
     decorations: ["rock", "rock"],
     mouth: [299, 344],
     butt: [200, 382],
@@ -290,6 +295,7 @@ animals = {
     mouth: [266, 330],
     butt: [240, 398],
     land: "sand",
+    terrace: true,
     min: 3,
     max: 5,
     food: "omnivore",
@@ -929,7 +935,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         for (let k = 0; k < pen.terrace.length; k++) {
           let terrace = pen.terrace[k];
           if (pointInsidePolygon([animal.x, animal.y], terrace)) {
-            height += 20;
+            height += edging_depth;
           }
         }
         animal.height_container.y -= height;
