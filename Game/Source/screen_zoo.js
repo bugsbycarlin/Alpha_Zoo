@@ -141,7 +141,7 @@ Game.prototype.resetZooScreen = function() {
   this.addAnimalsAndDecorations();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
-  this.greyAllActivePens();
+  // this.greyAllActivePens();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -153,7 +153,6 @@ Game.prototype.resetZooScreen = function() {
     // self.loading_text.visible = false;
     self.fadeFromBlack(3000);
   }, 500);
-  
 }
 
 
@@ -1040,7 +1039,7 @@ Game.prototype.designatePens = function() {
       if (s != null && s.length > 0) {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
-        // new_animal = "BROWN_BEAR";
+        new_animal = "BROWN_BEAR";
         // new_animal = "POLAR_BEAR";
         // new_animal = "SWAN";
         // new_animal = "COW";
@@ -2829,6 +2828,7 @@ Game.prototype.drawTerraceEdging = function(render_container, land, corner_x, co
       || pointInsidePolygon([p2[0], p2[1] - 10], polygon)) {
 
       let rock_edging = new PIXI.Graphics();
+      let tint = 1;
       if (land == "rock") rock_edging.beginFill(rock_color);
       if (land == "ice") rock_edging.beginFill(ice_color);
       if (land != "ice" && land != "rock") rock_edging.beginFill(brown_rock_color);
@@ -2842,27 +2842,69 @@ Game.prototype.drawTerraceEdging = function(render_container, land, corner_x, co
       rock_edging.endFill();
       if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
         if (p1[1] < p2[1]) {
-          let tint = 0.6 + 0.25 * Math.random();
+          tint = 0.6 + 0.25 * Math.random();
           rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
         }
       } else if (land == "ice") {
         if (p1[1] < p2[1]) {
-          let tint = 1 - (0.7 + 0.1 * Math.random());
+          tint = 1 - (0.7 + 0.1 * Math.random());
           rock_edging.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
         } else {
-          let tint = 1 - (0.8 + 0.1 * Math.random());
+          tint = 1 - (0.8 + 0.1 * Math.random());
           rock_edging.tint = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
         }
       } else if (land == "rock") {
         if (p1[1] < p2[1]) {
-          let tint = 0.7 + 0.1 * Math.random();
+          tint = 0.7 + 0.1 * Math.random();
           rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
         } else {
-          let tint = 0.8 + 0.1 * Math.random();
+          tint = 0.8 + 0.1 * Math.random();
           rock_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
         }
       }
       render_container.addChild(rock_edging);
+
+      // extra to make the brown rocks pretty
+      // if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+      //   let extra_edging = new PIXI.Graphics();
+      //   extra_edging.beginFill(0x83552d);
+      //   let gon = [
+      //     p1[0] - corner_x, p1[1] - corner_y,
+      //     p2[0] - corner_x, p2[1] - corner_y];
+      //   let val = 10;
+      //   for (let i = 9; i > 0; i--) {
+      //     gon.push(i/10 * (p2[0] - corner_x) + (10-i)/10 * (p1[0] - corner_x));
+      //     gon.push(i/10 * (p2[1] - corner_y) + (10-i)/10 * (p1[1] - corner_y) + val);
+      //     if (i > 4) val += 2;
+      //     if (i <= 4) val -= 2;
+      //   }
+      //   gon.push(p1[0] - corner_x);
+      //   gon.push(p1[1] - corner_y);
+      //   extra_edging.drawPolygon(gon);
+      //   extra_edging.endFill();
+      //   extra_edging.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+      //   render_container.addChild(extra_edging);
+
+
+      //   let extra_edging_2 = new PIXI.Graphics();
+      //   extra_edging_2.beginFill(0x9a6333);
+      //   gon = [
+      //     p1[0] - corner_x, p1[1] - corner_y,
+      //     p2[0] - corner_x, p2[1] - corner_y];
+      //   val = 6;
+      //   for (let i = 9; i > 0; i--) {
+      //     gon.push(i/10 * (p2[0] - corner_x) + (10-i)/10 * (p1[0] - corner_x));
+      //     gon.push(i/10 * (p2[1] - corner_y) + (10-i)/10 * (p1[1] - corner_y) + val);
+      //     if (i > 4) val += 1.3;
+      //     if (i <= 4) val -= 1.3;
+      //   }
+      //   gon.push(p1[0] - corner_x);
+      //   gon.push(p1[1] - corner_y);
+      //   extra_edging_2.drawPolygon(gon);
+      //   extra_edging_2.endFill();
+      //   extra_edging_2.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
+      //   render_container.addChild(extra_edging_2);
+      // }
     }
   }
 }
