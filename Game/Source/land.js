@@ -25,6 +25,41 @@ let square_width = 900;
 let total_ents = 150;
 
 
+let landDecorations = {
+  "grass": {
+    probability: 0.6,
+    count: 7,
+    objects: ["tree", "brown_rock", "grey_rock"]
+  },
+  "forest": {
+    probability: 0.8,
+    count: 10,
+    objects: ["tree", "tree", "tree", "grey_rock"]
+  },
+  "sand": {
+    probability: 0.4,
+    count: 5,
+    objects: ["brown_rock"]
+  },
+  "water": {
+    probability: 0.4,
+    count: 5,
+    objects: ["brown_rock", "grey_rock"]
+  },
+  "ice": {
+    probability: 0.4,
+    count: 5,
+    objects: ["grey_rock"]
+  },
+  "rock": {
+    probability: 0.4,
+    count: 5,
+    objects: ["grey_rock", "grey_rock", "brown_rock"]
+  }
+};
+
+
+
 Game.prototype.initializeMap = function() {
   var self = this;
   var screen = this.screens["zoo"];
@@ -139,14 +174,11 @@ Game.prototype.makeMapGroups = function() {
     }
   }
 
-  console.log(group_num);
-
   // Attach singletons to larger groups
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
       let cell = this.zoo_squares[i][j];
       if (this.group_counts[cell.group] == 1) {
-        console.log("Singleton at " + i + " " + j);
         let neighbors = [];
         if (i > 0) neighbors.push(this.zoo_squares[i-1][j].group);
         if (i < this.zoo_size - 1) neighbors.push(this.zoo_squares[i+1][j].group);
@@ -263,8 +295,6 @@ Game.prototype.makeMapPens = function() {
     for (let i = 1; i < this.zoo_size - 2; i++) {
       for (let j = 2; j < this.zoo_size - 2; j++) {
         if (this.zoo_squares[i][j].reachable) {
-          // console.log(i + "," + j);
-          // console.log(this.zoo_squares[i][j].e_edge);
           if (this.zoo_squares[i][j].e_edge == false && this.zoo_squares[i+1][j].w_edge == false) { // both should always be true or false anyway
             potential_ferris_tiles.push([i,j]);
           }
@@ -435,7 +465,6 @@ Game.prototype.makeMapPens = function() {
         if (j > 0 && this.zoo_squares[i][j].n_edge == false
           && this.zoo_squares[i][j - 1].pen != null
           && this.zoo_squares[i][j - 1].pen.special == null) {
-          console.log("I'm " + i + "," + j + " and I have a northern neighbor.");
           let points_of_contact = [];
 
           let neighbor_polygon = this.zoo_squares[i][j - 1].pen.polygon;
@@ -449,8 +478,6 @@ Game.prototype.makeMapPens = function() {
               }
             }
           }
-
-          console.log(points_of_contact.length);
 
           if (points_of_contact.length >= 2) {
             let replaced_polygon = [];
@@ -487,7 +514,6 @@ Game.prototype.makeMapPens = function() {
           land: "grass",
           northern_border: northern_border,
           //western_border: western_border,
-          decorations: ["grass", "tree", "bush", "rock"],
           decoration_objects: [],
           land_object: null,
           special_object: null,
@@ -526,7 +552,6 @@ Game.prototype.makeMapPens = function() {
           animal: null,
           special: "FERRIS_WHEEL",
           land: "grass",
-          decorations: null,
           decoration_objects: [],
           land_object: null,
           animal_objects: null,
@@ -569,7 +594,6 @@ Game.prototype.makeMapPens = function() {
           animal: null,
           special: "CAFE",
           land: "grass",
-          decorations: null,
           decoration_objects: [],
           land_object: null,
           animal_objects: null,
@@ -583,7 +607,6 @@ Game.prototype.makeMapPens = function() {
     }
   }
 
-  console.log(this.zoo_pens);
   shuffleArray(this.zoo_pens);
 }
 
@@ -596,7 +619,6 @@ Game.prototype.designatePens = function() {
   // as though they are slices of a pie centered on the center of the zoo.
   // Then assign animals by section.
   let section_dividing_angle = 360 * Math.random();
-  console.log("Dividing angle: " + section_dividing_angle);
 
   let center_x = square_width * this.zoo_size / 2;
   let center_y = square_width * this.zoo_size / 2;
@@ -634,14 +656,13 @@ Game.prototype.designatePens = function() {
         new_animal = s.pop();
         // new_animal = "ORANGUTAN";
         // new_animal = "BROWN_BEAR";
-        // new_animal = "POLAR_BEAR";
+        new_animal = "POLAR_BEAR";
         // new_animal = "SWAN";
         // new_animal = "COW";
         // new_animal = "OTTER";
         // new_animal = "MEERKAT";
         pen.animal = new_animal;
         pen.land = animals[new_animal].land;
-        pen.decorations = animals[new_animal].decorations;
         pen.pond_choice = animals[new_animal].pond;
         pen.terrace_choice = animals[new_animal].terrace;
 
@@ -708,9 +729,6 @@ Game.prototype.swapPens = function() {
         if (this.neighborLand(i2,j2,"w") == land1) stack_2 += 1;
 
         if (stack_2 > stack_1) {
-
-          //console.log("Swapping " + this.zoo_squares[i1][j1].pen.animal + " and " + this.zoo_squares[i2][j2].pen.animal)
-
           let temp_1 = this.zoo_squares[i1][j1].pen.animal;
           this.zoo_squares[i1][j1].pen.animal = this.zoo_squares[i2][j2].pen.animal;
           this.zoo_squares[i2][j2].pen.animal = temp_1;
@@ -719,17 +737,13 @@ Game.prototype.swapPens = function() {
           this.zoo_squares[i1][j1].pen.land = this.zoo_squares[i2][j2].pen.land;
           this.zoo_squares[i2][j2].pen.land = temp_2;
 
-          let temp_3 = this.zoo_squares[i1][j1].pen.decorations;
-          this.zoo_squares[i1][j1].pen.decorations = this.zoo_squares[i2][j2].pen.decorations;
-          this.zoo_squares[i2][j2].pen.decorations = temp_3;
-
-          let temp_4 = this.zoo_squares[i1][j1].pen.pond_choice;
+          let temp_3 = this.zoo_squares[i1][j1].pen.pond_choice;
           this.zoo_squares[i1][j1].pen.pond_choice = this.zoo_squares[i2][j2].pen.pond_choice;
-          this.zoo_squares[i2][j2].pen.pond_choice = temp_4;
+          this.zoo_squares[i2][j2].pen.pond_choice = temp_3;
 
-          let temp_5 = this.zoo_squares[i1][j1].pen.terrace_choice;
+          let temp_4 = this.zoo_squares[i1][j1].pen.terrace_choice;
           this.zoo_squares[i1][j1].pen.terrace_choice = this.zoo_squares[i2][j2].pen.terrace_choice;
-          this.zoo_squares[i2][j2].pen.terrace_choice = temp_5;
+          this.zoo_squares[i2][j2].pen.terrace_choice = temp_4;
 
           swaps_performed += 1;
         }
@@ -835,7 +849,7 @@ Game.prototype.prepPondsAndTerraces = function() {
           
           let angle = Math.random() * 180;
           // If there's a terrace, the pond must be roughly the lower half.
-          if (pen.terrace_choice == true) {
+          if (pen.terrace_choice != false) {
             angle = 180 - Math.random() * 20;
             dividing_angle = angle;
             //if (angle > 20) angle = 200 - angle;
@@ -870,7 +884,7 @@ Game.prototype.prepPondsAndTerraces = function() {
           let pond_x = pen.cx + distance * Math.cos(angle * Math.PI / 180);
           let pond_y = pen.cy + distance * Math.sin(angle * Math.PI / 180);
           // If there's a terrace, only put the pond center in the lower half of the pen.
-          if (pen.terrace_choice == true) {
+          if (pen.terrace_choice != false) {
             pond_y = pen.cy + Math.abs(distance * Math.sin(angle * Math.PI / 180));
           }
 
@@ -894,7 +908,7 @@ Game.prototype.prepPondsAndTerraces = function() {
         }
       }
 
-      if (pen.terrace_choice == true) {
+      if (pen.terrace_choice != false) {
         let new_terrace = [];
         let angle = dividing_angle;
         if (dividing_angle == null) {
@@ -922,11 +936,20 @@ Game.prototype.prepPondsAndTerraces = function() {
 
         for (let j = 0; j < new_terrace.length; j++) {
           let t = new_terrace[j];
-          while(!pointInsidePolygon([t[0], t[1]], pen.polygon)
-            || (pen.pond != null && pointInsidePolygon([t[0], t[1]], pen.pond))) {
-            t[0] = pen.cx + (t[0] - pen.cx) * 0.9;
-            t[1] = (pen.cy - 50) + (t[1] - (pen.cy - 50)) * 0.9;
-          }
+          nTries(
+            function() {
+              t[0] = pen.cx + (t[0] - pen.cx) * 0.9;
+              t[1] = (pen.cy - 50) + (t[1] - (pen.cy - 50)) * 0.9;
+            }, function() {
+              return !pointInsidePolygon([t[0], t[1]], pen.polygon) 
+                || (pen.pond != null && pointInsidePolygon([t[0], t[1]], pen.pond));
+            }, 20
+          );
+          // while(!pointInsidePolygon([t[0], t[1]], pen.polygon)
+          //   || (pen.pond != null && pointInsidePolygon([t[0], t[1]], pen.pond))) {
+          //   t[0] = pen.cx + (t[0] - pen.cx) * 0.9;
+          //   t[1] = (pen.cy - 50) + (t[1] - (pen.cy - 50)) * 0.9;
+          // }
         }
 
         new_terrace.push([new_terrace[0][0], new_terrace[0][1]]);
@@ -970,9 +993,11 @@ Game.prototype.prepPondsAndTerraces = function() {
               fixed_terrace.push([new_terrace[j][0], new_terrace[j][1]]);
             }
           }
-          fixed_terrace = evenPolygon(fixed_terrace, 60, 130);
-          fixed_terrace = smoothPolygon(fixed_terrace, 0.5);
-          pen.terrace.push(fixed_terrace);
+          if (fixed_terrace.length > 0) {
+            fixed_terrace = evenPolygon(fixed_terrace, 60, 130);
+            fixed_terrace = smoothPolygon(fixed_terrace, 0.5);
+            pen.terrace.push(fixed_terrace);
+          }
         }
       }
     }
@@ -990,7 +1015,130 @@ Game.prototype.addAnimalsAndDecorations = function() {
 
   for (let i = 0; i < this.zoo_pens.length; i++) {
     let pen = this.zoo_pens[i];
-    if (pen.decorations != null) {
+    let corner_x = pen.cx - square_width / 2;
+    let corner_y = pen.cy - square_width / 2;
+
+    if (pen.special == null) {
+      let land = pen.land;
+      let info = landDecorations[land];
+      let polygon = pen.polygon;
+      let prior_decorations = [];
+      if (land == "water") polygon = pen.inner_polygon;
+
+      for (let c = 0; c < info.count; c++) {
+        if (Math.random() < info.probability) {
+          let decoration_type = pick(info.objects);
+          let in_pond = false;
+
+          let valid = true;
+          let x = 0;
+          let y = 0;
+          // Take ten tries to find a position for the decoration,
+          // requiring it to be well inside the main pen polygon,
+          // well outside the pond polygon, or well inside,
+          // well outside the terraces, and far away from the
+          // center feeding area.
+          nTries(
+            function() { // choose a point
+              x = corner_x + 100 + Math.floor(Math.random() * (square_width - 100));
+              y = corner_y + 100 + Math.floor(Math.random() * (square_width - 100));
+            }, 
+            function() { // perform validations
+              let margin = 50;
+              valid = true;
+
+              if (distance(x, y, pen.cx, pen.cy) < 150) valid = false;
+
+              for (let k = 0; k < prior_decorations.length; k++) {
+                if (distance(x, y, prior_decorations[k].x, prior_decorations[k].y) < 70) valid = false;
+              }
+
+              if (valid == true) {
+                for (let k = 0; k < 8; k++) {
+                  check_x = x + margin * Math.cos(2 * Math.PI * k / 8);
+                  check_y = y + margin * Math.sin(2 * Math.PI * k / 8);
+                
+                  if (!pointInsidePolygon([check_x, check_y], polygon)) {
+                    valid = false;
+                    break;
+                  }
+
+                  if (pen.terrace != null && pen.terrace.length > 0) {
+                    if (pointInsidePolygon([check_x, check_y], pen.terrace[0])) {
+                      valid = false;
+                      break;
+                    }
+                  }
+                }
+              }
+
+              all_inside = true;
+              all_outside = true;
+              if (valid == true && pen.pond != null) {
+                for (let k = 0; k < 8; k++) {
+                  check_x = x + margin * Math.cos(2 * Math.PI * i / 8);
+                  check_y = y + margin * Math.sin(2 * Math.PI * i / 8);
+              
+                  if (!pointInsidePolygon([check_x, check_y], pen.pond)) all_inside = false;
+                  if (pointInsidePolygon([check_x, check_y], pen.pond)) all_outside = false;
+                }
+              }
+              if (!all_inside && !all_outside) valid = false;
+              if (pen.pond != null && decoration_type == "tree" && all_inside) valid = false; // no trees in ponds!
+              if (pen.pond == null || all_inside == false) {
+                in_pond = false;
+              } else {
+                in_pond = true;
+              }
+
+              return !valid;
+            }, 10
+          );
+
+          if (valid) {
+            decoration = new PIXI.Container();
+            decoration.type = decoration_type;
+            decoration.position.set(x, y);
+
+            if (decoration_type == "tree") {
+              decoration.scale.set(1.2, 1.2);
+              decoration.tree_number = Math.ceil(Math.random() * 3)
+              let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
+              shadow.anchor.set(0.5, 0.5);
+              shadow.position.set(0,25);
+              decoration.addChild(shadow);
+              let tree_sprite = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+              tree_sprite.gotoAndStop(decoration.tree_number - 1);
+              tree_sprite.anchor.set(0.5, 0.85);
+              decoration.addChild(tree_sprite);
+              this.shakers.push(decoration);
+            } else if (decoration_type == "brown_rock" || decoration_type == "grey_rock") {
+              let sprite_name = "brown_rock";
+              if (decoration_type == "grey_rock") sprite_name = "grey_rock";
+              if (!in_pond && land == "grass") sprite_name += "_grass";
+              if (!in_pond && land == "forest") sprite_name += "_forest";
+              if (in_pond || land == "water") sprite_name += "_water";
+              sprite_name += "_" + Math.ceil(Math.random() * 3);
+
+              rock_sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + sprite_name + ".png"));
+              rock_sprite.scale.set(0.85, 0.85);
+              rock_sprite.anchor.set(0.5, 0.5);
+
+              if (in_pond) rock_sprite.position.set(0,30); // put it down into the pond, and deeper than normal to account for the way the rock is sunk.
+              decoration.addChild(rock_sprite);
+            }
+
+
+            this.decorations.push(decoration);
+            pen.decoration_objects.push(decoration);
+            prior_decorations.push(decoration);
+          }
+        }
+      }
+    }
+
+
+    if (false && pen.decorations != null) {
       let decoration_number = 5;
       // if (pen.animal != null && animals[pen.animal].movement == "arboreal") {
       //   decoration_number = 10;
@@ -1118,7 +1266,7 @@ Game.prototype.addAnimalsAndDecorations = function() {
             if (this.pointInPen(x, y) == null && distance(x, y, this.player.x, this.player.y) > 250) { // && distance(x, y, blobs)
               this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
             } else {
-              console.log("cancelled a tree");
+              // console.log("cancelled a tree, too close to player");
             }
           }
         }
@@ -1531,7 +1679,7 @@ Game.prototype.drawMap = function() {
         }
 
         if (pen.terrace != null) {
-          this.drawTerrace(pen, pen.land, corner_x, corner_y, pen.terrace, pen.pond)
+          this.drawTerrace(pen, pen.land, corner_x, corner_y, pen.terrace, pen.terrace_choice, pen.pond)
         }
 
         // if (pen.pond != null && (pen.land == "ice" || pen.land == "rock")) {
@@ -1599,7 +1747,6 @@ Game.prototype.drawMap = function() {
 
 // Obviously, create beautiful ground texture effects for grass and forest land.
 Game.prototype.dappleGround = function(render_container, land, corner_x, corner_y, polygon_yes, polygons_no, probability=0.15, conservative_borders=false) {
-  console.log(polygons_no.length);
   let terrain_grid = [];
   for (let x = 0; x < square_width/40; x++) {
     terrain_grid[x] = [];
@@ -1657,7 +1804,6 @@ Game.prototype.dappleGround = function(render_container, land, corner_x, corner_
     for (let y = 0; y < square_width/40; y++) {
       if (terrain_grid[x][y] == 1) {
 
-        // console.log("starting here")
         if (Math.random() < probability) {
 
           if (land == "grass" || land == "forest") {
@@ -1774,7 +1920,6 @@ Game.prototype.dappleGround = function(render_container, land, corner_x, corner_
 
 // Duh, create a nice set of decorative effects for sand lands.
 Game.prototype.sandTexture = function(render_container, corner_x, corner_y, polygon_yes, polygons_no, probability=1) {
-  console.log(polygons_no.length);
   let terrain_grid = [];
   for (let x = 0; x < square_width/40; x++) {
     terrain_grid[x] = [];
@@ -1832,7 +1977,6 @@ Game.prototype.sandTexture = function(render_container, corner_x, corner_y, poly
     for (let y = 0; y < square_width/40; y++) {
       if (terrain_grid[x][y] == 1) {
 
-        // console.log("starting here")
         if (Math.random() < probability) {
 
           let doodad = null;
@@ -2038,7 +2182,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
 }
 
 
-Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, pond) {
+Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, terrace_choice, pond) {
   check_polygons = [];
   if (pond != null) check_polygons = [pond];
 
@@ -2062,9 +2206,9 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
       outline_polygon.push(polygon[j][1] - corner_y - (edging_depth*(i+1) + 2));
     }
     let tint = 1 - (0.7 + 0.1 * Math.random());
-    if (land == "sand") tint = 1 - (0.5 + 0.1 * Math.random());
+    if (terrace_choice != "rock" && land == "sand") tint = 1 - (0.5 + 0.1 * Math.random());
     let outline_color = PIXI.utils.rgb2hex([1 - tint, 1 - tint/2, 1 - tint/4]);
-    if (land != "ice") outline_color = PIXI.utils.rgb2hex([1 - tint/2, 1 - tint/2, 1 - tint/2]);
+    if (terrace_choice != "rock" && land != "ice") outline_color = PIXI.utils.rgb2hex([1 - tint/2, 1 - tint/2, 1 - tint/2]);
 
     let flat_terrace_polygon = [];
     for (let j = 0; j < polygon.length; j++) {
@@ -2093,6 +2237,7 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
     } else if (land == "rock") {
       terrace.tint = rock_color;
     }
+    if (terrace_choice == "rock") terrace.tint = rock_color;
 
     terrace_container.addChild(terrace);
 
@@ -2101,12 +2246,12 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
       terrace_polygon.push([polygon[j][0], polygon[j][1] - edging_depth * (i+1)]);
     }
 
-    if (land == "forest" || land == "grass") {
+    if (terrace_choice != "rock" && (land == "forest" || land == "grass")) {
       this.dappleGround(terrace_container, land, corner_x, corner_y, terrace_polygon, [], 0.4);
       check_polygons.push(terrace_polygon);
     }
 
-    if (land == "sand") {
+    if (terrace_choice != "rock" && land == "sand") {
       this.dappleGround(terrace_container, land, corner_x, corner_y, terrace_polygon, [], 0.2, true);
       check_polygons.push(terrace_polygon);
     }
@@ -2116,8 +2261,17 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, p
       check_polygons.push(terrace_polygon);
     }
 
-    this.drawTerraceEdging(terrace_container, land, corner_x, corner_y, terrace_polygon);
-    if (land == "forest" || land == "grass") {  // sand doesn't grass, it just has hard edging.
+    if (terrace_choice == "rock") {
+      this.dappleGround(terrace_container, "rock", corner_x, corner_y, terrace_polygon, [], 1);
+      check_polygons.push(terrace_polygon);
+    }
+
+    if (terrace_choice != "rock") {
+      this.drawTerraceEdging(terrace_container, land, corner_x, corner_y, terrace_polygon);
+    } else {
+      this.drawTerraceEdging(terrace_container, "rock", corner_x, corner_y, terrace_polygon);
+    }
+    if (terrace_choice != "rock" && (land == "forest" || land == "grass")) {  // sand doesn't grass, it just has hard edging.
       this.drawEdging(terrace_container, land, null, corner_x, corner_y, terrace_polygon)
     }
   }
@@ -2255,12 +2409,6 @@ Game.prototype.drawEdging = function(render_container, land, second_land, corner
     }
 
     let rescale = d / fixed_d;
-    // if (rescale < 0.5 && rescale >= 0.2) {
-    //   console.log("Value");
-    //   console.log(rescale);
-    //   console.log(d);
-    //   console.log(fixed_d);
-    // }
     let angle = 180/Math.PI * Math.atan2(p1[1] - p2[1], p1[0] - p2[0]);
     if (rescale > 0.5 && rescale < 2 && (Math.abs(angle) < 80 || Math.abs(angle) > 100 || land == "water" || ignore_sides == false)) {
       

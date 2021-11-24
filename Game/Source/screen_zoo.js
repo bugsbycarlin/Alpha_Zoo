@@ -87,13 +87,19 @@ Game.prototype.resetZooScreen = function() {
 
   // Populate the map with things. These methods are in land.js.
   this.designatePens();
+  console.log("pens");
   this.swapPens();
+  console.log("ponds");
   this.prepPondsAndTerraces();
+  console.log("draw");
   this.drawMap();
   this.playerAndBoundaries();
+  console.log("player");
   // populate zoo
+  console.log("decorate");
   this.addAnimalsAndDecorations();
   
+  console.log("done");
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAllActivePens();
 
@@ -423,7 +429,6 @@ Game.prototype.playerAndBoundaries = function() {
         || this.zoo_vertices[i][j].e_path == true
         || this.zoo_vertices[i][j].w_path == true) {
         if (Math.random() < 0.75) {
-          console.log("Making NPC");
           let new_npc = this.makeCharacter(pick(npc_list));
           new_npc.position.set(square_width * i, square_width * j);
           new_npc.walk_speed = 0.75 * default_walk_speed;
@@ -434,7 +439,6 @@ Game.prototype.playerAndBoundaries = function() {
       }
     }
   }
-  console.log(count);
 }
 
 
@@ -652,7 +656,6 @@ Game.prototype.deleteType = function() {
 
   if (this.typing_text.text.length > 0) {
     if (this.typing_text.text[this.typing_text.text.length - 1] === " ") { 
-      console.log("yes it does");
       this.typing_text.text = this.typing_text.text.slice(0,-1);
     }
     let l = this.typing_text.text.slice(-1,this.typing_text.text.length);
@@ -677,21 +680,14 @@ Game.prototype.addDisplayType = function(letter) {
 
   let prefix = false;
 
-  // console.log(this.action_typing_text[this.action_default_slot].text);
-
   if (this.action_typing_text[this.action_default_slot].text.length  == 0) {
-    // console.log("checking prefix");
     // only perform this prefix check if you're not using the existing field.
     for (let i = 0; i < this.action_list.length; i++) {
       let word = this.action_typing_text[i].text + letter;
-      // console.log(this.action_list[i]);
-      // console.log(word);
       if (this.action_list[i].indexOf(word) == 0) {
-        console.log("it is a prefix");
         prefix = true;
         this.action_default_slot = i;
       }
-      // console.log("---");
     }
   }
 
@@ -804,7 +800,6 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.thing_to_type.toLowerCase() + ".png"));
   } else {
-    console.log(this.thing_to_type);
     var sheet = PIXI.Loader.shared.resources["Art/Animals/" + this.thing_to_type.toLowerCase() + ".json"].spritesheet;
     this.typing_picture = new PIXI.AnimatedSprite(sheet.animations[this.thing_to_type.toLowerCase()]);
   }
@@ -1137,7 +1132,6 @@ Game.prototype.hideMap = function() {
   this.escape_glyph.visible = false;
   this.escape_text.visible = false;
 
-  console.log(this.player.direction);
   if (this.map_visible == false) {
     this.checkPenProximity(this.player.x, this.player.y, this.player.direction);
   }
@@ -1311,7 +1305,6 @@ Game.prototype.poopAnimal = function() {
       self.map.decoration_layer.addChild(poop_shard);
       self.decorations.push(poop_shard);
 
-      console.log(poop_shard);
       self.drops.push(poop_shard);
 
       delay(function() {
@@ -1648,13 +1641,11 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
   if (found_pen != null) {
     if (found_pen.animal_objects != null) {
       if (found_pen.animal != this.thing_to_type && found_pen.state == "grey") {
-        // console.log("typing");
         this.changeTypingText(found_pen.animal, found_pen);
         if (this.display_ui.visible == true) {
           this.hideDisplayText();
         }
       } else if (found_pen.animal != this.thing_to_display && found_pen.state == "ungrey") {
-        // console.log("display");
         this.changeDisplayText(found_pen.animal, found_pen);
         if (this.typing_ui.visible == true) {
           this.hideTypingText();
@@ -1662,13 +1653,11 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
       }
     } else if (found_pen.special_object != null) {
       if (found_pen.special != this.thing_to_type && found_pen.state == "grey") {
-        // console.log("typing");
         this.changeTypingText(found_pen.special, found_pen);
         if (this.display_ui.visible == true) {
           this.hideDisplayText();
         }
       } else if (found_pen.special != this.thing_to_display && found_pen.state == "ungrey") {
-        // console.log("display");
         this.changeDisplayText(found_pen.special, found_pen);
         if (this.typing_ui.visible == true) {
           this.hideTypingText();

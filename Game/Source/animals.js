@@ -16,7 +16,6 @@ animals = {
   "HIPPO": {
     land: "grass",
     pond: "large",
-    decorations: ["rock", "grass"],
     mouth: [320, 344],
     butt: [166, 335],
     food: "herbivore",
@@ -30,7 +29,6 @@ animals = {
   "TURTLE": {
     land: "grass",
     pond: "large",
-    decorations: ["rock", "grass"],
     mouth: [314, 351],
     butt: [196, 372],
     speed: 0.6,
@@ -38,7 +36,6 @@ animals = {
   },
   "OTTER": {
     land: "rock",
-    decorations: ["rock", "grass"],
     pond: "large",
     terrace: true,
     mouth: [303, 333],
@@ -154,7 +151,6 @@ animals = {
   "POLAR_BEAR": {
     land: "ice",
     terrace: true,
-    decorations: ["rock", "rock"],
     sound: "bear",
     pond: "large",
     mouth: [314, 327],
@@ -165,7 +161,6 @@ animals = {
     land: "ice",
     terrace: true,
     pond: "large",
-    decorations: ["rock", "rock"],
     mouth: [258, 341],
     butt: [257, 392],
     min: 3,
@@ -175,7 +170,6 @@ animals = {
   "SEAL": {
     land: "ice",
     pond: "large",
-    decorations: ["rock", "rock"],
     mouth: [299, 344],
     butt: [200, 382],
     food: ["fish"],
@@ -194,7 +188,6 @@ animals = {
   "ALLIGATOR": {
     land: "grass",
     pond: "large",
-    decorations: ["rock", "grass"],
     mouth: [354, 364],
     butt: [165, 392],
     speed: 0.6,
@@ -233,6 +226,7 @@ animals = {
   "YAK": {
     mouth: [316, 352],
     butt: [175, 344],
+    terrace: "rock",
     food: "herbivore",
   },
   "CAPYBARA": {
@@ -317,6 +311,7 @@ animals = {
   "GOAT": {
     mouth: [314, 329],
     butt: [187, 331],
+    terrace: "rock",
     land: "sand",
     food: "herbivore",
   },
@@ -343,6 +338,7 @@ animals = {
   "LLAMA": {
     mouth: [308, 240],
     butt: [177, 336],
+    terrace: "rock",
     sound: "llama",
     food: "herbivore",
   },
@@ -352,7 +348,6 @@ animals = {
     land: "forest",
     food: "herbivore",
     speed: 0.6,
-    decorations: ["tree"],
     movement: "arboreal",
     min: 2,
     max: 4,
@@ -364,7 +359,6 @@ animals = {
     land: "forest",
     food: "herbivore",
     speed: 0.25,
-    decorations: ["tree"],
     movement: "arboreal",
     min: 1,
     max: 3,
@@ -375,7 +369,6 @@ animals = {
     butt: [[195, 346], [277, 410]],
     land: "forest",
     food: "omnivore",
-    decorations: ["tree"],
     movement: "arboreal",
     min: 2,
     max: 4,
@@ -386,7 +379,6 @@ animals = {
     butt: [[255, 362], [262, 370]],
     land: "forest",
     food: "omnivore",
-    decorations: ["tree"],
     movement: "arboreal",
     tree_time: 9000,
   },
@@ -410,7 +402,6 @@ animals = {
   "SWAN": {
     mouth: [321, 287],
     butt: [218, 382],
-    decorations: ["rock", "grass"],
     land: "water",
     food: "herbivore",
     speed: 0.8,
@@ -537,7 +528,6 @@ for (const [name, data] of Object.entries(animals)) {
   if (!("land" in data)) data["land"] = "grass";
   if (!("pond" in data)) data["pond"] = false;
   if (!("terrace" in data)) data["terrace"] = false;
-  if (!("decorations" in data)) data["decorations"] = ["grass", "grass", "rock", "grass", "tree", "bush", "rock"];
   if (!("movement" in data)) data["movement"] = "bounce";
   if (!("last_sound" in data)) data["last_sound"] = null;
   if (!("sound_delay" in data)) data["sound_delay"] = 500;
