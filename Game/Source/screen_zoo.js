@@ -23,6 +23,12 @@ Game.prototype.initializeZoo = function() {
   this.decorations = [];
   this.animals = [];
 
+  if (this.generated_textures != null) {
+    // this.old_generated_textures = this.generated_textures;
+    this.flushOldTextures();
+  }
+  this.generated_textures = [];
+
   makeSections();
 
   this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
@@ -36,6 +42,14 @@ Game.prototype.initializeZoo = function() {
 
   this.map.scale.set(1,1);
 }
+
+
+Game.prototype.flushOldTextures = function() {
+  for (let i = 0; i < this.generated_textures.length; i++) {
+    this.generated_textures[i].destroy(true);
+  }
+}
+
 
 let steak_color = 0x954a4a;
 let greens_color = 0x3c713a;
@@ -1723,11 +1737,11 @@ Game.prototype.updateNPC = function(npc) {
     npc.change_direction_time = this.markTime();
   }
 
-  // if (npc.direction != "pause") {
-  //   if (this.testMove(npc.x, npc.y, true, npc.direction)) {
-  //     npc.move();
-  //   }
-  // }
+  if (npc.direction != "pause") {
+    if (this.testMove(npc.x, npc.y, true, npc.direction)) {
+      npc.move();
+    }
+  }
 }
 
 

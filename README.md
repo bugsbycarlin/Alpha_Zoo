@@ -24,6 +24,19 @@ Music is Campfire Song by Chris Haugen (https://chrishaugen.net/).
 
 # Version history
 
+1.1
+- Terrain improvements!
+- Fences
+- Write chunks of terrain to textures
+- Edging (little bits of grass between different terrains)
+- Ponds
+- Terraces
+- Rocky terrain
+- New textures for grass, forest, rock, ice, and sand
+- New rocks
+- Better doodad placement
+- A river!
+
 1.0
 - 5 more animals (now 60 total)
 - A cafe with 23 foods to type!

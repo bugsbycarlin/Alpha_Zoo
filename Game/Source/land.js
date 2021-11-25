@@ -299,10 +299,10 @@ Game.prototype.makeMapPens = function() {
   // first, choose river tiles. hold these out from the process.
   this.river_tiles = [];
   if (Math.random() < 0.99) {
-    let river_j = this.zoo_size - 2;
-    if (Math.random() < 0.5) river_j = this.zoo_size - 3;
+    this.river_j = this.zoo_size - 2;
+    if (Math.random() < 0.5) this.river_j = this.zoo_size - 3;
     for (let i = 0; i < this.zoo_size; i++) {
-      this.river_tiles.push([i, river_j]);
+      this.river_tiles.push([i, this.river_j]);
     }
   }
 
@@ -625,26 +625,44 @@ Game.prototype.makeMapPens = function() {
   shuffleArray(this.zoo_pens);
 
   if (this.river_tiles.length > 0) {
-    let j = this.river_tiles[0][1];
-    let y_bound = j * square_width;
+    let y_center = this.river_j * square_width + square_width/2;
+    let sine_height = 50;
 
     this.river_polygon = [];
     this.river_top_path = [];
     this.river_bottom_path = [];
 
-    let last_top_y = y_bound + square_width/2 - 80 - Math.random() * 80;
-    let last_bottom_y = last_top_y + 120 + 40 * Math.random();
+    let river_height = 0;
+    let river_width = 140;
 
-    for (m = square_width * -2; m < square_width * (this.zoo_size + 2); m += 50 + 50 * Math.random()) {
-      this.river_top_path.push([m, last_top_y]);
-      this.river_bottom_path.push([m, last_bottom_y]);
-      last_top_y += -20 + 40 * Math.random();
-      if (last_top_y > y_bound + square_width/2 + 100) last_top_y = y_bound + square_width/2 - 80 - Math.random() * 80;
-      last_bottom_y = last_top_y + 120 + 40 * Math.random();
+    let max_height = 100;
+    let min_width = 140;
+    let max_width = 320;
+
+    let noise = 50;
+
+    for (let c = -2; c < this.zoo_size + 2; c++) {
+      for (let m = 50 + 50 * Math.random(); m < square_width; m += 50 + 50 * Math.random()) {
+        let x = c * square_width + m;
+        let y = y_center + sine_height * Math.sin(x / 1600 * 2 * Math.PI) + river_height - noise/2 + Math.random() * noise;
+        this.river_top_path.push([x, y - river_width / 2]);
+        this.river_bottom_path.push([x, y + river_width / 2]);
+
+        river_height += pick([-5, 5, -3,-5, 5,  3]);
+        if (river_height > max_height) river_height = 0.95 * max_height;
+        if (river_height < -max_height) river_height = 0.95 * -max_height;
+
+        river_width += pick([-5, 5, -3, 3]);
+        if (river_width < min_width) river_width += 10;
+        if (river_width > max_width) river_width = 0.9 * max_width;
+      }
+
+      let x = (c+1) * square_width;
+      let y = y_center + sine_height * Math.sin(x / 1600 * 2 * Math.PI) + river_height;
+      this.river_top_path.push([x, y - river_width / 2]);
+      this.river_bottom_path.push([x, y + river_width / 2]);
     }
 
-    this.river_top_path.push([square_width * (this.zoo_size + 2), last_top_y]);
-    this.river_bottom_path.push([square_width * (this.zoo_size + 2), last_bottom_y]);
     for (let c = 0; c < this.river_top_path.length; c++) {
       this.river_polygon.push(this.river_top_path[c]);
     }
@@ -1612,6 +1630,7 @@ Game.prototype.drawMap = function() {
         PIXI.SCALE_MODES.LINEAR,
         1,
         new PIXI.Rectangle(0, 0, 1024, 1024));
+        this.generated_textures.push(terrain_texture);
 
         var terrain_sprite = new PIXI.Sprite(terrain_texture);
         terrain_sprite.anchor.set(0, 0);
@@ -1712,6 +1731,7 @@ Game.prototype.drawMap = function() {
 
         let terrain_texture = this.renderer.generateTexture(render_container,
           PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+        this.generated_textures.push(terrain_texture);
 
         let terrain_sprite = new PIXI.Sprite(terrain_texture);
         terrain_sprite.anchor.set(0, 0);
@@ -2052,7 +2072,7 @@ Game.prototype.sandTexture = function(render_container, corner_x, corner_y, poly
 }
 
 
-Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, polygon) {
+Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, polygon, depth_override = null) {
   // first, the water polygon
   let flat_water_polygon = [];
   for (let j = 0; j < polygon.length; j++) {
@@ -2070,6 +2090,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
 
   // next, the dirt polygons
   riverbank_depth = 20;
+  if (depth_override != null) riverbank_depth = depth_override;
   for (let k = 0; k < polygon.length - 1; k++) {
     let p1 = polygon[k];
     let p2 = polygon[0];
@@ -2082,7 +2103,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
       
       // main section
       let riverbank_section = new PIXI.Graphics();
-      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water" || land == "background") {
         riverbank_section.beginFill(brown_rock_color);
       } else if (land == "ice") {
         riverbank_section.beginFill(ice_color);
@@ -2097,7 +2118,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
         p1[0] - corner_x, p1[1] - corner_y,
       ]);
       riverbank_section.endFill();
-      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water" || land == "background") {
         if (p2[1] < p1[1]) {
           let tint = 0.6 + 0.25 * Math.random();
           riverbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
@@ -2123,7 +2144,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
 
       // weird shadowy color underbank
       let underbank_section = new PIXI.Graphics();
-      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water" || land == "background") {
         underbank_section.beginFill(underwater_rock_color);
       } else if (land == "ice") {
         underbank_section.beginFill(ice_color);
@@ -2138,7 +2159,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
         p1[0] - corner_x, p1[1] + riverbank_depth - corner_y,
       ]);
       underbank_section.endFill();
-      if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+      if (land == "forest" || land == "grass" || land == "sand" || land == "water" || land == "background") {
         if (p2[1] < p1[1]) {
           let tint = 0.4 + 0.25 * Math.random();
           underbank_section.tint = PIXI.utils.rgb2hex([tint, tint, tint]);
@@ -2194,7 +2215,7 @@ Game.prototype.drawPond = function(render_container, land, corner_x, corner_y, p
     }
   }
 
-  if (land == "forest" || land == "grass" || land == "sand" || land == "water") {
+  if (land == "forest" || land == "grass" || land == "sand" || land == "water" || land == "background") {
     this.drawEdging(render_container, "water", land, corner_x, corner_y, polygon);
   }
 }
@@ -2297,6 +2318,8 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, t
 
   var terrace_texture = this.renderer.generateTexture(terrace_container,
     PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-100, -100, 1024, 1024));
+  this.generated_textures.push(terrace_texture);
+
 
   var terrace_sprite = new PIXI.Sprite(terrace_texture);
   terrace_sprite.anchor.set(0, 0);
@@ -2481,6 +2504,8 @@ Game.prototype.drawEdging = function(render_container, land, second_land, corner
           edging.tint = forest_color;
         } else if (second_land == "sand") {
           edging.tint = sand_color;
+        } else if (second_land == "background") {
+          edging.tint = background_color;
         }
       }
 
@@ -2610,6 +2635,7 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
     PIXI.SCALE_MODES.LINEAR,
     1,
     new PIXI.Rectangle(-50, -100, 1024, 1024));
+  this.generated_textures.push(top_texture);
 
   var top_fence_sprite = new PIXI.Sprite(top_texture);
   top_fence_sprite.anchor.set(0, 0);
@@ -2627,6 +2653,7 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
     PIXI.SCALE_MODES.LINEAR,
     1,
     new PIXI.Rectangle(-50, -200, 1024, 1024));
+  this.generated_textures.push(bottom_texture);
 
   var bottom_fence_sprite = new PIXI.Sprite(bottom_texture);
   bottom_fence_sprite.anchor.set(0, 0);
@@ -2684,43 +2711,61 @@ Game.prototype.drawFenceShadow = function(render_container, corner_x, corner_y, 
 Game.prototype.drawRiver = function() {
   let polygon = this.river_polygon;
 
-  //let flat_polygon = polygon.flat();
-  let flat_polygon = [];
-  for (let j = 0; j < polygon.length; j++) {
-    flat_polygon.push(polygon[j][0]);
-    flat_polygon.push(polygon[j][1]);
+  let chunks = [];
+
+  for (let c = -2; c < this.zoo_size + 2; c++) {
+
+    let flat_polygon = [];
+    let polygon_chunk = [];
+    for (let j = 0; j < polygon.length; j++) {
+      if (polygon[j][0] >= c * square_width - 50 && polygon[j][0] <= (c+1) * square_width + 50) {
+        flat_polygon.push(polygon[j][0] - c * square_width);
+        flat_polygon.push(polygon[j][1] - this.river_j * square_width);
+        polygon_chunk.push([polygon[j][0] - c * square_width, polygon[j][1] - this.river_j * square_width]);
+      }
+    }
+    chunks.push(polygon_chunk);
+
+    let ground = new PIXI.Graphics();
+    ground.beginFill(0xFFFFFF);
+    ground.drawPolygon(flat_polygon);
+    ground.endFill();
+
+    ground.tint = water_color;
+
+    let render_container = new PIXI.Container();
+    render_container.addChild(ground);
+
+    let terrain_texture = this.renderer.generateTexture(render_container,
+      PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+    this.generated_textures.push(terrain_texture);
+
+    let terrain_sprite = new PIXI.Sprite(terrain_texture);
+    terrain_sprite.anchor.set(0, 0);
+    terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
+
+    this.map.background_layer.addChild(terrain_sprite);
   }
 
-  let background = new PIXI.Graphics();
-  background.beginFill(0x000000);
-  background.drawPolygon(flat_polygon);
-  background.endFill();
+  for (let c = -2; c < this.zoo_size + 2; c++) {
+    let chunk = chunks[c];
 
-  background.tint = water_color;
-  background.position.set(0,-2);
+    let render_container = new PIXI.Container();
+    this.drawPond(render_container, "background", c * square_width, this.river_j * square_width, polygon, 40);
 
-  this.map.background_layer.addChild(background);
+    let terrain_texture = this.renderer.generateTexture(render_container,
+      PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+    this.generated_textures.push(terrain_texture);
 
-  let ground = new PIXI.Graphics();
-  ground.beginFill(0xFFFFFF);
-  ground.drawPolygon(flat_polygon);
-  ground.endFill();
+    let terrain_sprite = new PIXI.Sprite(terrain_texture);
+    terrain_sprite.anchor.set(0, 0);
+    terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
 
-  ground.tint = water_color;
+    this.map.background_layer.addChild(terrain_sprite);
+  }
 
-  this.map.background_layer.addChild(ground);
-
-  // let render_container = new PIXI.Container();
-  // render_container.addChild(ground);
-
-  // let terrain_texture = this.renderer.generateTexture(render_container,
-  //   PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
-
-  // let terrain_sprite = new PIXI.Sprite(terrain_texture);
-  // terrain_sprite.anchor.set(0, 0);
-  // terrain_sprite.position.set(corner_x - 50, corner_y - 50);
-
-  // pen.land_object.addChild(terrain_sprite);
+  //let flat_polygon = polygon.flat();
+  
 }
 
 
@@ -2731,7 +2776,7 @@ Game.prototype.drawMapPath = function() {
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
       let cell = this.zoo_squares[i][j];
-      if (cell.e_edge == true && (this.river_tiles == null || this.river_tiles[0][1] != j)) {
+      if (cell.e_edge == true && (this.river_tiles == null || this.river_j != j)) {
         // draw the eastern edge section
         let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_vertical_v4.png"));
         section.anchor.set(0.5, 0.5);
@@ -2740,7 +2785,7 @@ Game.prototype.drawMapPath = function() {
         this.map.background_layer.addChild(section);
       }
 
-      if (cell.e_edge == true && (this.river_tiles != null && this.river_tiles[0][1] == j)) {
+      if (cell.e_edge == true && (this.river_tiles != null && this.river_j == j)) {
         // draw the eastern edge section
         let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/bridge.png"));
         section.anchor.set(0.5, 0.5);
