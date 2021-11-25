@@ -440,7 +440,6 @@ animals = {
 //
 
 
-
 console.log("There are " + Object.keys(animals).length + " different animals available!");
 console.log(Object.keys(animals));
 

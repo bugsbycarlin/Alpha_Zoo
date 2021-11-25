@@ -87,19 +87,13 @@ Game.prototype.resetZooScreen = function() {
 
   // Populate the map with things. These methods are in land.js.
   this.designatePens();
-  console.log("pens");
   this.swapPens();
-  console.log("ponds");
   this.prepPondsAndTerraces();
-  console.log("draw");
   this.drawMap();
   this.playerAndBoundaries();
-  console.log("player");
   // populate zoo
-  console.log("decorate");
   this.addAnimalsAndDecorations();
   
-  console.log("done");
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAllActivePens();
 
@@ -969,7 +963,7 @@ Game.prototype.grey = function(pen) {
   if (pen.special == "CAFE") {
     pen.special_object.grey();
   }
-  if (pen.land_object != null) {
+  if (pen.special != "RIVER" && pen.land_object != null) {
     for (let j = 0; j < pen.land_object.children.length; j++) {
       let land = pen.land_object.children[j];
       land.visible = false;
@@ -1000,7 +994,7 @@ Game.prototype.ungrey = function(pen) {
   if (pen.special == "CAFE") {
     pen.special_object.ungrey();
   }
-  if (pen.land_object != null) {
+  if (pen.special != "RIVER" && pen.land_object != null) {
     for (let j = 0; j < pen.land_object.children.length; j++) {
       let land = pen.land_object.children[j];
       land.visible = true;
@@ -1544,11 +1538,28 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
   // for (let i = 0; i < voronoi_size; i++) {
   //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
   for (let i = 0; i < this.zoo_pens.length; i++) {
-      if (pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
-        return false;
-      }
-    // }
+    if (this.zoo_pens[i].special != "RIVER" && pointInsidePolygon([tx, ty], this.zoo_pens[i].polygon)) {
+      return false;
+    }
   }
+
+  // check for path crossings 
+
+  if (this.river_polygon != null && pointInsidePolygon([tx, ty], this.river_polygon)) {
+    crossing = false;
+    for (let k = 0; k < this.river_tiles.length; k++) {
+      let cell = this.zoo_squares[this.river_tiles[k][0]][this.river_tiles[k][1]];
+      // let w_line = this.river_tiles[k][0] * square_width;
+      let w_line = this.river_tiles[k][0] * square_width;
+      if (cell.w_edge == true && tx > w_line - 100 && tx <= w_line + 100) {
+        crossing = true; 
+      }
+    }
+
+    if (crossing == false) return crossing;
+  }
+  
+  
 
   return true;
 }
@@ -1712,11 +1723,11 @@ Game.prototype.updateNPC = function(npc) {
     npc.change_direction_time = this.markTime();
   }
 
-  if (npc.direction != "pause") {
-    if (this.testMove(npc.x, npc.y, true, npc.direction)) {
-      npc.move();
-    }
-  }
+  // if (npc.direction != "pause") {
+  //   if (this.testMove(npc.x, npc.y, true, npc.direction)) {
+  //     npc.move();
+  //   }
+  // }
 }
 
 

@@ -286,15 +286,33 @@ Game.prototype.isCafeTile = function(i,j) {
 }
 
 
+Game.prototype.isRiverTile = function(i,j) {
+  for (let k = 0; k < this.river_tiles.length; k++) {
+    if (this.river_tiles[k][0] == i && this.river_tiles[k][1] == j) return true;
+  }
+  return false;
+}
+
+
 Game.prototype.makeMapPens = function() {
 
-  // first, choose a special ferris wheel tile pair. hold these out from this process.
+  // first, choose river tiles. hold these out from the process.
+  this.river_tiles = [];
+  if (Math.random() < 0.99) {
+    let river_j = this.zoo_size - 2;
+    if (Math.random() < 0.5) river_j = this.zoo_size - 3;
+    for (let i = 0; i < this.zoo_size; i++) {
+      this.river_tiles.push([i, river_j]);
+    }
+  }
+
+  // then, choose a special ferris wheel tile pair. hold these out too.
   this.special_ferris_tile = null;
   if (this.zoo_size >= 6) {
     let potential_ferris_tiles = [];
     for (let i = 1; i < this.zoo_size - 2; i++) {
       for (let j = 2; j < this.zoo_size - 2; j++) {
-        if (this.zoo_squares[i][j].reachable) {
+        if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j)) {
           if (this.zoo_squares[i][j].e_edge == false && this.zoo_squares[i+1][j].w_edge == false) { // both should always be true or false anyway
             potential_ferris_tiles.push([i,j]);
           }
@@ -315,7 +333,7 @@ Game.prototype.makeMapPens = function() {
     let potential_cafe_tiles = [];
     for (let i = 1; i < this.zoo_size - 1; i++) {
       for (let j = 1; j < this.zoo_size - 1; j++) {
-        if (this.zoo_squares[i][j].reachable && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
+        if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
           && this.zoo_squares[i][j].s_edge == true) { // put the cafe somewhere where there's a road below it.
           potential_cafe_tiles.push([i,j]);
         }
@@ -333,7 +351,7 @@ Game.prototype.makeMapPens = function() {
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
 
-      if (this.zoo_squares[i][j].reachable && !this.isCafeTile(i,j)
+      if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isCafeTile(i,j)
         && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
 
         let polygon = [];
@@ -505,7 +523,6 @@ Game.prototype.makeMapPens = function() {
           use: false,
           outer: false,
           polygon: polygon,
-          polygon_flat: polygon.flat(),
           inner_polygon: [],
           cx: square_width * i + square_width / 2,
           cy: square_width * j + square_width / 2,
@@ -546,7 +563,6 @@ Game.prototype.makeMapPens = function() {
           use: false,
           outer: false,
           polygon: polygon,
-          polygon_flat: polygon.flat(),
           cx: center_x,
           cy: center_y,
           animal: null,
@@ -588,7 +604,6 @@ Game.prototype.makeMapPens = function() {
           polygon: grey_polygon,
           ungrey_polygon: polygon,
           grey_polygon: grey_polygon,
-          polygon_flat: polygon.flat(),
           cx: center_x,
           cy: center_y,
           animal: null,
@@ -608,6 +623,50 @@ Game.prototype.makeMapPens = function() {
   }
 
   shuffleArray(this.zoo_pens);
+
+  if (this.river_tiles.length > 0) {
+    let j = this.river_tiles[0][1];
+    let y_bound = j * square_width;
+
+    this.river_polygon = [];
+    this.river_top_path = [];
+    this.river_bottom_path = [];
+
+    let last_top_y = y_bound + square_width/2 - 80 - Math.random() * 80;
+    let last_bottom_y = last_top_y + 120 + 40 * Math.random();
+
+    for (m = square_width * -2; m < square_width * (this.zoo_size + 2); m += 50 + 50 * Math.random()) {
+      this.river_top_path.push([m, last_top_y]);
+      this.river_bottom_path.push([m, last_bottom_y]);
+      last_top_y += -20 + 40 * Math.random();
+      if (last_top_y > y_bound + square_width/2 + 100) last_top_y = y_bound + square_width/2 - 80 - Math.random() * 80;
+      last_bottom_y = last_top_y + 120 + 40 * Math.random();
+    }
+
+    this.river_top_path.push([square_width * (this.zoo_size + 2), last_top_y]);
+    this.river_bottom_path.push([square_width * (this.zoo_size + 2), last_bottom_y]);
+    for (let c = 0; c < this.river_top_path.length; c++) {
+      this.river_polygon.push(this.river_top_path[c]);
+    }
+    for (let c = this.river_bottom_path.length - 1; c >= 0; c--) {
+      this.river_polygon.push(this.river_bottom_path[c]);
+    }
+
+    this.river_polygon = evenPolygon(this.river_polygon, 60, 130);
+    this.river_polygon = smoothPolygon(this.river_polygon, 0.5);
+
+    this.river_safety_zone = [];
+    for (let c = 0; c < this.river_top_path.length; c++) {
+      this.river_safety_zone.push([this.river_top_path[c][0], this.river_top_path[c][1] - 60]);
+    }
+    for (let c = this.river_bottom_path.length - 1; c >= 0; c--) {
+      this.river_safety_zone.push([this.river_bottom_path[c][0], this.river_bottom_path[c][1] + 60]);
+    }
+
+
+  } else {
+    this.river_polygon = null;
+  }
 }
 
 
@@ -1137,69 +1196,6 @@ Game.prototype.addAnimalsAndDecorations = function() {
       }
     }
 
-
-    if (false && pen.decorations != null) {
-      let decoration_number = 5;
-      // if (pen.animal != null && animals[pen.animal].movement == "arboreal") {
-      //   decoration_number = 10;
-      // }
-      if (pen.land == "forest") decoration_number = 10;
-      for (let t = 0; t < decoration_number; t++) {
-        if (Math.random() > 0.3) {
-          let decoration_type = pick(pen.decorations);
-          let decoration = null;
-
-          if (decoration_type == "tree" || decoration_type == "rock") {
-            if (decoration_type != "tree") {
-              decoration = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/" + decoration_type + ".png"));
-
-            }
-            if (decoration_type == "tree") {
-              decoration = new PIXI.Container();
-              decoration.tree_number = Math.ceil(Math.random() * 3)
-              let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
-              shadow.anchor.set(0.5, 0.5);
-              shadow.position.set(0,25);
-              decoration.addChild(shadow);
-              let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-              tree.gotoAndStop(decoration.tree_number - 1);
-              tree.anchor.set(0.5, 0.85);
-              decoration.addChild(tree);
-              this.shakers.push(decoration);
-            }
-            decoration.type = decoration_type;
-            let edge = pick(pen.polygon);
-            let fraction = 0.3 + 0.5 * Math.random();
-            decoration.position.set(
-              (1-fraction) * pen.cx + (fraction) * edge[0],
-              (1-fraction) * pen.cy + (fraction) * edge[1]);
-            if (decoration_type == "tree" && 
-              pen.pond != null
-              && pointInsidePolygon([decoration.position.x, decoration.position.y], pen.pond)) {
-              // protect against putting trees in ponds.
-            } else {
-              // okay, it's cool, you can add it.
-              if (decoration_type == "rock") {
-                decoration.scale.set(0.75, 0.75);
-                decoration.anchor.set(0.5, 0.5);
-              } else {
-                decoration.scale.set(1.2, 1.2);
-                if (decoration_type != "tree") {
-                  decoration.anchor.set(0.5,0.9);
-                }
-              }
-             
-              this.decorations.push(decoration);
-              pen.decoration_objects.push(decoration);
-
-
-            }
-          }
-          
-        }
-      }
-    }
-
     if (pen.animal != null) {
       this.animals_available += 1;
       pen.animal_objects = [];
@@ -1248,7 +1244,8 @@ Game.prototype.addAnimalsAndDecorations = function() {
   for (let i = -1; i <= this.zoo_size; i++) {
     for (let j = -1; j <= this.zoo_size; j++) {
       if (i == -1 || j == -1 || i == this.zoo_size || j == this.zoo_size
-        || (i >= 0 && j >= 0 && i < this.zoo_size && j < this.zoo_size && this.zoo_squares[i][j].reachable == false)) {
+        || (i >= 0 && j >= 0 && i < this.zoo_size && j < this.zoo_size 
+          && this.zoo_squares[i][j].reachable == false)) {
         for (let t = 0; t < 70; t++) {
           if (Math.random() > 0.4) {
             let x = square_width * i + square_width * Math.random();
@@ -1263,7 +1260,9 @@ Game.prototype.addAnimalsAndDecorations = function() {
             //     }
             //   }
             // }
-            if (this.pointInPen(x, y) == null && distance(x, y, this.player.x, this.player.y) > 250) { // && distance(x, y, blobs)
+            if (this.pointInPen(x, y) == null 
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))
+                && distance(x, y, this.player.x, this.player.y) > 250) { // && distance(x, y, blobs)
               this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
             } else {
               // console.log("cancelled a tree, too close to player");
@@ -1273,6 +1272,24 @@ Game.prototype.addAnimalsAndDecorations = function() {
       }
     }
   }
+
+  // Add trees around the river, but not on the path spots.
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      if (this.isRiverTile(i,j)) {
+        for (let t = 0; t < 50; t++) {
+          if (Math.random() > 0.4) {
+            let x = square_width * i + 100 + (square_width - 200) * Math.random();
+            let y = square_width * j + 100 + (square_width - 200) * Math.random();
+            if (!(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
+              this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
+            }
+          }
+        }
+      }
+    }
+  }
+
   
   this.ents = [];
   for (let k = 0; k < total_ents; k++) {
@@ -1307,7 +1324,8 @@ Game.prototype.addAnimalsAndDecorations = function() {
           if (Math.random() > 0.4) {
             let x = square_width * i + 120 + 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
-            if (this.pointInPen(x, y) == null) {
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
               tree_lining_points.push([x, y])
             }
           }
@@ -1319,7 +1337,8 @@ Game.prototype.addAnimalsAndDecorations = function() {
           if (Math.random() > 0.4) {
             let x = square_width * i + square_width - 120 - 20 * Math.random();
             let y = square_width * j + 200 + (square_width - 400) * Math.random();
-            if (this.pointInPen(x, y) == null) {
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
               tree_lining_points.push([x, y]);
             }
           }
@@ -1330,7 +1349,8 @@ Game.prototype.addAnimalsAndDecorations = function() {
           if (Math.random() > 0.3) {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + 120 + 20 * Math.random();
-            if (this.pointInPen(x, y) == null) {
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
               tree_lining_points.push([x, y]);
             }
           }
@@ -1342,7 +1362,8 @@ Game.prototype.addAnimalsAndDecorations = function() {
           if (Math.random() > 0.2) {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();
             let y = square_width * j + square_width - 120 - 20 * Math.random();
-            if (this.pointInPen(x, y) == null) {
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
               tree_lining_points.push([x, y]);
             }
           }
@@ -1403,16 +1424,6 @@ Game.prototype.drawMap = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  // Map background
-  // let background = new PIXI.Sprite(PIXI.Texture.from("Art/zoo_gradient.png"));
-  // background.width = square_width * (this.zoo_size + 4);
-  // background.height = square_width * (this.zoo_size + 4);
-  // background.anchor.set(0, 0);
-  // background.position.set(-2 * square_width, -2 * square_width);
-  // this.map.background_layer.addChild(background);
-
-  this.drawMapPath();
-
   for (let i = 0; i < this.zoo_pens.length; i++) {
 
     let pen = this.zoo_pens[i];
@@ -1420,6 +1431,14 @@ Game.prototype.drawMap = function() {
     pen.land_object = new PIXI.Container();
     pen.land_object.cx = pen.cx;
     pen.land_object.cy = pen.cy;
+  }
+
+  this.drawRiver();
+  this.drawMapPath();
+
+  for (let i = 0; i < this.zoo_pens.length; i++) {
+
+    let pen = this.zoo_pens[i];
 
     let corner_x = pen.cx - square_width / 2;
     let corner_y = pen.cy - square_width / 2;
@@ -1691,10 +1710,10 @@ Game.prototype.drawMap = function() {
         }
 
 
-        var terrain_texture = this.renderer.generateTexture(render_container,
+        let terrain_texture = this.renderer.generateTexture(render_container,
           PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
 
-        var terrain_sprite = new PIXI.Sprite(terrain_texture);
+        let terrain_sprite = new PIXI.Sprite(terrain_texture);
         terrain_sprite.anchor.set(0, 0);
         terrain_sprite.position.set(corner_x - 50, corner_y - 50);
 
@@ -1703,7 +1722,6 @@ Game.prototype.drawMap = function() {
 
       this.drawFence(pen.polygon, corner_x, corner_y);
     }
-
     this.terrain.push(pen.land_object)
   }
 
@@ -2663,6 +2681,49 @@ Game.prototype.drawFenceShadow = function(render_container, corner_x, corner_y, 
 }
 
 
+Game.prototype.drawRiver = function() {
+  let polygon = this.river_polygon;
+
+  //let flat_polygon = polygon.flat();
+  let flat_polygon = [];
+  for (let j = 0; j < polygon.length; j++) {
+    flat_polygon.push(polygon[j][0]);
+    flat_polygon.push(polygon[j][1]);
+  }
+
+  let background = new PIXI.Graphics();
+  background.beginFill(0x000000);
+  background.drawPolygon(flat_polygon);
+  background.endFill();
+
+  background.tint = water_color;
+  background.position.set(0,-2);
+
+  this.map.background_layer.addChild(background);
+
+  let ground = new PIXI.Graphics();
+  ground.beginFill(0xFFFFFF);
+  ground.drawPolygon(flat_polygon);
+  ground.endFill();
+
+  ground.tint = water_color;
+
+  this.map.background_layer.addChild(ground);
+
+  // let render_container = new PIXI.Container();
+  // render_container.addChild(ground);
+
+  // let terrain_texture = this.renderer.generateTexture(render_container,
+  //   PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+
+  // let terrain_sprite = new PIXI.Sprite(terrain_texture);
+  // terrain_sprite.anchor.set(0, 0);
+  // terrain_sprite.position.set(corner_x - 50, corner_y - 50);
+
+  // pen.land_object.addChild(terrain_sprite);
+}
+
+
 Game.prototype.drawMapPath = function() {
   var self = this;
   var screen = this.screens["zoo"];
@@ -2670,9 +2731,18 @@ Game.prototype.drawMapPath = function() {
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
       let cell = this.zoo_squares[i][j];
-      if (cell.e_edge == true) {
+      if (cell.e_edge == true && (this.river_tiles == null || this.river_tiles[0][1] != j)) {
         // draw the eastern edge section
         let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/path_straight_vertical_v4.png"));
+        section.anchor.set(0.5, 0.5);
+        section.position.set(square_width * i + square_width, square_width * j + square_width / 2);
+        // section.angle = 90;
+        this.map.background_layer.addChild(section);
+      }
+
+      if (cell.e_edge == true && (this.river_tiles != null && this.river_tiles[0][1] == j)) {
+        // draw the eastern edge section
+        let section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/bridge.png"));
         section.anchor.set(0.5, 0.5);
         section.position.set(square_width * i + square_width, square_width * j + square_width / 2);
         // section.angle = 90;
