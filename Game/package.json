@@ -1,6 +1,6 @@
 {
   "name": "alphazoo",
-  "version": "1.2.0",
+  "version": "1.1.0",
   "description": "game",
   "main": "Source/main.js",
   "scripts": {
