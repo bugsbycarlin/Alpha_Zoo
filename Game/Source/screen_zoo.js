@@ -134,12 +134,12 @@ Game.prototype.makeUI = function() {
   this.typing_ui = new PIXI.Container();
   this.ui_layer.addChild(this.typing_ui);
 
-  this.grey_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 140, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+  this.grey_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 140, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
   this.grey_text.anchor.set(0,0.5);
   this.grey_text.position.set(25, 93);
   this.typing_ui.addChild(this.grey_text);
 
-  this.typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.typing_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
   this.typing_text.tint = 0x000000;
   this.typing_text.anchor.set(0,0.5);
   this.typing_text.position.set(25, 93);
@@ -208,13 +208,13 @@ Game.prototype.makeUI = function() {
   this.action_typing_text = [];
 
   for (let i = 0; i < 4; i++) {
-    let grey_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+    let grey_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
     grey_text.anchor.set(0,1);
     grey_text.position.set(130, 945 - 90 * i);
     this.display_ui.addChild(grey_text);
     this.action_grey_text.push(grey_text);
 
-    let typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+    let typing_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
     typing_text.tint = 0x000000;
     typing_text.anchor.set(0,1);
     typing_text.position.set(130, 945 - 90 * i);
@@ -229,7 +229,7 @@ Game.prototype.makeUI = function() {
   this.display_backing.filters = [this.dropshadow_filter];
   this.display_ui.addChild(this.display_backing);
 
-  this.display_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "right"});
+  this.display_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "right"});
   this.display_text.tint = 0x000000;
   this.display_text.anchor.set(1,0.5);
   this.display_text.position.set(1280 - 25, 960 - 90);
@@ -253,7 +253,7 @@ Game.prototype.makeUI = function() {
   this.animal_count_glyph.visible = false;
   screen.addChild(this.animal_count_glyph);
 
-  this.animal_count_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.animal_count_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
   this.animal_count_text.anchor.set(1,0.5);
   this.animal_count_text.position.set(this.width - 110, 65);
   this.animal_count_text.alpha = 0.0;
@@ -269,7 +269,7 @@ Game.prototype.makeUI = function() {
   this.escape_glyph.visible = false;
   screen.addChild(this.escape_glyph);
 
-  this.escape_text = new PIXI.Text("Enter | Escape | Space", {fontFamily: "Bebas Neue", fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.escape_text = new PIXI.Text("Enter | Escape | Space", {fontFamily: default_font, fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
   this.escape_text.anchor.set(1,1);
   this.escape_text.position.set(this.width - 100, this.height - 32);
   this.escape_text.alpha = 0.6;
@@ -296,7 +296,7 @@ Game.prototype.makeMenu = function() {
   this.main_menu_background.position.set(0, 0);
   this.menu_layer.addChild(this.main_menu_background);
 
-  this.menu_selections[0] = new PIXI.Text("MUSIC", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
+  this.menu_selections[0] = new PIXI.Text("MUSIC", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.menu_selections[0].tint = 0x000000;
   this.menu_selections[0].anchor.set(0,0);
   this.menu_selections[0].position.set(295, 90);
@@ -312,7 +312,7 @@ Game.prototype.makeMenu = function() {
   this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
   this.menu_layer.addChild(this.music_slider_bar);
   
-  this.menu_selections[1] = new PIXI.Text("SOUND", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
+  this.menu_selections[1] = new PIXI.Text("SOUND", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.menu_selections[1].tint = 0x000000;
   this.menu_selections[1].anchor.set(0,0);
   this.menu_selections[1].position.set(654, 199);
@@ -330,31 +330,31 @@ Game.prototype.makeMenu = function() {
   this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
   this.menu_layer.addChild(this.sound_slider_bar);
 
-  this.menu_selections[2] = new PIXI.Text("NEW SMALL ZOO", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[2] = new PIXI.Text("NEW SMALL ZOO", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[2].tint = 0x000000;
   this.menu_selections[2].anchor.set(0,0);
   this.menu_selections[2].position.set(278, 345);
   this.menu_layer.addChild(this.menu_selections[2]);
 
-  this.menu_selections[3] = new PIXI.Text("NEW LARGE ZOO", {fontFamily: "Bebas Neue", fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[3] = new PIXI.Text("NEW LARGE ZOO", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[3].tint = 0x000000;
   this.menu_selections[3].anchor.set(0,0);
   this.menu_selections[3].position.set(603, 488);
   this.menu_layer.addChild(this.menu_selections[3]);
 
-  this.menu_selections[4] = new PIXI.Text("WINDOWED", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.menu_selections[4] = new PIXI.Text("WINDOWED", {fontFamily: default_font, fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[4].tint = 0x000000;
   this.menu_selections[4].anchor.set(0,0);
   this.menu_selections[4].position.set(243, 658);
   this.menu_layer.addChild(this.menu_selections[4]);
 
-  let wfs_bar = new PIXI.Text("|", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  let wfs_bar = new PIXI.Text("|", {fontFamily: default_font, fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   wfs_bar.tint = 0x000000;
   wfs_bar.anchor.set(0,0);
   wfs_bar.position.set(403, 658);
   this.menu_layer.addChild(wfs_bar);
 
-  this.wfs_alt = new PIXI.Text("FULL SCREEN", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
+  this.wfs_alt = new PIXI.Text("FULL SCREEN", {fontFamily: default_font, fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.wfs_alt.tint = 0x000000;
   this.wfs_alt.anchor.set(0,0);
   this.wfs_alt.position.set(435, 658);
@@ -377,7 +377,7 @@ Game.prototype.makeMenu = function() {
   this.menu_escape_glyph.alpha = 0.6;
   this.menu_layer.addChild(this.menu_escape_glyph);
 
-  this.menu_escape_text = new PIXI.Text("Escape", {fontFamily: "Bebas Neue", fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.menu_escape_text = new PIXI.Text("Escape", {fontFamily: default_font, fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
   this.menu_escape_text.anchor.set(1,1);
   this.menu_escape_text.position.set(this.width - 90, this.height - 32);
   this.menu_escape_text.alpha = 0.6;
@@ -667,7 +667,7 @@ Game.prototype.deleteType = function() {
       this.typing_text.text = this.typing_text.text.slice(0,-1);
     }
     let l = this.typing_text.text.slice(-1,this.typing_text.text.length);
-    let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 140, fill: 0x000000, letterSpacing: 3, align: "left"});
+    let t = new PIXI.Text(l, {fontFamily: default_font, fontSize: 140, fill: 0x000000, letterSpacing: 3, align: "left"});
     t.anchor.set(0,0.5);
     t.position.set(25 + 50 * (this.typing_text.text.length - 1), 93);
     t.vx = -20 + 40 * Math.random();
@@ -766,7 +766,7 @@ Game.prototype.deleteDisplayType = function() {
   let text_box = this.action_typing_text[this.action_default_slot];
 
   let l = text_box.text.slice(-1, text_box.text.length);
-  let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 80, fill: 0x000000, letterSpacing: 3, align: "left"});
+  let t = new PIXI.Text(l, {fontFamily: default_font, fontSize: 80, fill: 0x000000, letterSpacing: 3, align: "left"});
   t.anchor.set(0,1);
   t.position.set(130 + 28 * (text_box.text.length - 1), text_box.y);
   t.vx = -20 + 40 * Math.random();

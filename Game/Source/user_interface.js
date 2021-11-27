@@ -545,7 +545,7 @@ Game.prototype.makeLoadingScreen = function() {
   this.black.visible = true;
   pixi.stage.addChild(this.black);
 
-  this.loading_text = new PIXI.Text("LOADING...", {fontFamily: "Bebas Neue", fontSize: 72, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.loading_text = new PIXI.Text("LOADING...", {fontFamily: default_font, fontSize: 72, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
   this.loading_text.anchor.set(0.5,0.5);
   this.loading_text.position.set(this.width / 2, this.height / 2);
   pixi.stage.addChild(this.loading_text);
@@ -695,7 +695,7 @@ Game.prototype.initializeAlertBox = function() {
   backingWhite.tint = 0xFFFFFF;
   this.alertBox.addChild(backingWhite);
 
-  this.alertBox.alertText = new PIXI.Text("EH. OKAY.", {fontFamily: "Bebas Neue", fontSize: 36, fill: 0x000000, letterSpacing: 6, align: "center"});
+  this.alertBox.alertText = new PIXI.Text("EH. OKAY.", {fontFamily: default_font, fontSize: 36, fill: 0x000000, letterSpacing: 6, align: "center"});
   this.alertBox.alertText.anchor.set(0.5,0.5);
   this.alertBox.alertText.position.set(0, 0);
   this.alertBox.addChild(this.alertBox.alertText);

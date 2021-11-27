@@ -50,7 +50,7 @@ Game.prototype.initializeAnimalPop = function() {
   screen.addChild(this.animal_pop_board);
 
   
-  this.animals_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 75, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.animals_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 75, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
   this.animals_text.tint = 0x000000;
   this.animals_text.anchor.set(0,0.5);
   this.animals_text.position.set(25, 63);
@@ -76,7 +76,7 @@ Game.prototype.initializeAnimalPop = function() {
   console.log("oka");
 
 
-  this.words_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 75, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+  this.words_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 75, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
   this.words_text.tint = 0x000000;
   this.words_text.anchor.set(1,0.5);
   this.words_text.position.set(1280 - 25, 63);

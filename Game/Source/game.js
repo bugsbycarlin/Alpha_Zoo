@@ -25,6 +25,8 @@ var performance_result = null;
 var pixi = null;
 var game = null;
 
+var default_font = "Bebas Neue";
+
 let game_fullscreen = false;
 
 function initialize() {

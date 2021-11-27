@@ -73,7 +73,7 @@ Game.prototype.initializeCafe = function() {
   this.cafe_escape_glyph.visible = true;
   screen.addChild(this.cafe_escape_glyph);
 
-  this.cafe_escape_text = new PIXI.Text("Escape", {fontFamily: "Bebas Neue", fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.cafe_escape_text = new PIXI.Text("Escape", {fontFamily: default_font, fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
   this.cafe_escape_text.anchor.set(0,1);
   this.cafe_escape_text.position.set(100, this.height - 32);
   this.cafe_escape_text.alpha = 0.6;
@@ -131,12 +131,12 @@ Game.prototype.initializeCafe = function() {
     glyph.position.set(layout[1], layout[2]);
     screen.addChild(glyph);
 
-    let white_text = new PIXI.Text(layout[0], {fontFamily: "Bebas Neue", fontSize: 66, fill: 0xFFFFFF, letterSpacing: 5, align: "left"});
+    let white_text = new PIXI.Text(layout[0], {fontFamily: default_font, fontSize: 66, fill: 0xFFFFFF, letterSpacing: 5, align: "left"});
     white_text.anchor.set(0,0.43);
     white_text.position.set(layout[1] + 64, layout[2]);
     screen.addChild(white_text);
 
-    let typing_text = new PIXI.Text("", {fontFamily: "Bebas Neue", fontSize: 66, fill: 0xFFFFFF, letterSpacing: 5, align: "left"});
+    let typing_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 66, fill: 0xFFFFFF, letterSpacing: 5, align: "left"});
     typing_text.tint = 0x000000;
     typing_text.anchor.set(0,0.43);
     typing_text.position.set(layout[1] + 64, layout[2]);
@@ -257,7 +257,7 @@ Game.prototype.deleteCafeType = function() {
       }
 
       let l = typing_text.text.slice(-1,typing_text.text.length);
-      let t = new PIXI.Text(l, {fontFamily: "Bebas Neue", fontSize: 66, fill: 0x000000, letterSpacing: 3, align: "left"});
+      let t = new PIXI.Text(l, {fontFamily: default_font, fontSize: 66, fill: 0x000000, letterSpacing: 3, align: "left"});
       t.anchor.set(0,0.5);
       t.position.set(typing_text.position.x + 23 * (typing_text.text.length - 1), typing_text.position.y);
       t.vx = -20 + 40 * Math.random();
