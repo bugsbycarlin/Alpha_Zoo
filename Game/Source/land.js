@@ -165,6 +165,30 @@ Game.prototype.makeMapGroups = function() {
   this.group_colors = {};
   this.group_counts = {};
 
+   // first, choose river tiles. hold these out from the process.
+  this.river_tiles = [];
+  if (Math.random() < 0.99) {
+    this.river_j = this.zoo_size - 2;
+    if (Math.random() < 0.5) this.river_j = this.zoo_size - 3;
+    for (let i = 0; i < this.zoo_size; i++) {
+      this.river_tiles.push([i, this.river_j]);
+    }
+  }
+
+  bridges = [];
+  for (let k = 0; k < 3; k++) {
+    bridges.push(Math.ceil(Math.random() * (this.zoo_size - 1)));
+  }
+  bridges.sort();
+  if (this.river_tiles.length > 0) {
+    for (let i = 0; i < this.zoo_size; i++) {
+      this.zoo_squares[i][this.river_j].group = 5000;
+      for (let k = 0; k < bridges.length; k++) {
+        if (i >= bridges[k]) this.zoo_squares[i][this.river_j].group += 1;
+      }
+    }
+  }
+
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
       if (this.zoo_squares[i][j].group == -1) {
@@ -300,15 +324,33 @@ Game.prototype.isRiverTile = function(i,j) {
 
 Game.prototype.makeMapPens = function() {
 
-  // first, choose river tiles. hold these out from the process.
-  this.river_tiles = [];
-  if (Math.random() < 0.99) {
-    this.river_j = this.zoo_size - 2;
-    if (Math.random() < 0.5) this.river_j = this.zoo_size - 3;
-    for (let i = 0; i < this.zoo_size; i++) {
-      this.river_tiles.push([i, this.river_j]);
-    }
-  }
+  // // first, choose river tiles. hold these out from the process.
+  // this.river_tiles = [];
+  // if (Math.random() < 0.99) {
+  //   this.river_j = this.zoo_size - 2;
+  //   if (Math.random() < 0.5) this.river_j = this.zoo_size - 3;
+  //   for (let i = 0; i < this.zoo_size; i++) {
+  //     this.river_tiles.push([i, this.river_j]);
+  //   }
+  // }
+
+  // if (this.river_tiles.length > 0) {
+  //   for (let i = 0; i < this.zoo_size; i++) {
+  //     this.zoo_squares[i][this.river_j + 1].n_edge = true;
+  //     this.zoo_squares[i][this.river_j + 1].reachable = true;
+  //     this.zoo_vertices[i][this.river_j + 1].e_path = true;
+  //     this.zoo_vertices[i+1][this.river_j + 1].w_path = true;
+
+  //     this.zoo_squares[i][this.river_j].s_edge = true;
+  //     this.zoo_squares[i][this.river_j].n_edge = true;
+  //     this.zoo_squares[i][this.river_j].group = -5000;
+
+  //     this.zoo_squares[i][this.river_j - 1].s_edge = true;
+  //     this.zoo_squares[i][this.river_j - 1].reachable = true;
+  //     this.zoo_vertices[i][this.river_j - 1].e_path = true;
+  //     this.zoo_vertices[i+1][this.river_j - 1].w_path = true;
+  //   }
+  // }
 
   // then, choose a special ferris wheel tile pair. hold these out too.
   this.special_ferris_tile = null;
@@ -365,6 +407,9 @@ Game.prototype.makeMapPens = function() {
         let no_west_neighbor = (i <= 0 || this.zoo_squares[i-1][j].group != this.zoo_squares[i][j].group || !this.zoo_squares[i-1][j].reachable);
         let no_east_neighbor = (i >= this.zoo_size - 1 || this.zoo_squares[i+1][j].group != this.zoo_squares[i][j].group || !this.zoo_squares[i+1][j].reachable);
 
+        // if (j == this.river_j - 1) {
+        //   console.log(no_north_neighbor +"," + no_south_neighbor)
+        // }
         // northwest corner
         let nw_vertex = this.zoo_vertices[i][j];
         if (nw_vertex.s_path || nw_vertex.n_path || nw_vertex.e_path || nw_vertex.w_path) {
@@ -2605,66 +2650,67 @@ Game.prototype.drawFenceShadow = function(render_container, corner_x, corner_y, 
 
 
 Game.prototype.drawRiver = function() {
-  let polygon = this.river_polygon;
+  if (this.river_polygon != null) {
+    let polygon = this.river_polygon;
 
-  let chunks = [];
+    let chunks = [];
 
-  for (let c = -2; c < this.zoo_size + 2; c++) {
+    for (let c = -2; c < this.zoo_size + 2; c++) {
 
-    let flat_polygon = [];
-    let polygon_chunk = [];
-    for (let j = 0; j < polygon.length; j++) {
-      if (polygon[j][0] >= c * square_width - 50 && polygon[j][0] <= (c+1) * square_width + 50) {
-        flat_polygon.push(polygon[j][0] - c * square_width);
-        flat_polygon.push(polygon[j][1] - this.river_j * square_width);
-        polygon_chunk.push([polygon[j][0] - c * square_width, polygon[j][1] - this.river_j * square_width]);
+      let flat_polygon = [];
+      let polygon_chunk = [];
+      for (let j = 0; j < polygon.length; j++) {
+        if (polygon[j][0] >= c * square_width - 50 && polygon[j][0] <= (c+1) * square_width + 50) {
+          flat_polygon.push(polygon[j][0] - c * square_width);
+          flat_polygon.push(polygon[j][1] - this.river_j * square_width);
+          polygon_chunk.push([polygon[j][0] - c * square_width, polygon[j][1] - this.river_j * square_width]);
+        }
       }
+      chunks.push(polygon_chunk);
+
+      let ground = new PIXI.Graphics();
+      ground.beginFill(0xFFFFFF);
+      ground.drawPolygon(flat_polygon);
+      ground.endFill();
+
+      ground.tint = water_color;
+
+      let render_container = new PIXI.Container();
+      render_container.addChild(ground);
+
+      let terrain_texture = this.renderer.generateTexture(render_container,
+        PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+      this.generated_textures.push(terrain_texture);
+
+      let terrain_sprite = new PIXI.Sprite(terrain_texture);
+      terrain_sprite.anchor.set(0, 0);
+      terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
+
+      this.map.background_layer.addChild(terrain_sprite);
+
+      render_container.destroy();
     }
-    chunks.push(polygon_chunk);
 
-    let ground = new PIXI.Graphics();
-    ground.beginFill(0xFFFFFF);
-    ground.drawPolygon(flat_polygon);
-    ground.endFill();
+    for (let c = -2; c < this.zoo_size + 2; c++) {
+      let chunk = chunks[c];
 
-    ground.tint = water_color;
+      let render_container = new PIXI.Container();
+      this.drawPond(render_container, "background", c * square_width, this.river_j * square_width, polygon, 40);
 
-    let render_container = new PIXI.Container();
-    render_container.addChild(ground);
+      let terrain_texture = this.renderer.generateTexture(render_container,
+        PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+      this.generated_textures.push(terrain_texture);
 
-    let terrain_texture = this.renderer.generateTexture(render_container,
-      PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
-    this.generated_textures.push(terrain_texture);
+      let terrain_sprite = new PIXI.Sprite(terrain_texture);
+      terrain_sprite.anchor.set(0, 0);
+      terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
 
-    let terrain_sprite = new PIXI.Sprite(terrain_texture);
-    terrain_sprite.anchor.set(0, 0);
-    terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
+      this.map.background_layer.addChild(terrain_sprite);
 
-    this.map.background_layer.addChild(terrain_sprite);
+      render_container.destroy();
+    }
 
-    render_container.destroy();
   }
-
-  for (let c = -2; c < this.zoo_size + 2; c++) {
-    let chunk = chunks[c];
-
-    let render_container = new PIXI.Container();
-    this.drawPond(render_container, "background", c * square_width, this.river_j * square_width, polygon, 40);
-
-    let terrain_texture = this.renderer.generateTexture(render_container,
-      PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
-    this.generated_textures.push(terrain_texture);
-
-    let terrain_sprite = new PIXI.Sprite(terrain_texture);
-    terrain_sprite.anchor.set(0, 0);
-    terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
-
-    this.map.background_layer.addChild(terrain_sprite);
-
-    render_container.destroy();
-  }
-
-  //let flat_polygon = polygon.flat();
   
 }
 
