@@ -207,17 +207,19 @@ class Game {
       .add("Art/Cafe/Food/tomatoes.json")
       .add("Art/Cafe/Food/cucumbers.json")
       .load(function() {
-        WebFont.load({
-          google: {
-            families: ['Bebas Neue']
-          },
-          active:e=>{
-            // self.initializeZoo();
-            // self.current_screen = "zoo";
-            self.initializeScreen(first_screen);
-            self.current_screen = first_screen;
-          }
-        });
+        // WebFont.load({
+        //   google: {
+        //     families: ['Bebas Neue']
+        //   },
+        //   active:e=>{
+        //     // self.initializeZoo();
+        //     // self.current_screen = "zoo";
+        //     self.initializeScreen(first_screen);
+        //     self.current_screen = first_screen;
+        //   }
+        // });
+        self.initializeScreen(first_screen);
+        self.current_screen = first_screen;
     });
   }
 

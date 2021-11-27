@@ -984,7 +984,7 @@ Game.prototype.grey = function(pen) {
     }
   }
 
-  // if (pen.mini_sprite != null) pen.mini_sprite.visible = false;
+  if (pen.mini_sprite != null) pen.mini_sprite.visible = false;
 }
 
 
@@ -1017,7 +1017,7 @@ Game.prototype.ungrey = function(pen) {
     }
   }
 
-  // if (pen.mini_sprite != null) pen.mini_sprite.visible = true;
+  if (pen.mini_sprite != null) pen.mini_sprite.visible = true;
 }
 
 

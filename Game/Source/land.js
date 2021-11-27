@@ -1469,301 +1469,144 @@ Game.prototype.drawMap = function() {
     let grid_j = pen.square_numbers[1];
 
     if (pen.special == null) {
-      if (pen.land == "magma") {
-        var render_container = new PIXI.Container();
+      var render_container = new PIXI.Container();
 
-        let terrain_grid = [];
-        for (let x = 0; x < square_width/100; x++) {
-          terrain_grid[x] = [];
-          for (let y = 0; y < square_width/100; y++) {
-            terrain_grid[x][y] = 0;
-          }
+      let polygon = pen.polygon;
+      // if (pen.land == "water") {
+      //   polygon = pen.inner_polygon;
+      // }
+
+      if (pen.land != "water") {
+
+        //let flat_polygon = polygon.flat();
+        let flat_polygon = [];
+        for (let j = 0; j < polygon.length; j++) {
+          flat_polygon.push(polygon[j][0] - corner_x);
+          flat_polygon.push(polygon[j][1] - corner_y);
         }
 
-        for (let x = 0; x < square_width/100; x++) {
-          for (let y = 0; y < square_width/100; y++) {
-            let points_inside = 0;
-            for (r = 0; r < 30; r++) {
-              let test_point = [corner_x + 100 * x + 100 * Math.random(), corner_y + 100 * y + 100 * Math.random()];
-              if (pointInsidePolygon(test_point, pen.polygon)) {
-                points_inside += 1;
-              }
-            }
-            if (points_inside >= 18) terrain_grid[x][y] = 1;
-          }
-        }
+        let ground = new PIXI.Graphics();
+        ground.beginFill(0xFFFFFF);
+        ground.drawPolygon(flat_polygon);
+        ground.endFill();
 
-        let grid_size = square_width/100;
-        let tg = terrain_grid;
-        for (let x = 0; x < grid_size; x++) {
-          for (let y = 0; y < grid_size; y++) {
-            let square = null;
-            if (terrain_grid[x][y] == 1) {
-              // center tile
-              if (checkNeighbor(tg, x, y, "w", 1)
-                && checkNeighbor(tg, x, y, "e", 1)
-                && checkNeighbor(tg, x, y, "n", 1)
-                && checkNeighbor(tg, x, y, "s", 1)) {
-                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-              } 
-              // north facing tile
-              else if (checkNeighbor(tg, x, y, "w", 1)
-                && checkNeighbor(tg, x, y, "e", 1)
-                && !checkNeighbor(tg, x, y, "n", 1)) {
-                if (grid_j > 0 && this.zoo_squares[grid_i][grid_j-1].pen != null &&
-                  this.zoo_squares[grid_i][grid_j-1].pen.land == pen.land) {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-                } else {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_n_v1.png"));
-                }
-              }
-              // south facing tile
-              else if (checkNeighbor(tg, x, y, "w", 1)
-                && checkNeighbor(tg, x, y, "e", 1)
-                && !checkNeighbor(tg, x, y, "s", 1)) {
-                if (grid_j < this.zoo_size - 1 && this.zoo_squares[grid_i][grid_j+1].pen != null &&
-                  this.zoo_squares[grid_i][grid_j+1].pen.land == pen.land) {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-                } else {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_s_v1.png"));
-                }
-              }
-              // west facing tile
-              else if (checkNeighbor(tg, x, y, "n", 1)
-                && checkNeighbor(tg, x, y, "s", 1)
-                && !checkNeighbor(tg, x, y, "w", 1)) {
-                if (grid_i > 0 && this.zoo_squares[grid_i-1][grid_j].pen != null &&
-                  this.zoo_squares[grid_i-1][grid_j].pen.land == pen.land) {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-                } else {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_w_v1.png"));
-                }
-              }
-              // east facing tile
-              else if (checkNeighbor(tg, x, y, "n", 1)
-                && checkNeighbor(tg, x, y, "s", 1)
-                && !checkNeighbor(tg, x, y, "e", 1)) {
-                if (grid_i < this.zoo_size - 1 && this.zoo_squares[grid_i+1][grid_j].pen != null &&
-                  this.zoo_squares[grid_i+1][grid_j].pen.land == pen.land) {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-                } else {
-                  square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_e_v1.png"));
-                }
-                
-              }
-              // northwest facing tile
-              else if (!checkNeighbor(tg, x, y, "w", 1)
-                && checkNeighbor(tg, x, y, "e", 1)
-                && !checkNeighbor(tg, x, y, "n", 1)) {
-                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_nw_v1.png"));
-              }
-              // northeast facing tile
-              else if (checkNeighbor(tg, x, y, "w", 1)
-                && !checkNeighbor(tg, x, y, "e", 1)
-                && !checkNeighbor(tg, x, y, "n", 1)) {
-                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_ne_v1.png"));
-              }
-              // southwest facing tile
-              else if (!checkNeighbor(tg, x, y, "w", 1)
-                && checkNeighbor(tg, x, y, "e", 1)
-                && !checkNeighbor(tg, x, y, "s", 1)) {
-                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_sw_v1.png"));
-              }
-              // southeast facing tile
-              else if (checkNeighbor(tg, x, y, "w", 1)
-                && !checkNeighbor(tg, x, y, "e", 1)
-                && !checkNeighbor(tg, x, y, "s", 1)) {
-                square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_se_v1.png"));
-              }
+        // ground.grey_color = 0xFFFFFF;
 
-
-              if (square != null) {
-                square.position.set(100 * x, 100 * y);
-                render_container.addChild(square);
-              }
-              // let square = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_c_v1.png"));
-              // square.position.set(100 * x, 100 * y);
-              // square.scale.set(0.98, 0.98);
-              // square.alpha = 0.4;
-              // render_container.addChild(square);
-            }
-          }
-        }
-
-        // let nw = [200, 200, "nw"];
-        // let ne = [600, 200, "ne"];
-        // let sw = [200, 600, "sw"];
-        // let se = [600, 600, "se"];
-
-        // if (pen.location.e_edge == false) {
-        //   ne = [800, 200, "n"];
-        //   se = [800, 600, "s"];
-
-
-        // }
-
-        // if (pen.location.w_edge == false) {
-        //   nw = [0, 200, "n"];
-        //   sw = [0, 600, "s"];
-        // }
-
-        // if (pen.location.n_edge == false) {
-        //   nw = [200, 0, "w"];
-        //   ne = [600, 0, "e"];
-        // }
-
-        // if (pen.location.s_edge == false) {
-        //   sw = [200, 800, "w"];
-        //   se = [600, 800, "e"];
-        // }
-
-        // let top_left = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + nw[2] + "_v1.png"));
-        // top_left.position.set(nw[0], nw[1]);
-        // render_container.addChild(top_left);
-        // let top_right = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + ne[2] + "_v1.png"));
-        // top_right.position.set(ne[0], ne[1]);
-        // render_container.addChild(top_right);
-        // let bottom_left = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + sw[2] + "_v1.png"));
-        // bottom_left.position.set(sw[0], sw[1]);
-        // render_container.addChild(bottom_left);
-        // let bottom_right = new PIXI.Sprite(PIXI.Texture.from("Art/Terrain/path_" + se[2] + "_v1.png"));
-        // bottom_right.position.set(se[0], se[1]);
-        // render_container.addChild(bottom_right);
-
-        var terrain_texture = this.renderer.generateTexture(render_container,
-        PIXI.SCALE_MODES.LINEAR,
-        1,
-        new PIXI.Rectangle(0, 0, 1024, 1024));
-        this.generated_textures.push(terrain_texture);
-
-        var terrain_sprite = new PIXI.Sprite(terrain_texture);
-        terrain_sprite.anchor.set(0, 0);
-        terrain_sprite.position.set(corner_x, corner_y);
-       
-        if (pen.land == "grass") {
-          terrain_sprite.true_color = grass_color;
+        if (pen.land == null || pen.land == "grass") {
+          ground.tint = grass_color;
+        } else if (pen.land == "water") {
+          ground.tint = water_color;
+        } else if (pen.land == "sand") {
+          ground.tint = sand_color;
         } else if (pen.land == "forest") {
-          terrain_sprite.true_color = forest_color;
+          ground.tint = forest_color;
+        } else if (pen.land == "ice") {
+          ground.tint = ice_color;
+        } else if (pen.land == "rock") {
+          ground.tint = rock_color;
         }
 
-        terrain_sprite.grey_color = 0xFFFFFF;
-        terrain_sprite.tint = terrain_sprite.true_color;
-        pen.land_object.addChild(terrain_sprite);
+        render_container.addChild(ground);
 
-        render_container.destroy();
-
-      } else {
-
-        var render_container = new PIXI.Container();
-
-        let polygon = pen.polygon;
-        // if (pen.land == "water") {
-        //   polygon = pen.inner_polygon;
-        // }
-
-        if (pen.land != "water") {
-
-          //let flat_polygon = polygon.flat();
-          let flat_polygon = [];
-          for (let j = 0; j < polygon.length; j++) {
-            flat_polygon.push(polygon[j][0] - corner_x);
-            flat_polygon.push(polygon[j][1] - corner_y);
-          }
-
-          let ground = new PIXI.Graphics();
-          ground.beginFill(0xFFFFFF);
-          ground.drawPolygon(flat_polygon);
-          ground.endFill();
-
-          // ground.grey_color = 0xFFFFFF;
-
-          if (pen.land == null || pen.land == "grass") {
-            ground.tint = grass_color;
-          } else if (pen.land == "water") {
-            ground.tint = water_color;
-          } else if (pen.land == "sand") {
-            ground.tint = sand_color;
-          } else if (pen.land == "forest") {
-            ground.tint = forest_color;
-          } else if (pen.land == "ice") {
-            ground.tint = ice_color;
-          } else if (pen.land == "rock") {
-            ground.tint = rock_color;
-          }
-
-          render_container.addChild(ground);
-
-          if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand") {
-            this.drawEdging(render_container, pen.land, null, corner_x, corner_y, polygon, true);
-          }
+        if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand") {
+          this.drawEdging(render_container, pen.land, null, corner_x, corner_y, polygon, true);
         }
-
-        if (pen.land == "ice" || pen.land == "rock") {
-          this.drawRockEdging(render_container, pen.land, corner_x, corner_y, polygon);
-        }
-
-        if (pen.land == "water") {
-          this.drawPond(render_container, pen.land, corner_x, corner_y, pen.inner_polygon);
-        }
-
-        if (pen.pond != null) {
-          this.drawPond(render_container, pen.land, corner_x, corner_y, pen.pond);
-        }
-
-        if (pen.land == "grass" || pen.land == "forest") {
-          this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
-        }
-
-        if (pen.land == "sand") {
-          this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]), 1, true);
-        }
-
-        if (pen.land == "ice" || pen.land == "rock") {
-          this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]), 1);
-        }
-
-        if (pen.terrace != null) {
-          this.drawTerrace(pen, pen.land, corner_x, corner_y, pen.terrace, pen.terrace_choice, pen.pond)
-        }
-
-        // if (pen.pond != null && (pen.land == "ice" || pen.land == "rock")) {
-        //   this.drawRockPond(render_container, pen.land, corner_x, corner_y, pen.pond);
-        // }
-
-        if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand" || pen.land == "water") {
-          this.drawFenceShadow(render_container, corner_x, corner_y, pen.polygon);
-        }
-
-
-        let terrain_texture = this.renderer.generateTexture(render_container,
-          PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
-        this.generated_textures.push(terrain_texture);
-
-        let terrain_sprite = new PIXI.Sprite(terrain_texture);
-        terrain_sprite.anchor.set(0, 0);
-        terrain_sprite.position.set(corner_x - 50, corner_y - 50);
-
-        pen.land_object.addChild(terrain_sprite);
-
-        render_container.scale.set(0.2, 0.2);
-        let mini_texture = this.renderer.generateTexture(render_container,
-          PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12, -12, 256, 256));
-        this.generated_textures.push(mini_texture);
-
-        let mini_sprite = new PIXI.Sprite(mini_texture);
-        mini_sprite.scale.set(5, 5);
-        mini_sprite.anchor.set(0, 0);
-        mini_sprite.position.set(corner_x - 50, corner_y - 50);
-
-        this.map.minimap_layer.addChild(mini_sprite);
-        // mini_sprite.visible = false;
-
-        pen.mini_sprite = mini_sprite;
-
-        render_container.destroy();
       }
 
-      this.drawFence(pen.polygon, corner_x, corner_y);
+      if (pen.land == "ice" || pen.land == "rock") {
+        this.drawRockEdging(render_container, pen.land, corner_x, corner_y, polygon);
+      }
+
+      if (pen.land == "water") {
+        this.drawPond(render_container, pen.land, corner_x, corner_y, pen.inner_polygon);
+      }
+
+      if (pen.pond != null) {
+        this.drawPond(render_container, pen.land, corner_x, corner_y, pen.pond);
+      }
+
+      if (pen.land == "grass" || pen.land == "forest") {
+        this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]));
+      }
+
+      if (pen.land == "sand") {
+        this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]), 1, true);
+      }
+
+      if (pen.land == "ice" || pen.land == "rock") {
+        this.dappleGround(render_container, pen.land, corner_x, corner_y, polygon, (pen.pond == null ? [] : [pen.pond]), 1);
+      }
+
+      if (pen.terrace != null) {
+        this.drawTerrace(pen, pen.land, corner_x, corner_y, pen.terrace, pen.terrace_choice, pen.pond)
+      }
+
+      // if (pen.pond != null && (pen.land == "ice" || pen.land == "rock")) {
+      //   this.drawRockPond(render_container, pen.land, corner_x, corner_y, pen.pond);
+      // }
+
+      if (pen.land == "forest" || pen.land == "grass" || pen.land == "sand" || pen.land == "water") {
+        this.drawFenceShadow(render_container, corner_x, corner_y, pen.polygon);
+      }
+
+
+      let terrain_texture = this.renderer.generateTexture(render_container,
+        PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-50, -50, 1024, 1024));
+      this.generated_textures.push(terrain_texture);
+
+      let terrain_sprite = new PIXI.Sprite(terrain_texture);
+      terrain_sprite.anchor.set(0, 0);
+      terrain_sprite.position.set(corner_x - 50, corner_y - 50);
+
+      pen.land_object.addChild(terrain_sprite);
+
+      
+
+      let fences = this.drawFence(pen.polygon, corner_x, corner_y);
+
+
+      // fences[0].scale.set(0.2, 0.2);
+      // let tf_mini_texture = this.renderer.generateTexture(fences[0],
+      //   PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12.5, -25, 256, 256));
+      // this.generated_textures.push(tf_mini_texture);
+      // let tf_mini_sprite = new PIXI.Sprite(tf_mini_texture);
+      // tf_mini_sprite.scale.set(5, 5);
+      // tf_mini_sprite.anchor.set(0, 0);
+      // fences[0].position.set(0, -50);
+      render_container.addChild(fences[0])
+      // this.map.minimap_layer.addChild(tf_mini_sprite);
+
+
+      // fences[1].scale.set(0.2, 0.2);
+      // let bf_mini_texture = this.renderer.generateTexture(fences[1],
+      //   PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12.5, -25, 256, 256));
+      // this.generated_textures.push(bf_mini_texture);
+      // let bf_mini_sprite = new PIXI.Sprite(bf_mini_texture);
+      // bf_mini_sprite.scale.set(5, 5);
+      // bf_mini_sprite.anchor.set(0, 0);
+      fences[1].position.set(0, square_width/2);
+      render_container.addChild(fences[1])
+
+      render_container.scale.set(0.2, 0.2);
+
+      let mini_texture = this.renderer.generateTexture(render_container,
+        PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12, -12, 256, 256));
+      this.generated_textures.push(mini_texture);
+
+      let mini_sprite = new PIXI.Sprite(mini_texture);
+      mini_sprite.scale.set(5, 5);
+      mini_sprite.anchor.set(0, 0);
+      mini_sprite.position.set(corner_x - 50, corner_y - 50);
+
+      this.map.minimap_layer.addChild(mini_sprite);
+      // mini_sprite.visible = false;
+
+      pen.mini_sprite = mini_sprite;
+
+      render_container.destroy();
+      fences[0].destroy();
+      fences[1].destroy();
+
     }
     this.terrain.push(pen.land_object)
   }
@@ -2682,7 +2525,8 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
   // tf_mini_sprite.position.set(corner_x - 50, corner_y - 100);
   // this.map.minimap_layer.addChild(tf_mini_sprite);
 
-  top_fence_render_container.destroy();
+  // don't destroy the fences, because we will use them to make minimap sprites.
+  //top_fence_render_container.destroy();
 
   // render the stuff in the bottom container to a texture, and use that
   // texture to make the bottom fence sprite, and add that to this.decorations.
@@ -2713,7 +2557,10 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
   // bf_mini_sprite.position.set(corner_x - 50, corner_y + square_width/2 - 200);
   // this.map.minimap_layer.addChild(bf_mini_sprite);
 
-  bottom_fence_render_container.destroy();
+  // don't destroy the fences, because we will use them to make minimap sprites.
+  //bottom_fence_render_container.destroy();
+
+  return [top_fence_render_container, bottom_fence_render_container];
 }
 
 
