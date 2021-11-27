@@ -983,6 +983,8 @@ Game.prototype.grey = function(pen) {
       land.visible = false;
     }
   }
+
+  // if (pen.mini_sprite != null) pen.mini_sprite.visible = false;
 }
 
 
@@ -1014,6 +1016,8 @@ Game.prototype.ungrey = function(pen) {
       land.visible = true;
     }
   }
+
+  // if (pen.mini_sprite != null) pen.mini_sprite.visible = true;
 }
 
 
@@ -1074,11 +1078,11 @@ Game.prototype.displayMap = function() {
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = false;
   }
-  // for (let i = 0; i < this.decorations.length; i++) {
-  //   if (this.decorations[i].type == "fence") {
-  //     this.decorations[i].visible = false;
-  //   }
-  // }
+  for (let i = 0; i < this.decorations.length; i++) {
+    if (this.decorations[i].type == "fence") {
+      this.decorations[i].visible = false;
+    }
+  }
   this.player.scale.set(3 * 0.72,3 * 0.72);
   this.player.red_circle.visible = true;
   this.map_border.visible = true;
@@ -1091,6 +1095,8 @@ Game.prototype.displayMap = function() {
 
   this.escape_glyph.visible = true;
   this.escape_text.visible = true;
+
+  this.map.minimap_layer.visible = true;
 
   this.map_visible = true;
 }
@@ -1124,16 +1130,18 @@ Game.prototype.hideMap = function() {
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = true;
   }
-  // for (let i = 0; i < this.decorations.length; i++) {
-  //   if (this.decorations[i].type == "fence") {
-  //     this.decorations[i].visible = true;
-  //   }
-  // }
+  for (let i = 0; i < this.decorations.length; i++) {
+    if (this.decorations[i].type == "fence") {
+      this.decorations[i].visible = true;
+    }
+  }
   this.player.scale.set(0.72,0.72);
   this.player.red_circle.visible = false;
   this.map_border.visible = false;
 
   this.map.scale.set(1, 1);
+
+  this.map.minimap_layer.visible = false;
 
   this.map_visible = false;
 
@@ -1705,16 +1713,18 @@ Game.prototype.updateEnts = function() {
   for (let k = 0; k < total_ents; k++) {
     this.ents[k].visible = false;
   }
-  ent_count = 0;
-  for (let e = 0; e < this.ent_positions.length; e++) {
-    let pos = this.ent_positions[e];
+  if (this.map_visible == false) {
+    ent_count = 0;
+    for (let e = 0; e < this.ent_positions.length; e++) {
+      let pos = this.ent_positions[e];
 
-    if(Math.abs(this.player.x - pos[0]) < 800 && Math.abs(this.player.y - pos[1]) < 700) {
-      if (ent_count < total_ents) {
-        this.ents[ent_count].visible = true;
-        this.ents[ent_count].position.set(pos[0], pos[1]);
-        this.ents[ent_count].tree.gotoAndStop(pos[2] - 1);
-        ent_count += 1;
+      if(Math.abs(this.player.x - pos[0]) < 800 && Math.abs(this.player.y - pos[1]) < 700) {
+        if (ent_count < total_ents) {
+          this.ents[ent_count].visible = true;
+          this.ents[ent_count].position.set(pos[0], pos[1]);
+          this.ents[ent_count].tree.gotoAndStop(pos[2] - 1);
+          ent_count += 1;
+        }
       }
     }
   }

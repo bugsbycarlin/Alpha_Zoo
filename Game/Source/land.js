@@ -85,6 +85,10 @@ Game.prototype.initializeMap = function() {
   this.map.background_layer = new PIXI.Container();
   this.map.addChild(this.map.background_layer);
 
+  this.map.minimap_layer = new PIXI.Container();
+  this.map.addChild(this.map.minimap_layer);
+  this.map.minimap_layer.visible = false;
+
   this.map.build_effect_layer = new PIXI.Container();
   this.map.addChild(this.map.build_effect_layer);
 
@@ -311,7 +315,7 @@ Game.prototype.makeMapPens = function() {
   if (this.zoo_size >= 6) {
     let potential_ferris_tiles = [];
     for (let i = 1; i < this.zoo_size - 2; i++) {
-      for (let j = 2; j < this.zoo_size - 2; j++) {
+      for (let j = 2; j < this.zoo_size - 1; j++) {
         if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j)) {
           if (this.zoo_squares[i][j].e_edge == false && this.zoo_squares[i+1][j].w_edge == false) { // both should always be true or false anyway
             potential_ferris_tiles.push([i,j]);
@@ -1646,6 +1650,8 @@ Game.prototype.drawMap = function() {
         terrain_sprite.tint = terrain_sprite.true_color;
         pen.land_object.addChild(terrain_sprite);
 
+        render_container.destroy();
+
       } else {
 
         var render_container = new PIXI.Container();
@@ -1738,6 +1744,23 @@ Game.prototype.drawMap = function() {
         terrain_sprite.position.set(corner_x - 50, corner_y - 50);
 
         pen.land_object.addChild(terrain_sprite);
+
+        render_container.scale.set(0.2, 0.2);
+        let mini_texture = this.renderer.generateTexture(render_container,
+          PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12, -12, 256, 256));
+        this.generated_textures.push(mini_texture);
+
+        let mini_sprite = new PIXI.Sprite(mini_texture);
+        mini_sprite.scale.set(5, 5);
+        mini_sprite.anchor.set(0, 0);
+        mini_sprite.position.set(corner_x - 50, corner_y - 50);
+
+        this.map.minimap_layer.addChild(mini_sprite);
+        // mini_sprite.visible = false;
+
+        pen.mini_sprite = mini_sprite;
+
+        render_container.destroy();
       }
 
       this.drawFence(pen.polygon, corner_x, corner_y);
@@ -2325,13 +2348,15 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, t
   terrace_sprite.anchor.set(0, 0);
   // terrace_sprite.position.set(corner_x - 100 + (corner_x - top_point[0]), corner_y - 100 + (corner_y - top_point[1]));
   terrace_sprite.position.set(corner_x - 100 - top_point[0], corner_y - 100 - top_point[1]);
-  terrace_container = new PIXI.Container();
-  terrace_container.position.set(top_point[0], top_point[1]);
-  terrace_container.addChild(terrace_sprite);
+  let terrace = new PIXI.Container();
+  terrace.position.set(top_point[0], top_point[1]);
+  terrace.addChild(terrace_sprite);
 
-  // pen.land_object.addChild(terrace_container);
-  pen.decoration_objects.push(terrace_container);
-  this.decorations.push(terrace_container);
+  // pen.land_object.addChild(terrace);
+  pen.decoration_objects.push(terrace);
+  this.decorations.push(terrace);
+
+  terrace_container.destroy();
 }
 
 
@@ -2647,6 +2672,18 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
   // pen.land_object.addChild(top_fence_sprite);
   this.decorations.push(top_fence);
 
+  // top_fence_render_container.scale.set(0.2, 0.2);
+  // let tf_mini_texture = this.renderer.generateTexture(top_fence_render_container,
+  //   PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12.5, -25, 256, 256));
+  // this.generated_textures.push(tf_mini_texture);
+  // let tf_mini_sprite = new PIXI.Sprite(tf_mini_texture);
+  // tf_mini_sprite.scale.set(5, 5);
+  // tf_mini_sprite.anchor.set(0, 0);
+  // tf_mini_sprite.position.set(corner_x - 50, corner_y - 100);
+  // this.map.minimap_layer.addChild(tf_mini_sprite);
+
+  top_fence_render_container.destroy();
+
   // render the stuff in the bottom container to a texture, and use that
   // texture to make the bottom fence sprite, and add that to this.decorations.
   var bottom_texture = this.renderer.generateTexture(bottom_fence_render_container,
@@ -2665,6 +2702,18 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
   bottom_fence.position.set(corner_x, (corner_y + square_width/2) + lowest_bottom_point - square_width/2);
   // pen.land_object.addChild(bottom_fence_sprite);
   this.decorations.push(bottom_fence);
+
+  // bottom_fence_render_container.scale.set(0.2, 0.2);
+  // let bf_mini_texture = this.renderer.generateTexture(bottom_fence_render_container,
+  //   PIXI.SCALE_MODES.LINEAR, 1, new PIXI.Rectangle(-12.5, -50, 256, 256));
+  // this.generated_textures.push(bf_mini_texture);
+  // let bf_mini_sprite = new PIXI.Sprite(bf_mini_texture);
+  // bf_mini_sprite.scale.set(5, 5);
+  // bf_mini_sprite.anchor.set(0, 0);
+  // bf_mini_sprite.position.set(corner_x - 50, corner_y + square_width/2 - 200);
+  // this.map.minimap_layer.addChild(bf_mini_sprite);
+
+  bottom_fence_render_container.destroy();
 }
 
 
@@ -2745,6 +2794,8 @@ Game.prototype.drawRiver = function() {
     terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
 
     this.map.background_layer.addChild(terrain_sprite);
+
+    render_container.destroy();
   }
 
   for (let c = -2; c < this.zoo_size + 2; c++) {
@@ -2762,6 +2813,8 @@ Game.prototype.drawRiver = function() {
     terrain_sprite.position.set(c * square_width - 50, this.river_j * square_width - 50);
 
     this.map.background_layer.addChild(terrain_sprite);
+
+    render_container.destroy();
   }
 
   //let flat_polygon = polygon.flat();
