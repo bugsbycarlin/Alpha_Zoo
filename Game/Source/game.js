@@ -264,8 +264,8 @@ class Game {
   basicInit() {
     var self = this;
 
-    this.width = 1280;
-    this.height = 960;
+    this.width = 1440;
+    this.height = 900;
 
     // Create the pixi application
     pixi = new PIXI.Application(this.width, this.height, {antialias: true, backgroundColor: 0x000000});

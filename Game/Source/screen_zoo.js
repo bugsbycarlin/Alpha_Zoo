@@ -158,7 +158,7 @@ Game.prototype.makeUI = function() {
   this.display_action_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
   this.display_action_backing.anchor.set(0, 1);
   this.display_action_backing.scale.set(0.5, 1);
-  this.display_action_backing.position.set(-180, 960 - 16);
+  this.display_action_backing.position.set(-180, this.height - 16);
   this.display_action_backing.filters = [this.dropshadow_filter];
   this.display_ui.addChild(this.display_action_backing);
 
@@ -166,21 +166,21 @@ Game.prototype.makeUI = function() {
  
   this.action_glyphs["FEED"] = new PIXI.Sprite(PIXI.Texture.from("Art/Food/food.png"));
   this.action_glyphs["FEED"].anchor.set(0.5,0.75);
-  this.action_glyphs["FEED"].position.set(70, 815);
+  this.action_glyphs["FEED"].position.set(70, this.height - 145);
   this.action_glyphs["FEED"].scale.set(0.75, 0.75);
   this.action_glyphs["FEED"].visible = false;
   this.display_ui.addChild(this.action_glyphs["FEED"]);
 
   this.action_glyphs["POOP"] = new PIXI.Sprite(PIXI.Texture.from("Art/poop.png"));
   this.action_glyphs["POOP"].anchor.set(0.5,0.75);
-  this.action_glyphs["POOP"].position.set(70, 905);
+  this.action_glyphs["POOP"].position.set(70, this.height - 55);
   this.action_glyphs["POOP"].scale.set(0.75, 0.75)
   this.action_glyphs["POOP"].visible = false;
   this.display_ui.addChild(this.action_glyphs["POOP"]);
 
   this.action_glyphs["RIDE"] = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/cart_icon.png"));
   this.action_glyphs["RIDE"].anchor.set(0.5,0.75);
-  this.action_glyphs["RIDE"].position.set(70, 910);
+  this.action_glyphs["RIDE"].position.set(70, this.height - 50);
   this.action_glyphs["RIDE"].scale.set(0.75, 0.75);
   this.action_glyphs["RIDE"].visible = false;
   this.display_ui.addChild(this.action_glyphs["RIDE"]);
@@ -188,7 +188,7 @@ Game.prototype.makeUI = function() {
 
   this.action_glyphs["MAP"] = new PIXI.Sprite(PIXI.Texture.from("Art/map_icon.png"));
   this.action_glyphs["MAP"].anchor.set(0.5,0.75);
-  this.action_glyphs["MAP"].position.set(70, 910);
+  this.action_glyphs["MAP"].position.set(70, this.height - 50);
   this.action_glyphs["MAP"].scale.set(0.75, 0.75);
   this.action_glyphs["MAP"].visible = false;
   this.display_ui.addChild(this.action_glyphs["MAP"]);
@@ -196,7 +196,7 @@ Game.prototype.makeUI = function() {
 
   this.action_glyphs["COLOR"] = new PIXI.Sprite(PIXI.Texture.from("Art/color_icon.png"));
   this.action_glyphs["COLOR"].anchor.set(0.5,0.75);
-  this.action_glyphs["COLOR"].position.set(70, 910);
+  this.action_glyphs["COLOR"].position.set(70, this.height - 50);
   this.action_glyphs["COLOR"].scale.set(0.75, 0.75);
   this.action_glyphs["COLOR"].visible = false;
   this.display_ui.addChild(this.action_glyphs["COLOR"]);
@@ -211,14 +211,14 @@ Game.prototype.makeUI = function() {
   for (let i = 0; i < 4; i++) {
     let grey_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
     grey_text.anchor.set(0,1);
-    grey_text.position.set(130, 945 - 90 * i);
+    grey_text.position.set(130, this.height - 15 - 90 * i);
     this.display_ui.addChild(grey_text);
     this.action_grey_text.push(grey_text);
 
     let typing_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
     typing_text.tint = 0x000000;
     typing_text.anchor.set(0,1);
-    typing_text.position.set(130, 945 - 90 * i);
+    typing_text.position.set(130, this.height - 15 - 90 * i);
     this.display_ui.addChild(typing_text);
     this.action_typing_text.push(typing_text);
   }
@@ -226,14 +226,14 @@ Game.prototype.makeUI = function() {
   this.display_backing = new PIXI.Sprite(PIXI.Texture.from("Art/wood.png"));
   this.display_backing.anchor.set(0, 1);
   this.display_backing.scale.set(0.8, 0.8);
-  this.display_backing.position.set(1280 - 400, 960 - 30);
+  this.display_backing.position.set(this.width - 400, this.height - 30);
   this.display_backing.filters = [this.dropshadow_filter];
   this.display_ui.addChild(this.display_backing);
 
   this.display_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 140, fill: 0xFFFFFF, letterSpacing: 8, align: "right"});
   this.display_text.tint = 0x000000;
   this.display_text.anchor.set(1,0.5);
-  this.display_text.position.set(1280 - 25, 960 - 90);
+  this.display_text.position.set(this.width - 25, this.height - 90);
   this.display_ui.addChild(this.display_text);
 
   this.display_ui.visible = false;
@@ -241,6 +241,8 @@ Game.prototype.makeUI = function() {
   this.map_border = new PIXI.Sprite(PIXI.Texture.from("Art/map_border.png"));
   this.map_border.anchor.set(0,0);
   this.map_border.position.set(0,0);
+  this.map_border.width = this.width;
+  this.map_border.height = this.height;
   this.map_border.visible = false;
   this.map_visible = false;
   screen.addChild(this.map_border);
@@ -879,7 +881,7 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
   this.pen_to_display = pen_to_display;
 
   let measure = new PIXI.TextMetrics.measureText(this.thing_to_display, this.display_text.style);
-  this.display_backing.position.set(1280 - (measure.width + 50), 960 - 30)
+  this.display_backing.position.set(this.width - (measure.width + 50), this.height - 30)
   this.display_text.text = this.thing_to_display.replace("_", " ");
 
   if (word_list.length == 0) {
@@ -914,7 +916,7 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
   for (let i = 0; i < word_list.length; i++) {
     this.action_grey_text[i].text = word_list[i];
     this.action_glyphs[word_list[i]].visible = true;
-    this.action_glyphs[word_list[i]].y = 905 - 90 * i;
+    this.action_glyphs[word_list[i]].y = this.height - 55 - 90 * i;
   }
 
   this.display_action_backing.anchor.set(0, 1);
@@ -1777,36 +1779,14 @@ Game.prototype.updateZoo = function(diff) {
       .start();
   }
 
-  // if (this.timeSince(this.start_time) < 5000) {
-  //     let scale = Math.max(0.1, (this.timeSince(this.start_time) / 5000));
-  //     this.map.scale.set(scale, scale);
-  //   } else {
-  //     this.map.scale.set(1, 1);  
-  //   }
-  // if(true) {
-  //   if (this.timeSince(this.start_time) < 2000) {
-  //     this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
-  //   } else {
-  //     this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
-  //   }
-  // } else {
-  //   this.map.scale.set(0.2, 0.2);
-  //   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
-  // }
-
   if (this.zoo_mode == "active" || this.zoo_mode == "fading" || this.zoo_mode == "loading") {
-    // if (this.timeSince(this.start_time) < 2000) {
-    //   this.map.position.set(640 - this.player.x * this.map.scale.x, 500 * ((2000 - this.timeSince(this.start_time)) / 2000) + 580 - this.player.y * this.map.scale.y);
-    // } else {
-    //   this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
-    // }
-    this.map.position.set(640 - this.player.x * this.map.scale.x, 480 - this.player.y * this.map.scale.y);
+    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, this.height/2 - this.player.y * this.map.scale.y);
   } else if (this.zoo_mode == "pre_ferris_wheel") {
-    this.map.position.set(640 - this.player.x * this.map.scale.x, 480 - this.player.y * this.map.scale.y);
+    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, this.height/2 - this.player.y * this.map.scale.y);
   } else if (this.zoo_mode == "ferris_wheel") {
     let x = this.ferris_wheel.x + this.player.x;
     let y = this.ferris_wheel.y + this.player.y;
-    this.map.position.set(640 - x * this.map.scale.x, 480 - y * this.map.scale.y);
+    this.map.position.set(this.width/2 - x * this.map.scale.x, this.height/2 - y * this.map.scale.y);
   }
 
   

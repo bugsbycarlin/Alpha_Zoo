@@ -65,8 +65,8 @@ Game.prototype.initializeMap = function() {
   var screen = this.screens["zoo"];
 
   let static_background = PIXI.Sprite.from(PIXI.Texture.WHITE);
-  static_background.width = 1280;
-  static_background.height = 960;
+  static_background.width = 1440;
+  static_background.height = 900;
   static_background.tint = background_color;
 
   screen.addChild(static_background);

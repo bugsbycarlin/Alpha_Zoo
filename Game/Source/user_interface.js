@@ -479,8 +479,8 @@ Game.prototype.initializeScreens = function() {
   this.makeScreen("animal_pop");
 
   this.black = PIXI.Sprite.from(PIXI.Texture.WHITE);
-  this.black.width = 1280;
-  this.black.height = 960;
+  this.black.width = this.width;
+  this.black.height = this.height;
   this.black.tint = 0x000000;
 
   this.screens[first_screen].position.x = 0;
