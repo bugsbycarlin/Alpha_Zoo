@@ -110,6 +110,7 @@ Game.prototype.resetZooScreen = function() {
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAllActivePens();
+  // this.ungreyAll();
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -984,7 +985,7 @@ Game.prototype.grey = function(pen) {
     }
   }
 
-  if (pen.mini_sprite != null) pen.mini_sprite.visible = false;
+  if (pen.mini_sprite != null) pen.mini_sprite.alpha = 0.5;
 }
 
 
@@ -1017,7 +1018,7 @@ Game.prototype.ungrey = function(pen) {
     }
   }
 
-  if (pen.mini_sprite != null) pen.mini_sprite.visible = true;
+  if (pen.mini_sprite != null) pen.mini_sprite.alpha = 1.0;
 }
 
 

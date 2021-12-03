@@ -39,8 +39,9 @@
 
     #steam_link {
       position: absolute;
-      left: calc(50% + 125px);
-      top: 990px;
+      left: calc(50% + 1px);
+      top: 1000px;
+      z-index: 50;
     }
 
     #explore_a_zoo_card {
@@ -80,20 +81,26 @@
     #twitter_link {
       position: absolute;
       transform: translate(-50%, -50%);
-      left: calc(50% - 440px);
-      top: 5110px;
+      left: calc(50% - 375px);
+      top: 5157px;
+    }
+    #instagram_link {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: calc(50% - 280px);
+      top: 5157px;
     }
     #contact_link {
       position: absolute;
       transform: translate(-50%, -50%);
-      left: calc(50% - 280px);
-      top: 5110px;
+      left: calc(50% - 185px);
+      top: 5157px;
     }
     #presskit_link {
       position: absolute;
       transform: translate(-50%, -50%);
-      left: calc(50% - 120px);
-      top: 5110px;
+      left: calc(50% - 280px);
+      top: 5080px;
     }
 
     .animal {
@@ -206,8 +213,8 @@
 
     loadAnimals = function() {
       addAnimal("hippo", 450, 315);
-      addAnimal("tiger", 70, 1145);
-      addAnimal("tiger", 420, 1145);
+      // addAnimal("tiger", 70, 1145);
+      // addAnimal("tiger", 420, 1145);
       addAnimal("penguin", -500, 1145);
       addAnimal("penguin", -770, 1105);
       addAnimal("rabbit", -592, 1586);
@@ -249,7 +256,7 @@
       <img src="Art/title.png"/>
     </div>
     <div id="steam_link">
-      <img src="Art/temporary_steam_link.png"/>
+      <a href="https://store.steampowered.com/app/1807640/Alpha_Zoo/" target="_blank"><img src="Art/steam_link.png"/></a>
     </div>
     <div id="explore_a_zoo_card">
       <img src="Art/explore_a_zoo_card.png"/>
@@ -264,21 +271,24 @@
       <img src="Art/extras_card.png"/>
     </div>
     <div id="copyright_card">
-      <img src="Art/copyright_card.png"/>
+      <a href="https://alphazoollc.com" target="_blank"><img src="Art/copyright_card.png"/></a>
     </div>
 
-    <div id="twitter_link">
-      <a href="https://twitter.com/alphazoollc"><img src="Art/twitter_link.png"/></a>
-    </div>
-    <div id="contact_link">
-      <a href="mailto:alphazoollc@gmail.com"><img src="Art/contact_link.png"/></a>
-    </div>
     <div id="presskit_link">
       <a href="presskit.html"><img src="Art/presskit_link.png"/></a>
     </div>
-
+    <div id="twitter_link">
+      <a href="https://twitter.com/alphazoollc" target="_blank"><img src="Art/twitter.png" width=80px/>
+    </div>
+    <div id="instagram_link">
+      <a href="https://www.instagram.com/alphazoogames/" target="_blank"><img src="Art/instagram.png" width=80px/>
+    </div>
+    <div id="contact_link">
+      <a href="mailto:contact@alphazoollc.com"><img src="Art/email.png" width=80px/>
+    </div>
+    
     <div id="trailer_video">
-      <iframe width="580" height="326" src="https://www.youtube.com/embed/5-xuQSj42nQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe width="580" height="326" src="https://www.youtube.com/embed/1G3EIrp6YNg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 
     <div id="help_child_video">
@@ -286,11 +296,11 @@
     </div>
 
     <div id="feed_and_poop_video">
-      <iframe width="533" height="400" src="https://www.youtube.com/embed/H7EdbQJ1mEs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe width="533" height="400" src="https://www.youtube.com/embed/L5AvFcZ8DIs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 
     <div id="extras_video">
-      <iframe width="533" height="400" src="https://www.youtube.com/embed/G0j8azSHeVk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe width="533" height="400" src="https://www.youtube.com/embed/zt7qH173D0s" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
 
