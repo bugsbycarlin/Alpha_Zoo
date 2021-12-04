@@ -158,11 +158,14 @@ Game.prototype.cafeKeyDown = function(ev) {
   if (key === "Escape" && !this.cafe_exit_sequence) {
     this.cafe_exit_sequence = true;
     this.player.visible = true;
+    this.ghost.visible = true;
     this.player.y += 150;
     this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (100 + this.height / 2) - this.player.y * this.map.scale.y);
+    this.ghost.position.set(this.width/2, this.height/2 + 100);
     this.zoo_mode = "active";
     this.player.direction = "right";
     this.player.updateDirection();
+    this.updateGhost();
     this.checkPenProximity(this.player.x, this.player.y, this.player.direction);
     this.fadeScreens("cafe", "zoo", true);
     return;

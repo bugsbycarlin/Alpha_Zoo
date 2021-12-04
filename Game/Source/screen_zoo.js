@@ -91,6 +91,10 @@ Game.prototype.resetZooScreen = function() {
   this.title_instructions.alpha = 0.01;
   this.title_instructions.visible = false;
 
+  this.ghost = this.player = this.makeCharacter("brown_bear_ghost");
+  screen.addChild(this.ghost);
+  this.ghost.position.set(this.width / 2, this.height / 2);
+
   // this.makeLoadingScreen();
   this.black.alpha = 1;
   this.black.visible = true;
@@ -573,6 +577,8 @@ Game.prototype.zooKeyDown = function(ev) {
 
     delay(function() {
       self.ferris_wheel.reset();
+      self.ghost.visible = true;
+      self.updateGhost();
     }, 900)
 
     delay(function() {
@@ -1088,6 +1094,7 @@ Game.prototype.displayMap = function() {
     }
   }
   this.player.scale.set(3 * 0.72,3 * 0.72);
+  this.ghost.visible = false;
   this.player.red_circle.visible = true;
   this.map_border.visible = true;
 
@@ -1140,6 +1147,7 @@ Game.prototype.hideMap = function() {
     }
   }
   this.player.scale.set(0.72,0.72);
+  this.ghost.visible = true;
   this.player.red_circle.visible = false;
   this.map_border.visible = false;
 
@@ -1200,6 +1208,7 @@ Game.prototype.rideFerrisWheel = function() {
     self.sortLayer(self.map.decoration_layer, self.decorations);
 
     self.ferris_wheel.addPlayer(self.player);
+    self.ghost.visible = false;
   }, 1400)
 
   delay(function() {
@@ -1225,6 +1234,8 @@ Game.prototype.rideFerrisWheel = function() {
   delay(function() {
     if (self.ferris_wheel.ride_number == ride_number) {
       self.ferris_wheel.reset();
+      self.ghost.visible = true;
+      self.updateGhost();
     }
   }, 64200)
 
@@ -1476,6 +1487,17 @@ Game.prototype.poopsAndFoods = function(fractional) {
 }
 
 
+Game.prototype.updateGhost = function() {
+  if (this.player.direction != null) {
+    this.ghost.direction = this.player.direction;
+    this.ghost.updateDirection();
+    this.ghost.character_sprite[this.ghost.direction].gotoAndStop(
+      this.player.character_sprite[this.player.direction].currentFrame
+    );
+  }
+}
+
+
 Game.prototype.updatePlayer = function() {
   var self = this;
   var keymap = this.keymap;
@@ -1507,6 +1529,7 @@ Game.prototype.updatePlayer = function() {
     }
 
     player.move();
+    this.updateGhost();
 
     this.updateEnts();
 
@@ -1517,6 +1540,7 @@ Game.prototype.updatePlayer = function() {
     if (this.cafe != null) {
       if (Math.abs(player.x - this.cafe.x) <= 80 && player.y < this.cafe.y && player.y > this.cafe.y - 50) {
         this.player.visible = false;
+        this.ghost.visible = false;
         this.zoo_mode = "fading";
         this.initializeScreen("cafe");
         this.fadeScreens("zoo", "cafe", true);
@@ -1524,6 +1548,7 @@ Game.prototype.updatePlayer = function() {
     }
   } else if (player.direction != null) {
     player.updateDirection();
+    this.updateGhost();
   }
 }
 
@@ -1782,6 +1807,7 @@ Game.prototype.updateZoo = function(diff) {
 
   if (this.zoo_mode == "active" || this.zoo_mode == "fading" || this.zoo_mode == "loading") {
     this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, this.height/2 - this.player.y * this.map.scale.y);
+    this.ghost.position.set(this.width/2, this.height/2);
   } else if (this.zoo_mode == "pre_ferris_wheel") {
     this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, this.height/2 - this.player.y * this.map.scale.y);
   } else if (this.zoo_mode == "ferris_wheel") {

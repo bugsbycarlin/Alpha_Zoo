@@ -1,7 +1,7 @@
 
 ![Alpha Zoo!](https://github.com/bugsbycarlin/Alpha_Zoo/blob/master/Game/Art/alpha_zoo_title.png?raw=true)
 
-# Alpha_Zoo
+# About
 Alpha Zoo is a game that helps parents teach reading and typing to small children.
 
 https://store.steampowered.com/app/1807640/Alpha_Zoo/
@@ -19,13 +19,11 @@ Although the game is for sale, if you're here, you're probably a programmer. Ima
 
 
 # Attributions
-All programming and art assets by Matthew Carlin.
-Sound is from splice.com, freesound.org, and pond5.com.
-Specific sound attributions:
-https://freesound.org/people/jimipoo32/sounds/489874/
-https://www.pond5.com/sound-effects/item/8671090-capybara-cu-chittering-calls
-https://www.pond5.com/sound-effects/item/49541726-male-eastern-grey-kangaroo-growling-and-chewing
-Music is Campfire Song by Chris Haugen (https://chrishaugen.net/).
+All programming and art assets by Matthew Carlin. Sound is from splice.com, freesound.org, and pond5.com. Specific sound attributions:
+- https://freesound.org/people/jimipoo32/sounds/489874/
+- https://www.pond5.com/sound-effects/item/8671090-capybara-cu-chittering-calls
+- https://www.pond5.com/sound-effects/item/49541726-male-eastern-grey-kangaroo-growling-and-chewing
+- Music is Campfire Song by Chris Haugen (https://chrishaugen.net/).
 
 # Version history
 
