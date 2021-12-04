@@ -27,7 +27,7 @@ function createWindow () {
 
     const mainWindow = new BrowserWindow({
       width: 1440,
-      height: 900,
+      height: 922,
       fullscreen: fullscreen,
       backgroundColor: '#000000',
       show: false,
@@ -58,7 +58,7 @@ function createWindow () {
       } else if (arg[0] == "fullscreen" && arg[1] == false) {
         mainWindow.setFullScreen(false);
         mainWindow.unmaximize();
-        mainWindow.setSize(1440, 900);
+        mainWindow.setSize(1440, 922);
         mainWindow.show();
         settings.set('fullscreen', {
             data: false

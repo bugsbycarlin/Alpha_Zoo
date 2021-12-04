@@ -6,9 +6,9 @@
 // Written by Matthew Carlin
 //
 
-let cafe_diner_locations = [[1107,704], [1213, 485], [798, 827], [324, 829]];
-let cafe_table_locations = [[1070,800], [1183, 578], [759, 922], [355, 923]];
-let cafe_food_locations = [[1084, 747], [1195, 519], [772, 864], [352, 870]];
+let cafe_diner_locations = [[1299,604], [1333, 415], [738, 837], [1098, 757], [324, 829]];
+let cafe_table_locations = [[1262,700], [1303, 508], [699, 932], [1059, 852], [355, 923]];
+let cafe_food_locations = [[1276, 647], [1315, 449], [712, 874], [1072, 794], [352, 870]];
 
 let menu_layout = [
   ["PIZZA", 60, 50],
@@ -85,14 +85,14 @@ Game.prototype.initializeCafe = function() {
   this.cafe_diners = [];
   this.cafe_meals = [null, null, null, null];
   
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     let name = "brown_bear";
     if (i > 0) name = pick(npc_list);
     let diner = this.makeCharacter(name);
     diner.scale.set(1,1); // reset to larger scale
     diner.position.set(cafe_diner_locations[i][0],cafe_diner_locations[i][1]);
     diner.direction = "downleft";
-    if (i == 3) diner.direction = "downright";
+    if (i == 4) diner.direction = "downright";
     if (i > 0) {
       diner.food_time = this.markTime();
       diner.food_delay = 5000 + 8000 * Math.random();
@@ -107,7 +107,7 @@ Game.prototype.initializeCafe = function() {
   // table zero is the player's table.
   this.cafe_tables = [];
   
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     let table = new PIXI.Sprite(PIXI.Texture.from("Art/Cafe/table.png"));
     table.anchor.set(0.5, 0.7);
     table.scale.set(1, 1);
@@ -159,7 +159,7 @@ Game.prototype.cafeKeyDown = function(ev) {
     this.cafe_exit_sequence = true;
     this.player.visible = true;
     this.player.y += 150;
-    this.map.position.set(640 - this.player.x * this.map.scale.x, 580 - this.player.y * this.map.scale.y);
+    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (100 + this.height / 2) - this.player.y * this.map.scale.y);
     this.zoo_mode = "active";
     this.player.direction = "right";
     this.player.updateDirection();

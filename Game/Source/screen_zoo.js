@@ -290,8 +290,8 @@ Game.prototype.makeMenu = function() {
   this.menu_layer.visible = false;
 
   this.menu_selections = [];
-  this.sound_slider_left = 815;
-  this.music_slider_left = 450;
+  this.sound_slider_left = 689;
+  this.music_slider_left = 324;
   this.menu_selection_number = 0;
 
   this.main_menu_background = new PIXI.Sprite(PIXI.Texture.from("Art/main_menu_background.png"));
@@ -302,65 +302,65 @@ Game.prototype.makeMenu = function() {
   this.menu_selections[0] = new PIXI.Text("MUSIC", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.menu_selections[0].tint = 0x000000;
   this.menu_selections[0].anchor.set(0,0);
-  this.menu_selections[0].position.set(295, 90);
+  this.menu_selections[0].position.set(169, 141);
   this.menu_layer.addChild(this.menu_selections[0]);
 
   this.music_slider = new PIXI.Sprite(PIXI.Texture.from("Art/slider.png"));
   this.music_slider.anchor.set(0,0.5);
-  this.music_slider.position.set(this.music_slider_left,113);
+  this.music_slider.position.set(this.music_slider_left,164);
   this.menu_layer.addChild(this.music_slider);
 
   this.music_slider_bar = new PIXI.Sprite(PIXI.Texture.from("Art/slider_bar.png"));
   this.music_slider_bar.anchor.set(0,0.5);
-  this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
+  this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume, 164);
   this.menu_layer.addChild(this.music_slider_bar);
   
   this.menu_selections[1] = new PIXI.Text("SOUND", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.menu_selections[1].tint = 0x000000;
   this.menu_selections[1].anchor.set(0,0);
-  this.menu_selections[1].position.set(654, 199);
+  this.menu_selections[1].position.set(528, 250);
   this.menu_layer.addChild(this.menu_selections[1]);
 
-  this.sound_slider_left = 815;
+  this.sound_slider_left = 689;
 
   this.sound_slider = new PIXI.Sprite(PIXI.Texture.from("Art/slider.png"));
   this.sound_slider.anchor.set(0,0.5);
-  this.sound_slider.position.set(this.sound_slider_left,222);
+  this.sound_slider.position.set(this.sound_slider_left, 273);
   this.menu_layer.addChild(this.sound_slider);
 
   this.sound_slider_bar = new PIXI.Sprite(PIXI.Texture.from("Art/slider_bar.png"));
   this.sound_slider_bar.anchor.set(0,0.5);
-  this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
+  this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 273);
   this.menu_layer.addChild(this.sound_slider_bar);
 
   this.menu_selections[2] = new PIXI.Text("NEW SMALL ZOO", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[2].tint = 0x000000;
   this.menu_selections[2].anchor.set(0,0);
-  this.menu_selections[2].position.set(278, 345);
+  this.menu_selections[2].position.set(152, 396);
   this.menu_layer.addChild(this.menu_selections[2]);
 
   this.menu_selections[3] = new PIXI.Text("NEW LARGE ZOO", {fontFamily: default_font, fontSize: 56, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[3].tint = 0x000000;
   this.menu_selections[3].anchor.set(0,0);
-  this.menu_selections[3].position.set(603, 488);
+  this.menu_selections[3].position.set(477, 539);
   this.menu_layer.addChild(this.menu_selections[3]);
 
   this.menu_selections[4] = new PIXI.Text("WINDOWED", {fontFamily: default_font, fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.menu_selections[4].tint = 0x000000;
   this.menu_selections[4].anchor.set(0,0);
-  this.menu_selections[4].position.set(243, 658);
+  this.menu_selections[4].position.set(117, 709);
   this.menu_layer.addChild(this.menu_selections[4]);
 
   let wfs_bar = new PIXI.Text("|", {fontFamily: default_font, fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   wfs_bar.tint = 0x000000;
   wfs_bar.anchor.set(0,0);
-  wfs_bar.position.set(403, 658);
+  wfs_bar.position.set(277, 707);
   this.menu_layer.addChild(wfs_bar);
 
   this.wfs_alt = new PIXI.Text("FULL SCREEN", {fontFamily: default_font, fontSize: 36, fill: 0xFFFFFF, letterSpacing: 4, align: "left"});
   this.wfs_alt.tint = 0x000000;
   this.wfs_alt.anchor.set(0,0);
-  this.wfs_alt.position.set(435, 658);
+  this.wfs_alt.position.set(309, 709);
   this.menu_layer.addChild(this.wfs_alt);
 
   this.changeMenuSelection(0);
@@ -373,16 +373,16 @@ Game.prototype.makeMenu = function() {
   // 237,658 + 410 + 435
 
   this.menu_escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
-  this.menu_escape_glyph.anchor.set(1,1);
-  this.menu_escape_glyph.position.set(this.width - 15, this.height - 20);
+  this.menu_escape_glyph.anchor.set(0,1);
+  this.menu_escape_glyph.position.set(20, this.height - 20);
   this.menu_escape_glyph.scale.set(0.6, 0.6)
   this.menu_escape_glyph.tint = 0x000000;
   this.menu_escape_glyph.alpha = 0.6;
   this.menu_layer.addChild(this.menu_escape_glyph);
 
   this.menu_escape_text = new PIXI.Text("Escape", {fontFamily: default_font, fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
-  this.menu_escape_text.anchor.set(1,1);
-  this.menu_escape_text.position.set(this.width - 90, this.height - 32);
+  this.menu_escape_text.anchor.set(0,1);
+  this.menu_escape_text.position.set(100, this.height - 32);
   this.menu_escape_text.alpha = 0.6;
   this.menu_layer.addChild(this.menu_escape_text);
 }
@@ -494,7 +494,7 @@ Game.prototype.zooKeyDown = function(ev) {
         localStorage.setItem("music_volume", music_volume);
         if (this.music != null) this.music.volume = music_volume;
         if (this.music == null && music_volume > 0) this.setMusic("background_music");
-        this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
+        this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume, 164);
       }
     }
 
@@ -506,7 +506,7 @@ Game.prototype.zooKeyDown = function(ev) {
         localStorage.setItem("music_volume", music_volume);
         if (this.music != null) this.music.volume = music_volume;
         if (this.music == null && music_volume > 0) this.setMusic("background_music");
-        this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume,113);
+        this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume, 164);
       }
     }
 
@@ -517,7 +517,7 @@ Game.prototype.zooKeyDown = function(ev) {
         sound_volume = Math.round(sound_volume * 10) / 10;
         localStorage.setItem("sound_volume", sound_volume);
         this.soundEffect("pop");
-        this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
+        this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 273);
       }
     }
 
@@ -528,7 +528,7 @@ Game.prototype.zooKeyDown = function(ev) {
         sound_volume = Math.round(sound_volume * 10) / 10;
         localStorage.setItem("sound_volume", sound_volume);
         this.soundEffect("pop");
-        this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 222);
+        this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 273);
       }
     }
 
@@ -1721,7 +1721,7 @@ Game.prototype.updateEnts = function() {
     for (let e = 0; e < this.ent_positions.length; e++) {
       let pos = this.ent_positions[e];
 
-      if(Math.abs(this.player.x - pos[0]) < 800 && Math.abs(this.player.y - pos[1]) < 700) {
+      if(Math.abs(this.player.x - pos[0]) < 900 && Math.abs(this.player.y - pos[1]) < 700) {
         if (ent_count < total_ents) {
           this.ents[ent_count].visible = true;
           this.ents[ent_count].position.set(pos[0], pos[1]);
