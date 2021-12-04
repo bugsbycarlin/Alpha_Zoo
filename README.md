@@ -1,3 +1,6 @@
+
+![Alpha Zoo!](https://github.com/bugsbycarlin/Alpha_Zoo/blob/master/Game/Art/alpha_zoo_title.png?raw=true)
+
 # Alpha_Zoo
 Alpha Zoo is a game that helps parents teach reading and typing to small children.
 
