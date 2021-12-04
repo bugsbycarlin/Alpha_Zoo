@@ -1,6 +1,8 @@
 # Alpha_Zoo
 Alpha Zoo is a game that helps parents teach reading and typing to small children.
 
+https://store.steampowered.com/app/1807640/Alpha_Zoo/
+
 It is meant to be played together, parent and child, with a bright, colorful keyboard.
 !(https://cdn.shopify.com/s/files/1/0006/9045/4575/products/main_ori_57ddb798-8cda-415b-8bbc-1b48bbad9ecd.jpg)
 
@@ -10,7 +12,7 @@ This game is developed in javascript with PixiJS and a few other small libraries
 
 
 # License
-Although we plan to sell the game, if you're here, you're probably a programmer. Images and other media assets are copyright Alpha Zoo 2021. Code is open sourced. You are free to use our code under a Creative Commons license, either for learning or for your own development purposes, commercial or non-commercial, with attribution appreciated but not necessary.
+Although the game is for sale, if you're here, you're probably a programmer. Images and other media assets are copyright Alpha Zoo 2021. Code is open sourced. You are free to use our code under a Creative Commons license, either for learning or for your own development purposes, commercial or non-commercial, with attribution appreciated but not necessary.
 
 
 # Attributions

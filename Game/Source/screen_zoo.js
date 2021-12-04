@@ -57,7 +57,8 @@ let fruit_color = 0x70527d;
 
 let poop_color = 0x644b38;
 
-let menu_selection_color = 0x9869d2;
+let menu_selection_color = 0x42b2d2;
+// let menu_selection_number = 
 
 let npc_list = [
   "black_bear", "polar_bear",
