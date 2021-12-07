@@ -333,6 +333,8 @@ class Game {
       this.initializeZoo();
     } else if (screen_name == "cafe") {
       this.initializeCafe();
+    } else if (screen_name == "gift_shop") {
+      this.initializeGiftShop();
     } else if (screen_name == "animal_pop") {
       this.initializeAnimalPop();
     }
@@ -343,6 +345,8 @@ class Game {
       this.updateZoo(diff);
     } else if (this.current_screen == "cafe") {
       this.updateCafe(diff);
+    } else if (this.current_screen == "gift_shop") {
+      this.updateGiftShop(diff);
     } else if (this.current_screen == "animal_pop") {
       this.updateAnimalPop(diff);
     } 
@@ -368,6 +372,8 @@ class Game {
       this.zooKeyDown(ev);
     } else if (this.current_screen == "cafe") {
       this.cafeKeyDown(ev);
+    } else if (this.current_screen == "cafe") {
+      this.giftShopKeyDown(ev);
     }
   }
 

@@ -77,12 +77,12 @@ Game.prototype.makeFerrisWheel = function(pen) {
 
     if (i >= 7 && i <= 11 && i != 9) {
       let rider = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/Riders/rider_" + Math.floor(Math.random() * 6) + ".png")); //" + Math.floor(Math.random() * 8) + "
-      rider.anchor.set(0.5,0.5);
+      rider.anchor.set(0.5,0.78125);
       rider.scale.set(0.72, 0.72);
       rider.seat = i;
       rider.position.set(
         0 + 850 * Math.cos(i * 30 * Math.PI / 180),
-        -1346 - 850 * Math.sin(i * 30 * Math.PI / 180) + 158
+        -1346 - 850 * Math.sin(i * 30 * Math.PI / 180) + 186
       );
       rider.visible = false;
       fw.riders.push(rider);
@@ -110,7 +110,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.player.updateDirection();
     fw.player.position.set(
         0 + 850 * Math.cos(270 * Math.PI / 180),
-        -1346 - 850 * Math.sin(270 * Math.PI / 180) + 158
+        -1346 - 850 * Math.sin(270 * Math.PI / 180) + 186
       );
     while(fw.cart_layer.children[0]) {
       fw.cart_layer.removeChild(fw.cart_layer.children[0]);
@@ -244,11 +244,13 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.wheel_shadow.angle = 0;
     fw.wheel.angle = 0;
 
+    self.map.scale.set(1,1);
+
     for (let i = 0; i < fw.riders.length; i++) {
       fw.riders[i].visible = false;
       fw.riders[i].position.set(
         0 + 850 * Math.cos((fw.riders[i].seat * 30) * Math.PI / 180),
-        -1346 - 850 * Math.sin((fw.riders[i].seat * 30) * Math.PI / 180) + 158
+        -1346 - 850 * Math.sin((fw.riders[i].seat * 30) * Math.PI / 180) + 186
       );
     }
 
@@ -280,14 +282,14 @@ Game.prototype.makeFerrisWheel = function(pen) {
       for (let i = 0; i < fw.riders.length; i++) {
         fw.riders[i].position.set(
           0 + 850 * Math.cos((fw.riders[i].seat * 30 + fw.wheel_angle) * Math.PI / 180),
-          -1346 - 850 * Math.sin((fw.riders[i].seat * 30 + fw.wheel_angle) * Math.PI / 180) + 158
+          -1346 - 850 * Math.sin((fw.riders[i].seat * 30 + fw.wheel_angle) * Math.PI / 180) + 186
         );
       }
 
       if (fw.player != null) {
         fw.player.position.set(
           0 + 850 * Math.cos((270 + fw.wheel_angle) * Math.PI / 180),
-          -1346 - 850 * Math.sin((270 + fw.wheel_angle) * Math.PI / 180) + 158
+          -1346 - 850 * Math.sin((270 + fw.wheel_angle) * Math.PI / 180) + 186
         );
 
         if (fw.player.position.x > 30) {

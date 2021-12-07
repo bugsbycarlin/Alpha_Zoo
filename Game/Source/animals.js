@@ -500,24 +500,24 @@ let arboreal_jump_distance = 200;
 
 let tree_touch_points = {};
 tree_touch_points["KOALA"] = [];
-tree_touch_points["KOALA"][1] = [[-21, 107], [-23, 55], [-20, 123], [-47, 91], [31, 55], [26, 113], [67, 86],];
-tree_touch_points["KOALA"][2] = [[35, 23],];
-tree_touch_points["KOALA"][3] = [[31, 30], [48, 126], [20, 145],[-28, 106], [-29, 35], [-31, 51],];
+tree_touch_points["KOALA"][1] = [[-21, 107+18], [-23, 55+18], [-20, 123+18], [-47, 91+18], [31, 55+18], [26, 113+18], [67, 86+18],];
+tree_touch_points["KOALA"][2] = [[35, 23+18],];
+tree_touch_points["KOALA"][3] = [[31, 30+18], [48, 126+18], [20, 145+18],[-28, 106+18], [-29, 35+18], [-31, 51+18],];
 
 tree_touch_points["SLOTH"] = [];
-tree_touch_points["SLOTH"][1] = [[26, 80], [29, 38], [50, 96],[-25, 100], [-46, 63],];
-tree_touch_points["SLOTH"][2] = [[75, 62],];
-tree_touch_points["SLOTH"][3] = [[-24, 25], [-34, 112], [47, 84], [29, 75]];
+tree_touch_points["SLOTH"][1] = [[26, 80+18], [29, 38+18], [50, 96+18],[-25, 100+18], [-46, 63+18],];
+tree_touch_points["SLOTH"][2] = [[75, 62+18],];
+tree_touch_points["SLOTH"][3] = [[-24, 25+18], [-34, 112+18], [47, 84+18], [29, 75+18],];
 
 tree_touch_points["LEMUR"] = [];
-tree_touch_points["LEMUR"][1] = [[51, 106], [-39, 113],];
+tree_touch_points["LEMUR"][1] = [[51, 106+18], [-39, 113+18],];
 tree_touch_points["LEMUR"][2] = [];
-tree_touch_points["LEMUR"][3] = [[63, 151], [-34, 180], [-45, 90],];
+tree_touch_points["LEMUR"][3] = [[63, 151+18], [-34, 180+18], [-45, 90+18],];
 
 tree_touch_points["ORANGUTAN"] = [];
-tree_touch_points["ORANGUTAN"][1] = [[-59, 37], [-24, 22], [82, 39], [28, 37]];
-tree_touch_points["ORANGUTAN"][2] = [[102, 2]];
-tree_touch_points["ORANGUTAN"][3] = [[-24, 22], [-68, 55], [27, 54], [98, 27], [60, 29]];
+tree_touch_points["ORANGUTAN"][1] = [[-59, 37+18], [-24, 22+18], [82, 39+18], [28, 37+18],];
+tree_touch_points["ORANGUTAN"][2] = [[102, 2+18],];
+tree_touch_points["ORANGUTAN"][3] = [[-24, 22+18], [-68, 55+18], [27, 54+18], [98, 27+18], [60, 29+18],];
 
 
 

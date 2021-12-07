@@ -1,12 +1,12 @@
 
 //
-// screen_zoo.js runs the cafe scene.
+// screen_cafe.js runs the cafe scene.
 //
 // Copyright 2021 Alpha Zoo LLC.
 // Written by Matthew Carlin
 //
 
-let cafe_diner_locations = [[1299,604], [1333, 415], [738, 837], [1098, 757], [324, 829]];
+let cafe_diner_locations = [[1299,604+36], [1333, 415+36], [738, 837+36], [1098, 757+36], [324, 829+36],];
 let cafe_table_locations = [[1262,700], [1303, 508], [699, 932], [1059, 852], [355, 923]];
 let cafe_food_locations = [[1276, 647], [1315, 449], [712, 874], [1072, 794], [352, 870]];
 

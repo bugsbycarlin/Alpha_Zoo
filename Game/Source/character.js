@@ -22,7 +22,7 @@ Game.prototype.makeCharacter = function(character_name) {
   character.character_name = character_name;
 
   character.red_circle = new PIXI.Sprite(PIXI.Texture.from("Art/red_circle.png"));
-  character.red_circle.anchor.set(0.5,0.5);
+  character.red_circle.anchor.set(0.5,0.78125);
   character.red_circle.position.set(0,0);
   character.red_circle.visible = false;
   character.addChild(character.red_circle)
@@ -32,7 +32,7 @@ Game.prototype.makeCharacter = function(character_name) {
   character.character_sprite = {};
   for(let i = 0; i < 8; i++) {
     character.character_sprite[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
-    character.character_sprite[directions[i]].anchor.set(0.5,0.5);
+    character.character_sprite[directions[i]].anchor.set(0.5,0.78125);
     character.character_sprite[directions[i]].position.set(0, 0);
     character.addChild(character.character_sprite[directions[i]]);
     character.character_sprite[directions[i]].visible = false;

@@ -786,7 +786,7 @@ Game.prototype.designatePens = function() {
         // new_animal = "SWAN";
         // new_animal = "COW";
         // new_animal = "OTTER";
-        // new_animal = "MEERKAT";
+        // new_animal = "ORANGUTAN";
         pen.animal = new_animal;
         pen.land = animals[new_animal].land;
         pen.pond_choice = animals[new_animal].pond;
@@ -1231,11 +1231,11 @@ Game.prototype.addAnimalsAndDecorations = function() {
               decoration.tree_number = Math.ceil(Math.random() * 3)
               let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
               shadow.anchor.set(0.5, 0.5);
-              shadow.position.set(0,25);
+              shadow.position.set(0,7);
               decoration.addChild(shadow);
               let tree_sprite = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
               tree_sprite.gotoAndStop(decoration.tree_number - 1);
-              tree_sprite.anchor.set(0.5, 0.85);
+              tree_sprite.anchor.set(0.5, 0.92);
               decoration.addChild(tree_sprite);
               this.shakers.push(decoration);
             } else if (decoration_type == "brown_rock" || decoration_type == "grey_rock") {
@@ -1364,11 +1364,11 @@ Game.prototype.addAnimalsAndDecorations = function() {
     let ent = new PIXI.Container();
     let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
     shadow.anchor.set(0.5, 0.5);
-    shadow.position.set(0,25);
+    shadow.position.set(0,7);
     ent.addChild(shadow);
     let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
     tree.gotoAndStop(0);
-    tree.anchor.set(0.5, 0.85);
+    tree.anchor.set(0.5, 0.92); // was 85
     ent.addChild(tree);
     ent.tree = tree;
 
@@ -1448,11 +1448,11 @@ Game.prototype.addAnimalsAndDecorations = function() {
     decoration.tree_number = Math.ceil(Math.random() * 3)
     let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
     shadow.anchor.set(0.5, 0.5);
-    shadow.position.set(0,25);
+    shadow.position.set(0,7);
     decoration.addChild(shadow);
     let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
     tree.gotoAndStop(decoration.tree_number - 1);
-    tree.anchor.set(0.5, 0.85);
+    tree.anchor.set(0.5, 0.92);
     decoration.addChild(tree);
     decoration.position.set(x, y);
     this.decorations.push(decoration);
