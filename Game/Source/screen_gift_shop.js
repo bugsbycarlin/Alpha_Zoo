@@ -13,6 +13,25 @@ let gift_shop_table_locations = [
   [1120, 751],
 ]
 
+let table_polygons = [];
+for (let i = 0; i < gift_shop_table_locations.length; i++) {
+  let p = gift_shop_table_locations[i];
+  table_polygons.push([
+    [p[0] - 200, p[1]],
+    [p[0] - 200, p[1] - 100],
+    [p[0] + 200, p[1] - 100],
+    [p[0] + 200, p[1]],
+  ]);
+}
+
+let container_polygon = [
+  [185, 342],
+  [1278, 342],
+  [1440, 468],
+  [1440, 900],
+  [0, 900],
+  [0, 468],
+];
 
 
 Game.prototype.initializeGiftShop = function() {
@@ -79,8 +98,8 @@ Game.prototype.giftShopKeyDown = function(ev) {
     this.player.visible = true;
     this.ghost.visible = true;
     this.player.y += 150;
-    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (100 + this.height / 2) - this.player.y * this.map.scale.y);
-    this.ghost.position.set(this.width/2, this.height/2 + 100);
+    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (this.height / 2) - this.player.y * this.map.scale.y);
+    this.ghost.position.set(this.width/2, this.height/2);
     this.zoo_mode = "active";
     this.player.direction = "right";
     this.player.updateDirection();
@@ -103,6 +122,59 @@ Game.prototype.giftShopKeyDown = function(ev) {
   // }
 }
 
+
+Game.prototype.giftShopTestMove = function(x, y, direction) {
+  let tx = x;
+  let ty = y;
+
+  if (direction == "right") {
+    tx += 40;
+    ty -= 5;
+  }
+  if (direction == "left") {
+    tx -= 40;
+    ty -= 5;
+  }
+  if (direction == "up") ty -= 30;
+  if (direction == "down") ty += 0;
+  if (direction == "downright") {
+    tx += 40;
+    ty += 0;
+  }
+  if (direction == "downleft") {
+    tx -= 40;
+    ty += 0;
+  }
+  if (direction == "upright") {
+    tx += 40;
+    ty -= 30;
+  }
+  if (direction == "upleft") {
+    tx -= 40;
+    ty -= 30;
+  }
+
+  // Replace this with being inside the inner polygon.
+  if (!pointInsidePolygon([tx, ty], container_polygon)) {
+    return false;
+  }
+  // if (tx >= this.right_bound
+  //     || tx <= this.left_bound
+  //     || ty <= this.upper_bound
+  //     || ty >= this.lower_bound) return false;
+
+
+  // if (direction == "up")
+  // for (let i = 0; i < voronoi_size; i++) {
+  //   if (this.voronoi_metadata[i].use == true && this.voronoi_metadata[i].group != null) {
+  for (let i = 0; i < table_polygons.length; i++) {
+    if (pointInsidePolygon([tx, ty], table_polygons[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 
 Game.prototype.updateGiftShopPlayer = function() {
@@ -130,7 +202,9 @@ Game.prototype.updateGiftShopPlayer = function() {
     player.direction = null;
   }
 
-  player.move();
+  if (this.giftShopTestMove(player.x, player.y, player.direction)) {
+    player.move();
+  }
 }
 
 

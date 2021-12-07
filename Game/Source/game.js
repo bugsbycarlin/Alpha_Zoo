@@ -372,7 +372,7 @@ class Game {
       this.zooKeyDown(ev);
     } else if (this.current_screen == "cafe") {
       this.cafeKeyDown(ev);
-    } else if (this.current_screen == "cafe") {
+    } else if (this.current_screen == "gift_shop") {
       this.giftShopKeyDown(ev);
     }
   }

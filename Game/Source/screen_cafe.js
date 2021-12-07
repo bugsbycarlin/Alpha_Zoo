@@ -160,8 +160,8 @@ Game.prototype.cafeKeyDown = function(ev) {
     this.player.visible = true;
     this.ghost.visible = true;
     this.player.y += 150;
-    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (100 + this.height / 2) - this.player.y * this.map.scale.y);
-    this.ghost.position.set(this.width/2, this.height/2 + 100);
+    this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (this.height / 2) - this.player.y * this.map.scale.y);
+    this.ghost.position.set(this.width/2, this.height/2);
     this.zoo_mode = "active";
     this.player.direction = "right";
     this.player.updateDirection();

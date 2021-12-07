@@ -815,6 +815,8 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Ferris_Wheel/icon.png"));
   } else if (this.thing_to_type == "CAFE") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Cafe/icon.png"));
+  } else if (this.thing_to_type == "GIFT_SHOP") {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/icon.png"));
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.thing_to_type.toLowerCase() + ".png"));
   } else {
@@ -897,6 +899,8 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
     } else if (this.thing_to_display == "FERRIS_WHEEL") {
       word_list = ["COLOR", "RIDE"];
     } else if (this.thing_to_display == "CAFE") {
+      word_list = [];
+    } else if (this.thing_to_display == "GIFT SHOP") {
       word_list = [];
     } else {
       word_list = ["POOP", "FEED", "MAP"];
@@ -984,7 +988,7 @@ Game.prototype.grey = function(pen) {
       pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].grey_color;
     }
   }
-  if (pen.special == "CAFE") {
+  if (pen.special == "CAFE" || pen.special == "GIFT_SHOP") {
     pen.special_object.grey();
   }
   if (pen.special != "RIVER" && pen.land_object != null) {
@@ -1017,7 +1021,7 @@ Game.prototype.ungrey = function(pen) {
       pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].true_color;
     }
   }
-  if (pen.special == "CAFE") {
+  if (pen.special == "CAFE" || pen.special == "GIFT_SHOP") {
     pen.special_object.ungrey();
   }
   if (pen.special != "RIVER" && pen.land_object != null) {
@@ -1544,6 +1548,16 @@ Game.prototype.updatePlayer = function() {
         this.zoo_mode = "fading";
         this.initializeScreen("cafe");
         this.fadeScreens("zoo", "cafe", true);
+      }
+    }
+
+    if (this.gift_shop != null) {
+      if (Math.abs(player.x - this.gift_shop.x) <= 80 && player.y < this.gift_shop.y && player.y > this.gift_shop.y - 50) {
+        this.player.visible = false;
+        this.ghost.visible = false;
+        this.zoo_mode = "fading";
+        this.initializeScreen("gift_shop");
+        this.fadeScreens("zoo", "gift_shop", true);
       }
     }
   } else if (player.direction != null) {

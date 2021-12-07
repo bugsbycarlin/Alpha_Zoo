@@ -314,6 +314,15 @@ Game.prototype.isCafeTile = function(i,j) {
 }
 
 
+Game.prototype.isGiftShopTile = function(i,j) {
+  if (this.special_gift_shop_tile == null) return false;
+
+  if (i == this.special_gift_shop_tile[0] && j == this.special_gift_shop_tile[1]) return true;
+
+  return false;
+}
+
+
 Game.prototype.isRiverTile = function(i,j) {
   for (let k = 0; k < this.river_tiles.length; k++) {
     if (this.river_tiles[k][0] == i && this.river_tiles[k][1] == j) return true;
@@ -394,11 +403,34 @@ Game.prototype.makeMapPens = function() {
     }
   }
 
+
+  // now, a gift shop tile, same deal.
+  this.special_gift_shop_tile = null;
+  if (this.zoo_size >= 6) {
+    let potential_gift_shop_tiles = [];
+    for (let i = 1; i < this.zoo_size - 1; i++) {
+      for (let j = 1; j < this.zoo_size - 1; j++) {
+        if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isGiftShopTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
+          && this.zoo_squares[i][j].s_edge == true) { // put the gift shop somewhere where there's a road below it.
+          potential_gift_shop_tiles.push([i,j]);
+        }
+      }
+    }
+
+    if (potential_gift_shop_tiles.length > 0) {
+      shuffleArray(potential_gift_shop_tiles);
+      this.special_gift_shop_tile = potential_gift_shop_tiles[0];
+    } else {
+      console.log("ALERT: NO SPACE TO PUT THE GIFT SHOP!");
+    }
+  }
+
+
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
 
       if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isCafeTile(i,j)
-        && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
+        && !this.isGiftShopTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
 
         let polygon = [];
 
@@ -636,15 +668,15 @@ Game.prototype.makeMapPens = function() {
         polygon.push([center_x - 80, center_y - 55]);
         polygon.push([center_x - 80, center_y + 50]);
         polygon.push([center_x - 300, center_y + 50]); // now we're back to the proper exterior
-        polygon.push([center_x - 300, center_y - 630]); // the top is 630 from the door, with a bit allowed for the player to walk partially out of view behind the building.
-        polygon.push([center_x + 300, center_y - 630]);
+        polygon.push([center_x - 300, center_y - 595]); // the top is 595 from the door, with a bit allowed for the player to walk partially out of view behind the building.
+        polygon.push([center_x + 300, center_y - 595]);
         polygon.push([center_x + 300, center_y + 50]);
 
         let grey_polygon = []; // we also define a simpler polygon for when the object is grey.
         grey_polygon.push([center_x + 300, center_y + 50]);
         grey_polygon.push([center_x - 300, center_y + 50]);
-        grey_polygon.push([center_x - 300, center_y - 630]);
-        grey_polygon.push([center_x + 300, center_y - 630]);
+        grey_polygon.push([center_x - 300, center_y - 595]);
+        grey_polygon.push([center_x + 300, center_y - 595]);
         grey_polygon.push([center_x + 300, center_y + 50]);
 
         this.zoo_pens.push({
@@ -657,6 +689,47 @@ Game.prototype.makeMapPens = function() {
           cy: center_y,
           animal: null,
           special: "CAFE",
+          land: "grass",
+          decoration_objects: [],
+          land_object: null,
+          animal_objects: null,
+          state: "ungrey",
+          inner_polygon: null,
+          square_numbers: [i,j],
+          location: this.zoo_squares[i][j],
+        });
+        this.zoo_squares[i][j].pen = this.zoo_pens[this.zoo_pens.length - 1];
+      } else if (this.zoo_squares[i][j].reachable && this.isGiftShopTile(i,j)) {
+        let polygon = [];
+        let center_x = square_width * i + square_width / 2;
+        let center_y = square_width * (j + 1) - 186; // 100 pixels of path, 86 pixels of space until the gift shop door.
+        polygon.push([center_x + 340, center_y + 50]); // the bottom is 50 pixels from the door
+        polygon.push([center_x + 80, center_y + 50]); // the next four vertices define an indentation for the door
+        polygon.push([center_x + 80, center_y - 55]);
+        polygon.push([center_x - 80, center_y - 55]);
+        polygon.push([center_x - 80, center_y + 50]);
+        polygon.push([center_x - 340, center_y + 50]); // now we're back to the proper exterior
+        polygon.push([center_x - 340, center_y - 540]); // the top is 540 from the door, with a bit allowed for the player to walk partially out of view behind the building.
+        polygon.push([center_x + 340, center_y - 540]);
+        polygon.push([center_x + 340, center_y + 50]);
+
+        let grey_polygon = []; // we also define a simpler polygon for when the object is grey.
+        grey_polygon.push([center_x + 340, center_y + 50]);
+        grey_polygon.push([center_x - 340, center_y + 50]);
+        grey_polygon.push([center_x - 340, center_y - 540]);
+        grey_polygon.push([center_x + 340, center_y - 540]);
+        grey_polygon.push([center_x + 340, center_y + 50]);
+
+        this.zoo_pens.push({
+          use: false,
+          outer: false,
+          polygon: grey_polygon,
+          ungrey_polygon: polygon,
+          grey_polygon: grey_polygon,
+          cx: center_x,
+          cy: center_y,
+          animal: null,
+          special: "GIFT_SHOP",
           land: "grass",
           decoration_objects: [],
           land_object: null,
@@ -1300,6 +1373,13 @@ Game.prototype.addAnimalsAndDecorations = function() {
       this.cafe.position.set(pen.cx, pen.cy);
       this.decorations.push(this.cafe);
       pen.special_object = this.cafe;
+    }
+
+    if (pen.special == "GIFT_SHOP") {
+      this.gift_shop = this.makeGiftShopExterior(pen);
+      this.gift_shop.position.set(pen.cx, pen.cy);
+      this.decorations.push(this.gift_shop);
+      pen.special_object = this.gift_shop;
     }  
   }
 
@@ -1386,7 +1466,7 @@ Game.prototype.addAnimalsAndDecorations = function() {
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
       if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge
-        && !this.isCafeTile(i,j)) {
+        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
         for (let t = 0; t < 4; t++) {
           if (Math.random() > 0.4) {
             let x = square_width * i + 120 + 20 * Math.random();
@@ -1399,7 +1479,7 @@ Game.prototype.addAnimalsAndDecorations = function() {
         }
       }
       if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].e_edge
-        && !this.isCafeTile(i,j)) {
+        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
         for (let t = 0; t < 4; t++) {
           if (Math.random() > 0.4) {
             let x = square_width * i + square_width - 120 - 20 * Math.random();
@@ -1424,7 +1504,7 @@ Game.prototype.addAnimalsAndDecorations = function() {
         }
       }
       if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].s_edge
-        && !this.isCafeTile(i,j)) {
+        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
         for (let t = 0; t < 3; t++) {
           if (Math.random() > 0.2) {
             let x = square_width * i + 200 + (square_width - 400) * Math.random();

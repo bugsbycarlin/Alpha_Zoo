@@ -1,6 +1,6 @@
 
 //
-// The cafe class defines the exterior of a cafe.
+// The cafe_exterior class defines the exterior of a cafe.
 //
 // Copyright 2021 Alpha Zoo LLC.
 // Written by Matthew Carlin
