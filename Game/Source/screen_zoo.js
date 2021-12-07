@@ -268,6 +268,14 @@ Game.prototype.makeUI = function() {
   this.animal_count_text.visible = false;
   screen.addChild(this.animal_count_text);
 
+  this.dollar_bucks_text = new PIXI.Text("$0", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.dollar_bucks_text.anchor.set(1,0.5);
+  this.dollar_bucks_text.position.set(this.width - 25, 150);
+  this.dollar_bucks_text.alpha = 0.0;
+  this.dollar_bucks_text.visible = false;
+  screen.addChild(this.dollar_bucks_text);
+
+
   this.escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
   this.escape_glyph.anchor.set(1,1);
   this.escape_glyph.position.set(this.width - 20, this.height - 20);
@@ -433,6 +441,8 @@ Game.prototype.playerAndBoundaries = function() {
   this.player = this.makeCharacter("brown_bear"); //brown_bear
   this.player.position.set(min_location[0], min_location[1]);
   this.decorations.push(this.player);
+
+  this.dollar_bucks = 0;
 
   this.npcs = [];
 
@@ -643,6 +653,7 @@ Game.prototype.addType = function(letter) {
       self.soundEffect("build");
       if (pen_to_fix.animal_objects != null) {
         self.animals_obtained += 1;
+        self.dollar_bucks += 2;
         self.updateAnimalCount();
       }
       pen_to_fix.land_object.shake = self.markTime();
@@ -1401,12 +1412,20 @@ Game.prototype.fadeTitle = function() {
 
   this.animal_count_text.alpha = 0.01;
   this.animal_count_text.visible = true;
+  this.dollar_bucks_text.visible = true;
   new TWEEN.Tween(this.animal_count_text)
     .to({alpha: 0.6})
     .duration(1000)
     .start()
     .onUpdate(function() {
     }); 
+  new TWEEN.Tween(this.dollar_bucks_text)
+    .to({alpha: 0.6})
+    .duration(1000)
+    .start()
+    .onUpdate(function() {
+    }); 
+
 
   this.animal_count_glyph.alpha = 0.01;
   this.animal_count_glyph.visible = true;
@@ -1421,6 +1440,7 @@ Game.prototype.fadeTitle = function() {
 
 Game.prototype.updateAnimalCount = function() {
   this.animal_count_text.text = this.animals_obtained + " / " + this.animals_available;
+  this.dollar_bucks_text.text = "$" + this.dollar_bucks;
 }
 
 
