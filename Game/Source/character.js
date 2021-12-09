@@ -10,6 +10,8 @@
 var default_walk_speed = 6;
 var walk_frame_time = 105;
 
+var history_length = 8;
+
 var directions = ["down", "left", "up", "right", "downleft", "upleft", "downright", "upright"]
 
 Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
@@ -62,7 +64,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
 
     if (character.direction != null) {
       character.history.push([character.x, character.y, character.direction]);
-      if (character.history.length > 10) {
+      if (character.history.length > history_length) {
         character.history.shift();
       }
     }
@@ -153,7 +155,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   }
 
   character.follow = function(follow_character) {
-    if (follow_character.history.length >= 10) {
+    if (follow_character.history.length >= history_length) {
       var element = follow_character.history[0];
       character.x = element[0];
       character.y = element[1];
@@ -161,7 +163,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       if (follow_character.direction != null) {
         if (character.direction != null) {
           character.history.push([element[0], element[1], element[2]]);
-          if (character.history.length > 10) {
+          if (character.history.length > history_length) {
             character.history.shift();
           }
         }
@@ -174,8 +176,15 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.addStuffie = function(stuffed_animal, decorations_list) {
     let stuffie = game.makeCharacter(stuffed_animal, "stuffed");
     stuffie.position.set(character.x + (character.stuffies.length + 1) * 50, character.y)
+    stuffie.scale.set(character.scale.x * 0.65,character.scale.y * 0.65);
     character.stuffies.push(stuffie);
     decorations_list.push(stuffie);
+    if (character.stuffies.length == 1) stuffie.follow(character);
+    else {
+      stuffie.follow(character.stuffies[character.stuffies.length-2]);
+    }
+
+    game.makeSmoke(character, stuffie.x - character.x + 10, stuffie.y - character.y - 40, 1.8, 1.8);
   }
 
   return character;

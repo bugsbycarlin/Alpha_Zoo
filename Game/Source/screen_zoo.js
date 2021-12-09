@@ -117,6 +117,8 @@ Game.prototype.resetZooScreen = function() {
   this.greyAllActivePens();
   // this.ungreyAll();
 
+  this.initializeScreen("gift_shop");
+
   this.start_time = this.markTime();
   this.first_move = false;
 
@@ -268,13 +270,19 @@ Game.prototype.makeUI = function() {
   this.animal_count_text.visible = false;
   screen.addChild(this.animal_count_text);
 
-  this.dollar_bucks_text = new PIXI.Text("$0", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.dollar_bucks_text = new PIXI.Text("0", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
   this.dollar_bucks_text.anchor.set(1,0.5);
-  this.dollar_bucks_text.position.set(this.width - 25, 150);
+  this.dollar_bucks_text.position.set(this.width - 110, 150);
   this.dollar_bucks_text.alpha = 0.0;
   this.dollar_bucks_text.visible = false;
   screen.addChild(this.dollar_bucks_text);
 
+  this.dollar_bucks_glyph = new PIXI.Text("$", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.dollar_bucks_glyph.anchor.set(1,0.5);
+  this.dollar_bucks_glyph.position.set(this.width - 50, 150);
+  this.dollar_bucks_glyph.alpha = 0.0;
+  this.dollar_bucks_glyph.visible = false;
+  screen.addChild(this.dollar_bucks_glyph);
 
   this.escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
   this.escape_glyph.anchor.set(1,1);
@@ -829,10 +837,14 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
   } else if (this.thing_to_type == "GIFT_SHOP") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/icon.png"));
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
-    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + this.thing_to_type.toLowerCase() + ".png"));
+    let thing = this.thing_to_type.toLowerCase();
+    if (animals[this.thing_to_type].variations > 1) thing += "_1";
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + thing + ".png"));
   } else {
-    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + this.thing_to_type.toLowerCase() + ".json"].spritesheet;
-    this.typing_picture = new PIXI.AnimatedSprite(sheet.animations[this.thing_to_type.toLowerCase()]);
+    let thing = this.thing_to_type.toLowerCase();
+    if (animals[this.thing_to_type].variations > 1) thing += "_1";
+    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + thing + ".json"].spritesheet;
+    this.typing_picture = new PIXI.AnimatedSprite(sheet.animations[thing]);
   }
   
   this.typing_picture.anchor.set(0.5, 0.77);
@@ -1429,18 +1441,25 @@ Game.prototype.fadeTitle = function() {
 
   this.animal_count_glyph.alpha = 0.01;
   this.animal_count_glyph.visible = true;
+  this.dollar_bucks_glyph.visible = true;
   new TWEEN.Tween(this.animal_count_glyph)
     .to({alpha: 0.6})
     .duration(1000)
     .start()
     .onUpdate(function() {
-    });  
+    });
+  new TWEEN.Tween(this.dollar_bucks_glyph)
+    .to({alpha: 0.6})
+    .duration(1000)
+    .start()
+    .onUpdate(function() {
+    });
 }
 
 
 Game.prototype.updateAnimalCount = function() {
   this.animal_count_text.text = this.animals_obtained + " / " + this.animals_available;
-  this.dollar_bucks_text.text = "$" + this.dollar_bucks;
+  this.dollar_bucks_text.text = this.dollar_bucks;
 }
 
 
@@ -1574,9 +1593,12 @@ Game.prototype.updatePlayer = function() {
     if (this.gift_shop != null) {
       if (Math.abs(player.x - this.gift_shop.x) <= 80 && player.y < this.gift_shop.y && player.y > this.gift_shop.y - 50) {
         this.player.visible = false;
+        this.player.history = [];
         this.ghost.visible = false;
         this.zoo_mode = "fading";
-        this.initializeScreen("gift_shop");
+        this.gift_shop_mode = "action";
+        this.gift_shop_dollar_bucks_text.text = this.dollar_bucks;
+        this.updatePriceTags();
         this.fadeScreens("zoo", "gift_shop", true);
       }
     }

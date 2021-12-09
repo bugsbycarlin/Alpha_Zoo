@@ -860,6 +860,7 @@ Game.prototype.designatePens = function() {
         // new_animal = "COW";
         // new_animal = "OTTER";
         // new_animal = "ORANGUTAN";
+        // new_animal = "CHICKEN";
         pen.animal = new_animal;
         pen.land = animals[new_animal].land;
         pen.pond_choice = animals[new_animal].pond;

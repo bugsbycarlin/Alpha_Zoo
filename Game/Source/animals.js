@@ -413,9 +413,17 @@ animals = {
     land: "grass",
     pond: "large",
     food: ["fish", "micro", "greens"],
-    speed: 1,
     min: 2,
     max: 5,
+  },
+  "CHICKEN": {
+    mouth: [286, 311],
+    butt: [219, 369],
+    land: "grass",
+    food: ["micro"],
+    min: 3,
+    max: 6,
+    variations: 2,
   },
   "GOOSE": {
     mouth: [334, 267],
@@ -423,7 +431,6 @@ animals = {
     land: "grass",
     pond: "large",
     food: ["micro", "greens"],
-    speed: 1,
     min: 2,
     max: 5,
   },
@@ -465,7 +472,7 @@ section_north_and_water = [
 ]
 
 section_starter_and_farm = [
-  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE", "GOAT", "RABBIT", "ALPACA", "LLAMA",
+  "CAT", "DOG", "COW", "SHEEP", "PIG", "HORSE", "GOAT", "RABBIT", "ALPACA", "LLAMA", "CHICKEN",
 ]
 
 section_east_asia_south_america = [
@@ -534,6 +541,7 @@ for (const [name, data] of Object.entries(animals)) {
   if (!("speed" in data)) data["speed"] = 1;
   if (!("min" in data)) data["min"] = 1;
   if (!("max" in data)) data["max"] = 3;
+  if (!("variations" in data)) data["variations"] = 1;
   if ("food" in data && data["food"] == "herbivore") data["food"] = ["greens"];
   if ("food" in data && data["food"] == "omnivore") data["food"] = ["steak", "greens", "fruit"];
   if ("food" in data && data["food"] == "carnivore") data["food"] = ["steak"]; 
@@ -556,11 +564,13 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.animated = (animal.type in animated_animals);
 
   animal.sprite = null;
+  let filename = animal.type.toLowerCase();
+  if (animals[animal_type].variations > 1) filename += "_" + Math.ceil(Math.random() * animals[animal_type].variations);
   if (!animal.animated && animals[animal.type].movement != "arboreal") {
-    animal.sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + animal.type.toLowerCase() + ".png"));
+    animal.sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + filename + ".png"));
   } else {
-    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + animal.type.toLowerCase() + ".json"].spritesheet;
-    animal.sprite = new PIXI.AnimatedSprite(sheet.animations[animal.type.toLowerCase()]);
+    var sheet = PIXI.Loader.shared.resources["Art/Animals/" + filename + ".json"].spritesheet;
+    animal.sprite = new PIXI.AnimatedSprite(sheet.animations[filename]);
   }
   animal.sprite.scale.set(animal_scale, animal_scale);
   animal.sprite.anchor.set(0.5,0.75);
