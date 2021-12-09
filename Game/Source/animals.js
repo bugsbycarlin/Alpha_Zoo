@@ -434,6 +434,15 @@ animals = {
     min: 2,
     max: 5,
   },
+  "FROG": {
+    mouth: [258, 355],
+    butt: [217, 387],
+    land: "forest",
+    food: ["micro"],
+    min: 3,
+    max: 6,
+    variations: 5,
+  },
 }
 
 
@@ -479,8 +488,8 @@ section_east_asia_south_america = [
   "PANDA_BEAR", "RED_PANDA", "KANGAROO", "KOALA", "SLOTH", "OSTRICH",
 ]
 
-section_birds_reptiles_rodents = [
-  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO", "SWAN", "DUCK", "GOOSE",
+section_birds_reptiles_amphibians_and_rodents = [
+  "TURTLE", "MOUSE", "ALLIGATOR", "PARROT", "OWL", "SNAKE", "CAPYBARA", "PEACOCK", "FLAMINGO", "SWAN", "DUCK", "GOOSE", ""
 ]
 
 
@@ -490,7 +499,7 @@ makeSections = function() {
   section = [];
   section[0] = section_savannah.concat(section_cats, section_primates, section_desert_special);
   section[1] = section_north_and_water.concat(section_east_asia_south_america);
-  section[2] = section_starter_and_farm.concat(section_birds_reptiles_rodents);
+  section[2] = section_starter_and_farm.concat(section_birds_reptiles_amphibians_and_rodents);
 }
 
 animated_animals = {
@@ -777,7 +786,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
         if (animal.sprite.y >= 0) {
           animal.vy = -3.6;
-          if (animal.type == "KANGAROO") animal.vy = -5;
+          if (animal.type == "KANGAROO" || animal.type == "FROG") animal.vy = -5;
           if (animal.type == "SLOTH") animal.vy = -2.4;
           animal.sprite.y = 0;
 

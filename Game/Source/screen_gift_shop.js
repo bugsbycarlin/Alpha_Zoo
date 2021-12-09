@@ -33,14 +33,115 @@ let container_polygon = [
   [0, 468],
 ];
 
+// There are twelve gift shop slots in every game.
+
+// First we pick two stuffies, one hat, one shirt, two balloons, and the scooter. That's seven slots
+// taken. Then we shuffle the rest and pick five more things.
+
+let shirt_fills = {
+  red_shirt: 0xec4e4e,
+  pink_shirt: 0xe170d0,
+  purple_shirt: 0x7f3db1,
+  blue_shirt: 0x576cd5,
+  yellow_shirt: 0xedd639,
+  green_shirt: 0x44af3c,
+  black_shirt: 0x525252,
+  orange_shirt: 0xfe8300,
+  white_shirt: 0xFFFFFF,
+}
+
+let shirt_reference = {
+  0xec4e4e: "red_shirt",
+  0xe170d0: "pink_shirt",
+  0x7f3db1: "purple_shirt",
+  0x576cd5: "blue_shirt",
+  0xedd639: "yellow_shirt",
+  0x44af3c: "green_shirt",
+  0x525252: "black_shirt",
+  0xfe8300: "orange_shirt",
+  0xFFFFFF: "white_shirt",
+}
+
+let stuffies = [
+  "stuffed_bear",
+  "stuffed_giraffe",
+  "stuffed_koala",
+  "stuffed_giraffe",
+  "stuffed_koala",
+  "stuffed_bear",
+]
+
+let shirts = [
+  "red_shirt",
+  "pink_shirt",
+  "purple_shirt",
+  //"blue_shirt", // you start with this. no need to sell it unless it's a repurchase.
+  "yellow_shirt",
+  "green_shirt",
+  "black_shirt",
+  "orange_shirt",
+  "white_shirt",
+]
+
+let hats = [
+  "ball_cap",
+  "safari_hat",
+  "ball_cap",
+  "safari_hat",
+  "safari_hat",
+]
+
+let extras = [
+  "scooter",
+  "glasses",
+  "sun_glasses",
+]
+
+let balloons = [
+  "red_balloon",
+  "blue_balloon",
+  "pink_balloon",
+  "purple_balloon",
+  "green_balloon",
+  "yellow_balloon",
+  "orange_balloon",
+]
+
 let prices = {
-  stuffed_bear: 30,
-  stuffed_koala: 25,
-  stuffed_giraffe: 5,
+  stuffed_bear: 20,
+  stuffed_koala: 15,
+  stuffed_giraffe: 20,
+
+  red_shirt: 8,
+  pink_shirt: 8,
+  purple_shirt: 8,
+  blue_shirt: 8,
+  yellow_shirt: 8,
+  green_shirt: 8,
+  black_shirt: 8,
+  orange_shirt: 8,
+  white_shirt: 8,
+
+
+  ball_cap: 6,
+  safari_hat: 6,
+  scooter: 25,
+  glasses: 3,
+  sun_glasses: 3,
+
+  red_balloon: 1,
+  blue_balloon: 1,
+  pink_balloon: 1,
+  purple_balloon: 1,
+  green_balloon: 1,
+  yellow_balloon: 1,
+  orange_balloon: 1,
 }
 
 let price_text_color = 0xb49864;
 let price_red_color = 0xd24f4f;
+
+
 
 Game.prototype.initializeGiftShop = function() {
   var self = this;
@@ -49,19 +150,52 @@ Game.prototype.initializeGiftShop = function() {
   console.log("initializing " + screen.name);
 
   //VERY TEMPORARY STUFF. HIDE, BUT KEEP, FOR FUTURE DEBUGGING.
-  // this.dollar_bucks = 40;
-  // this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
-  // this.dropshadow_filter.blur  = 2;
-  // this.dropshadow_filter.quality = 3;
-  // this.dropshadow_filter.alpha = 0.55;
-  // this.dropshadow_filter.distance = 8;
-  // this.dropshadow_filter.rotation = 45;
+  this.dollar_bucks = 40;
+  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
+  this.dropshadow_filter.blur  = 2;
+  this.dropshadow_filter.quality = 3;
+  this.dropshadow_filter.alpha = 0.55;
+  this.dropshadow_filter.distance = 8;
+  this.dropshadow_filter.rotation = 45;
   //////////////////
+
+  this.chooseItemList();
 
   this.initializeGiftShopUI();
   this.initializeGiftShopObjects();
 
   this.gift_shop_mode = "active";
+}
+
+
+Game.prototype.chooseItemList = function() {
+  shuffleArray(stuffies);
+  shuffleArray(shirts);
+  shuffleArray(hats);
+  shuffleArray(balloons);
+
+  this.gift_shop_item_list = [stuffies[0], stuffies[1], hats[0], shirts[0], balloons[0], balloons[1], extras[0]];
+  let remaining = [];
+  for (let i = 2; i < stuffies.length; i++) {
+    remaining.push(stuffies[i]);
+  }
+  for (let i = 1; i < hats.length; i++) {
+    remaining.push(hats[i]);
+  }
+  for (let i = 1; i < shirts.length; i++) {
+    remaining.push(shirts[i]);
+  }
+  for (let i = 2; i < balloons.length; i++) {
+    remaining.push(balloons[i]);
+  }
+  for (let i = 1; i < extras.length; i++) {
+    remaining.push(extras[i]);
+  }
+  shuffleArray(remaining);
+  for (let i = 0; i < 5; i++) {
+    this.gift_shop_item_list.push(remaining[i]);
+  }
+
 }
 
 
@@ -151,9 +285,9 @@ Game.prototype.initializeGiftShopObjects = function() {
     this.gift_shop_object_layer.addChild(gift_shop_table);
     this.gift_shop_objects.push(gift_shop_table);
 
-    for (let j = 0; j < 4; j++) {
+    for (let j = 0; j < 3; j++) {
       this.gift_shop_table_slots.push({
-        x: p[0] - 150 + 100 * j,
+        x: p[0] - 150 + 150 * j,
         y: p[1] - 50,
         name: null,
         type: null,
@@ -163,29 +297,35 @@ Game.prototype.initializeGiftShopObjects = function() {
     }
   }
 
-  this.giftShopAddStuffie(0, "stuffed_bear");
-  this.giftShopAddStuffie(1, "stuffed_giraffe");
-  this.giftShopAddStuffie(2, "stuffed_bear");
-  this.giftShopAddStuffie(3, "stuffed_bear");
-  this.giftShopAddStuffie(8, "stuffed_koala");
+  for (let i = 0; i < this.gift_shop_table_slots.length; i++) {
+    let item_name = this.gift_shop_item_list[i];
+    
+    if (item_name.includes("stuffed") || item_name.includes("shirt")) this.giftShopAddItem(i, item_name);
+    
+  }
 }
 
 
-Game.prototype.giftShopAddStuffie = function(slot_number, stuffie_name) {
+Game.prototype.giftShopAddItem = function(slot_number, item_name) {
   let slot = this.gift_shop_table_slots[slot_number];
-  slot.price = prices[stuffie_name];
-  slot.name = stuffie_name;
-  slot.type = "stuffie";
-
-  let item_container = new PIXI.Container();
-  item_container.position.set(slot.x, slot.y - slot_number % 4);
+  slot.price = prices[item_name];
+  slot.name = item_name;
   
-  let stuffie = new PIXI.Sprite(PIXI.Texture.from("Art/Stuffed_Animals/" + stuffie_name + ".png"));
-  stuffie.anchor.set(0.5,0.75);
-  stuffie.position.set(0, 0);
-  stuffie.scale.set(1,1);
-  item_container.stuffie = stuffie;
-  item_container.addChild(stuffie);
+  let item_container = new PIXI.Container();
+  item_container.position.set(slot.x, slot.y - slot_number % 3);
+
+  console.log(item_name);
+  console.log(prices[item_name]);
+
+  if (item_name.includes("stuffed")) {
+    slot.type = "stuffie";
+    this.giftShopAddStuffie(item_name, item_container);
+  } else if (item_name.includes("shirt")) {
+    slot.type = "shirt";
+    let shirt_color = shirt_fills[item_name];
+    slot.color = shirt_color;
+    this.giftShopAddShirt(shirt_color, item_container);
+  }
 
   let price_tag = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/price_tag.png"));
   price_tag.anchor.set(0.5, 0.5);
@@ -202,7 +342,6 @@ Game.prototype.giftShopAddStuffie = function(slot_number, stuffie_name) {
   item_container.addChild(price_text);
 
   if (this.dollar_bucks < slot.price) {
-    console.log("here");
     price_text.tint = 0x000000;
     price_tag.tint = price_red_color;
   }
@@ -215,10 +354,36 @@ Game.prototype.giftShopAddStuffie = function(slot_number, stuffie_name) {
 }
 
 
+Game.prototype.giftShopAddShirt = function(shirt_color, item_container) {
+  let hanger = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/hanger.png"));
+  hanger.anchor.set(0.5,0.75);
+  hanger.position.set(0, 0);
+  item_container.addChild(hanger);
+
+  let shirt = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/shirt.png"));
+  shirt.anchor.set(0.5,0.75);
+  shirt.position.set(0, 0);
+  shirt.tint = shirt_color;
+  item_container.shirt = shirt;
+  item_container.addChild(shirt);
+}
+
+
+Game.prototype.giftShopAddStuffie = function(stuffie_name, item_container) {
+  let stuffie = new PIXI.Sprite(PIXI.Texture.from("Art/Stuffed_Animals/" + stuffie_name + ".png"));
+  stuffie.anchor.set(0.5,0.75);
+  stuffie.position.set(0, 0);
+  stuffie.scale.set(1,1);
+  //item_container.stuffie = stuffie;
+  item_container.addChild(stuffie);
+}
+
+
 Game.prototype.updatePriceTags = function() {
   for (let i = 0; i < this.gift_shop_table_slots.length; i++) {
     let slot = this.gift_shop_table_slots[i];
     if (slot.item != null) {
+      slot.item.price_text.text = slot.price;
       if (this.dollar_bucks < slot.price) {
         slot.item.price_text.tint = 0x000000;
         slot.item.price_tag.tint = price_red_color;
@@ -303,19 +468,33 @@ Game.prototype.giftShopAddType = function(letter) {
       self.dollar_bucks -= slot.price;
       self.gift_shop_dollar_bucks_text.text = self.dollar_bucks;
       flicker(self.gift_shop_dollar_bucks_text, 300, 0x000000, 0xFFFFFF);
-      self.updatePriceTags();
+      
 
       if (slot.type == "stuffie") {
         self.gift_shop_player.addStuffie(slot.name, self.gift_shop_objects);
         if (self.player != null) self.player.addStuffie(slot.name, self.decorations);
+
+        self.gift_shop_object_layer.removeChild(slot.item);
+        let index = self.gift_shop_objects.indexOf(slot.item);
+        if (index > -1) {
+          self.gift_shop_objects.splice(index, 1);
+        }
+        slot.item = null;
+      } else if (slot.type == "shirt") {
+        let old_color = self.gift_shop_player.shirt_color;
+        if (old_color == null) old_color = shirt_fills["blue_shirt"];
+
+        console.log(slot.color);
+        self.gift_shop_player.addShirt(slot.color);
+        if (self.player != null) self.player.addShirt(slot.color);
+
+        slot.name = shirt_reference[old_color];
+        slot.item.shirt.tint = old_color;
+        slot.color = old_color;
+        slot.price = 0;
       }
 
-      self.gift_shop_object_layer.removeChild(slot.item);
-      let index = self.gift_shop_objects.indexOf(slot.item);
-      if (index > -1) {
-        self.gift_shop_objects.splice(index, 1);
-      }
-      slot.item = null;
+      self.updatePriceTags();
 
       self.makeSmoke(screen, slot.x, slot.y - 50, 1.8, 1.8);
 
@@ -404,6 +583,8 @@ Game.prototype.updateGiftShopPlayer = function() {
   var keymap = this.keymap;
   var player = this.gift_shop_player;
 
+  let last_direction = player.direction;
+
   if (keymap["ArrowUp"] && keymap["ArrowRight"]) {
     player.direction = "upright";
   } else if (keymap["ArrowUp"] && keymap["ArrowLeft"]) {
@@ -447,6 +628,8 @@ Game.prototype.updateGiftShopPlayer = function() {
     } else if (closest_slot == null) {
       this.giftShopHideTypingText();
     }
+  } else if (player.diretion == null) {
+    player.direction = last_direction;
   }
 }
 
@@ -472,6 +655,9 @@ Game.prototype.giftShopRevealTypingText = function(slot) {
   if (slot.type == "stuffie") {
     this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Stuffed_Animals/" + slot.name + ".png"));
     this.gift_shop_typing_picture.scale.set(1, 1);
+  } else if (slot.type == "shirt") {
+    this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/shirt.png"));
+    this.gift_shop_typing_picture.tint = slot.color;
   }
 
   this.gift_shop_typing_picture.anchor.set(0.5, 0.77);

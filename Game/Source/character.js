@@ -32,8 +32,10 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.history = [];
   character.stuffies = [];
 
+  character.shirt = null;
+
   if (subtype == "normal") {
-    var sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;
+    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;
     character.character_sprite = {};
     for(let i = 0; i < 8; i++) {
       character.character_sprite[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
@@ -106,8 +108,10 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       for(let i = 0; i < 8; i++) {
         if (directions[i] == character.direction) {
           character.character_sprite[directions[i]].visible = true;
+          if (character.shirt != null) character.shirt[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
+          if (character.shirt != null) character.shirt[directions[i]].visible = false;
         }
       }
 
@@ -129,8 +133,10 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
 
       if (character.character_sprite[character.direction].currentFrame == 0 && character.current_image == f1) {
         character.character_sprite[character.direction].gotoAndStop(1);
+        if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
       } else if (character.character_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
         character.character_sprite[character.direction].gotoAndStop(0);
+        if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
       }
     }
 
@@ -138,12 +144,15 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       for(let i = 0; i < 8; i++) {
         if (directions[i] == character.direction) {
           character.character_sprite[directions[i]].visible = true;
+          if (character.shirt != null) character.shirt[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
+          if (character.shirt != null) character.shirt[directions[i]].visible = false;
         }
       }
 
       character.character_sprite[character.direction].gotoAndStop(0);
+      if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
     }
   } else if (subtype == "stuffed") {
     // empty, no walk animation and no updateDirection
@@ -185,6 +194,34 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     }
 
     game.makeSmoke(character, stuffie.x - character.x + 10, stuffie.y - character.y - 40, 1.8, 1.8);
+  }
+
+  character.addShirt = function(shirt_color) {
+    if (character.shirt != null) {
+      for(let i = 0; i < 8; i++) {
+        character.removeChild(character.shirt[directions[i]]);
+        character.shirt[directions[i]].destroy();
+      }
+    }
+
+    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_shirt.json"].spritesheet;
+    character.shirt = {};
+    character.shirt_color = shirt_color;
+    for(let i = 0; i < 8; i++) {
+      character.shirt[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+      character.shirt[directions[i]].anchor.set(0.5,0.78125);
+      character.shirt[directions[i]].position.set(0, 0);
+      character.addChild(character.shirt[directions[i]]);
+      character.shirt[directions[i]].tint = shirt_color
+      character.shirt[directions[i]].visible = false;
+    }
+
+    character.updateDirection();
+
+    game.makeSmoke(character, 0, 0, 1.8, 1.8);
+    // console.log(character.shirt);
+    // console.log(character.direction);
+    // if (character.direction != null) character.shirt[character.direction].visible = true;
   }
 
   return character;
