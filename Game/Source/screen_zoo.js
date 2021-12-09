@@ -1596,7 +1596,7 @@ Game.prototype.updatePlayer = function() {
         this.player.history = [];
         this.ghost.visible = false;
         this.zoo_mode = "fading";
-        this.gift_shop_mode = "action";
+        this.gift_shop_mode = "active";
         this.gift_shop_dollar_bucks_text.text = this.dollar_bucks;
         this.updatePriceTags();
         this.fadeScreens("zoo", "gift_shop", true);

@@ -48,7 +48,7 @@ Game.prototype.initializeGiftShop = function() {
   this.clearScreen(screen);
   console.log("initializing " + screen.name);
 
-  // VERY TEMPORARY STUFF. HIDE, BUT KEEP, FOR FUTURE DEBUGGING.
+  //VERY TEMPORARY STUFF. HIDE, BUT KEEP, FOR FUTURE DEBUGGING.
   // this.dollar_bucks = 40;
   // this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
   // this.dropshadow_filter.blur  = 2;
@@ -56,7 +56,7 @@ Game.prototype.initializeGiftShop = function() {
   // this.dropshadow_filter.alpha = 0.55;
   // this.dropshadow_filter.distance = 8;
   // this.dropshadow_filter.rotation = 45;
-  ////////////////////
+  //////////////////
 
   this.initializeGiftShopUI();
   this.initializeGiftShopObjects();
@@ -114,7 +114,7 @@ Game.prototype.initializeGiftShopUI = function() {
   this.gift_shop_typing_allowed = false;
   this.gift_shop_typing_slot = null;
 
-  this.gift_shop_dollar_bucks_text = new PIXI.Text("0", {fontFamily: default_font, fontSize: 60, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
+  this.gift_shop_dollar_bucks_text = new PIXI.Text(this.dollar_bucks, {fontFamily: default_font, fontSize: 60, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.gift_shop_dollar_bucks_text.tint = 0x000000;
   this.gift_shop_dollar_bucks_text.anchor.set(1,0.5);
   this.gift_shop_dollar_bucks_text.position.set(this.width - 110, 65);
@@ -242,6 +242,9 @@ Game.prototype.giftShopKeyDown = function(ev) {
     this.player.visible = true;
     this.ghost.visible = true;
     this.player.y += 150;
+    for (let i = 0; i < this.player.stuffies.length; i++) {
+      this.player.stuffies[i].position.set(this.player.x + (i+1) * 50, this.player.y);
+    }
     this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (this.height / 2) - this.player.y * this.map.scale.y);
     this.ghost.position.set(this.width/2, this.height/2);
     this.zoo_mode = "active";
@@ -300,6 +303,7 @@ Game.prototype.giftShopAddType = function(letter) {
       self.dollar_bucks -= slot.price;
       self.gift_shop_dollar_bucks_text.text = self.dollar_bucks;
       flicker(self.gift_shop_dollar_bucks_text, 300, 0x000000, 0xFFFFFF);
+      self.updatePriceTags();
 
       if (slot.type == "stuffie") {
         self.gift_shop_player.addStuffie(slot.name, self.gift_shop_objects);
@@ -327,7 +331,26 @@ Game.prototype.giftShopAddType = function(letter) {
 
 
 Game.prototype.giftShopDeleteType = function() {
-  
+  var self = this;
+  var screen = this.screens["gift_shop"];
+
+  if (this.gift_shop_typing_text.text.length > 0) {
+    if (this.gift_shop_typing_text.text[this.gift_shop_typing_text.text.length - 1] === " ") { 
+      this.gift_shop_typing_text.text = this.gift_shop_typing_text.text.slice(0,-1);
+    }
+    let l = this.gift_shop_typing_text.text.slice(-1,this.gift_shop_typing_text.text.length);
+    let t = new PIXI.Text(l, {fontFamily: default_font, fontSize: 140, fill: 0x000000, letterSpacing: 3, align: "left"});
+    t.anchor.set(0,0.5);
+    t.position.set(25 + 50 * (this.gift_shop_typing_text.text.length - 1), 93);
+    t.vx = -20 + 40 * Math.random();
+    t.vy = -5 + -20 * Math.random();
+    t.floor = 1200;
+    screen.addChild(t);
+    this.freefalling.push(t);
+
+    this.gift_shop_typing_text.text = this.gift_shop_typing_text.text.slice(0,-1);
+    this.soundEffect("swipe");
+  }
 }
 
 
