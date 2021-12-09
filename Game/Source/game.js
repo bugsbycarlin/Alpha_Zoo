@@ -18,7 +18,7 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "gift_shop";
+var first_screen = "zoo";
 
 var performance_result = null;
 
@@ -90,6 +90,8 @@ class Game {
     PIXI.Loader.shared
       .add("Art/Characters/brown_bear.json")
       .add("Art/Characters/brown_bear_shirt.json")
+      .add("Art/Characters/brown_bear_sun_glasses.json")
+      .add("Art/Characters/brown_bear_glasses.json")
       .add("Art/Characters/brown_bear_ghost.json")
       .add("Art/Characters/polar_bear.json")
       .add("Art/Characters/black_bear.json")

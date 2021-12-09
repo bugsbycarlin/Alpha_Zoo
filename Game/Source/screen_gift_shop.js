@@ -195,6 +195,7 @@ Game.prototype.chooseItemList = function() {
   for (let i = 0; i < 5; i++) {
     this.gift_shop_item_list.push(remaining[i]);
   }
+  console.log(this.gift_shop_item_list);
 
 }
 
@@ -300,7 +301,9 @@ Game.prototype.initializeGiftShopObjects = function() {
   for (let i = 0; i < this.gift_shop_table_slots.length; i++) {
     let item_name = this.gift_shop_item_list[i];
     
-    if (item_name.includes("stuffed") || item_name.includes("shirt")) this.giftShopAddItem(i, item_name);
+    if (item_name.includes("stuffed") 
+      || item_name.includes("shirt")
+      || item_name.includes("glasses")) this.giftShopAddItem(i, item_name);
     
   }
 }
@@ -325,6 +328,9 @@ Game.prototype.giftShopAddItem = function(slot_number, item_name) {
     let shirt_color = shirt_fills[item_name];
     slot.color = shirt_color;
     this.giftShopAddShirt(shirt_color, item_container);
+  } else if (item_name.includes("glasses")) {
+    slot.type = "glasses";
+    this.giftShopAddGlasses(item_name, item_container);
   }
 
   let price_tag = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/price_tag.png"));
@@ -366,6 +372,20 @@ Game.prototype.giftShopAddShirt = function(shirt_color, item_container) {
   shirt.tint = shirt_color;
   item_container.shirt = shirt;
   item_container.addChild(shirt);
+}
+
+
+Game.prototype.giftShopAddGlasses = function(item_name, item_container) {
+  let hanger = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/hanger.png"));
+  hanger.anchor.set(0.5,0.75);
+  hanger.position.set(0, 0);
+  item_container.addChild(hanger);
+
+  let glasses = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/" + item_name + ".png"));
+  glasses.anchor.set(0.5,0.75);
+  glasses.position.set(0, 0);
+  item_container.glasses = glasses;
+  item_container.addChild(glasses);
 }
 
 
@@ -492,6 +512,16 @@ Game.prototype.giftShopAddType = function(letter) {
         slot.item.shirt.tint = old_color;
         slot.color = old_color;
         slot.price = 0;
+      } else if (slot.type == "glasses") {
+        self.gift_shop_player.addGlasses(slot.name);
+        if (self.player != null) self.player.addGlasses(slot.name);
+
+        self.gift_shop_object_layer.removeChild(slot.item);
+        let index = self.gift_shop_objects.indexOf(slot.item);
+        if (index > -1) {
+          self.gift_shop_objects.splice(index, 1);
+        }
+        slot.item = null;
       }
 
       self.updatePriceTags();
@@ -658,6 +688,8 @@ Game.prototype.giftShopRevealTypingText = function(slot) {
   } else if (slot.type == "shirt") {
     this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/shirt.png"));
     this.gift_shop_typing_picture.tint = slot.color;
+  } else if (slot.type == "glasses") {
+    this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Apparel/" + slot.name + ".png"));
   }
 
   this.gift_shop_typing_picture.anchor.set(0.5, 0.77);

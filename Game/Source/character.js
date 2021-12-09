@@ -33,6 +33,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.stuffies = [];
 
   character.shirt = null;
+  character.glasses = null;
 
   if (subtype == "normal") {
     let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;
@@ -109,9 +110,11 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
         if (directions[i] == character.direction) {
           character.character_sprite[directions[i]].visible = true;
           if (character.shirt != null) character.shirt[directions[i]].visible = true;
+          if (character.glasses != null) character.glasses[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
           if (character.shirt != null) character.shirt[directions[i]].visible = false;
+          if (character.glasses != null) character.glasses[directions[i]].visible = false;
         }
       }
 
@@ -134,9 +137,11 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       if (character.character_sprite[character.direction].currentFrame == 0 && character.current_image == f1) {
         character.character_sprite[character.direction].gotoAndStop(1);
         if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
+        if (character.glasses != null) character.glasses[character.direction].gotoAndStop(1);
       } else if (character.character_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
         character.character_sprite[character.direction].gotoAndStop(0);
         if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
+        if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
       }
     }
 
@@ -145,14 +150,17 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
         if (directions[i] == character.direction) {
           character.character_sprite[directions[i]].visible = true;
           if (character.shirt != null) character.shirt[directions[i]].visible = true;
+          if (character.glasses != null) character.glasses[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
           if (character.shirt != null) character.shirt[directions[i]].visible = false;
+          if (character.glasses != null) character.glasses[directions[i]].visible = false;
         }
       }
 
       character.character_sprite[character.direction].gotoAndStop(0);
       if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
+      if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
     }
   } else if (subtype == "stuffed") {
     // empty, no walk animation and no updateDirection
@@ -214,6 +222,33 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       character.addChild(character.shirt[directions[i]]);
       character.shirt[directions[i]].tint = shirt_color
       character.shirt[directions[i]].visible = false;
+    }
+
+    character.updateDirection();
+
+    game.makeSmoke(character, 0, 0, 1.8, 1.8);
+    // console.log(character.shirt);
+    // console.log(character.direction);
+    // if (character.direction != null) character.shirt[character.direction].visible = true;
+  }
+
+  character.addGlasses = function(glasses_type) {
+    if (character.glasses != null) {
+      for(let i = 0; i < 8; i++) {
+        character.removeChild(character.glasses[directions[i]]);
+        character.glasses[directions[i]].destroy();
+      }
+    }
+
+    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + glasses_type + ".json"].spritesheet;
+    character.glasses = {};
+    character.glasses_type = glasses_type;
+    for(let i = 0; i < 8; i++) {
+      character.glasses[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+      character.glasses[directions[i]].anchor.set(0.5,0.78125);
+      character.glasses[directions[i]].position.set(0, 0);
+      character.addChild(character.glasses[directions[i]]);
+      character.glasses[directions[i]].visible = false;
     }
 
     character.updateDirection();
