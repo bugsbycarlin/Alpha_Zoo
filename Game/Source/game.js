@@ -18,7 +18,7 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "zoo";
+var first_screen = "gift_shop";
 
 var performance_result = null;
 
