@@ -89,10 +89,17 @@ class Game {
 
     PIXI.Loader.shared
       .add("Art/Characters/brown_bear.json")
+
+      .add("Art/Characters/brown_bear_ghost.json")
+
       .add("Art/Characters/brown_bear_shirt.json")
+
       .add("Art/Characters/brown_bear_sun_glasses.json")
       .add("Art/Characters/brown_bear_glasses.json")
-      .add("Art/Characters/brown_bear_ghost.json")
+
+      .add("Art/Characters/brown_bear_safari_hat.json")
+      
+
       .add("Art/Characters/polar_bear.json")
       .add("Art/Characters/black_bear.json")
       .add("Art/Characters/rabbit_greenshirt.json")

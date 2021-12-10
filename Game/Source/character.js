@@ -32,9 +32,6 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.history = [];
   character.stuffies = [];
 
-  character.shirt = null;
-  character.glasses = null;
-
   if (subtype == "normal") {
     let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;
     character.character_sprite = {};
@@ -55,6 +52,17 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     character.scale.set(0.75,0.75);
     character.addChild(character.character_sprite);
   }
+
+  character.shirt = null;
+  character.glasses = null;
+  character.hat = null;
+
+  character.shirt_layer = new PIXI.Container();
+  character.addChild(character.shirt_layer);
+  character.glasses_layer = new PIXI.Container();
+  character.addChild(character.glasses_layer);
+  character.hat_layer = new PIXI.Container();
+  character.addChild(character.hat_layer);
 
   character.direction = "down";
   character.walk_frame_time = walk_frame_time;
@@ -111,10 +119,12 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
           character.character_sprite[directions[i]].visible = true;
           if (character.shirt != null) character.shirt[directions[i]].visible = true;
           if (character.glasses != null) character.glasses[directions[i]].visible = true;
+          if (character.hat != null) character.hat[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
           if (character.shirt != null) character.shirt[directions[i]].visible = false;
           if (character.glasses != null) character.glasses[directions[i]].visible = false;
+          if (character.hat != null) character.hat[directions[i]].visible = false;
         }
       }
 
@@ -138,10 +148,12 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
         character.character_sprite[character.direction].gotoAndStop(1);
         if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
         if (character.glasses != null) character.glasses[character.direction].gotoAndStop(1);
+        if (character.hat != null) character.hat[character.direction].gotoAndStop(1);
       } else if (character.character_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
         character.character_sprite[character.direction].gotoAndStop(0);
         if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
         if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
+        if (character.hat != null) character.hat[character.direction].gotoAndStop(0);
       }
     }
 
@@ -151,16 +163,19 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
           character.character_sprite[directions[i]].visible = true;
           if (character.shirt != null) character.shirt[directions[i]].visible = true;
           if (character.glasses != null) character.glasses[directions[i]].visible = true;
+          if (character.hat != null) character.hat[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
           if (character.shirt != null) character.shirt[directions[i]].visible = false;
           if (character.glasses != null) character.glasses[directions[i]].visible = false;
+          if (character.hat != null) character.hat[directions[i]].visible = false;
         }
       }
 
       character.character_sprite[character.direction].gotoAndStop(0);
       if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
       if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
+      if (character.hat != null) character.hat[character.direction].gotoAndStop(0);
     }
   } else if (subtype == "stuffed") {
     // empty, no walk animation and no updateDirection
@@ -207,7 +222,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.addShirt = function(shirt_color) {
     if (character.shirt != null) {
       for(let i = 0; i < 8; i++) {
-        character.removeChild(character.shirt[directions[i]]);
+        character.shirt_layer.removeChild(character.shirt[directions[i]]);
         character.shirt[directions[i]].destroy();
       }
     }
@@ -219,7 +234,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       character.shirt[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
       character.shirt[directions[i]].anchor.set(0.5,0.78125);
       character.shirt[directions[i]].position.set(0, 0);
-      character.addChild(character.shirt[directions[i]]);
+      character.shirt_layer.addChild(character.shirt[directions[i]]);
       character.shirt[directions[i]].tint = shirt_color
       character.shirt[directions[i]].visible = false;
     }
@@ -227,15 +242,12 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     character.updateDirection();
 
     game.makeSmoke(character, 0, 0, 1.8, 1.8);
-    // console.log(character.shirt);
-    // console.log(character.direction);
-    // if (character.direction != null) character.shirt[character.direction].visible = true;
   }
 
   character.addGlasses = function(glasses_type) {
     if (character.glasses != null) {
       for(let i = 0; i < 8; i++) {
-        character.removeChild(character.glasses[directions[i]]);
+        character.glasses_layer.removeChild(character.glasses[directions[i]]);
         character.glasses[directions[i]].destroy();
       }
     }
@@ -247,16 +259,37 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       character.glasses[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
       character.glasses[directions[i]].anchor.set(0.5,0.78125);
       character.glasses[directions[i]].position.set(0, 0);
-      character.addChild(character.glasses[directions[i]]);
+      character.glasses_layer.addChild(character.glasses[directions[i]]);
       character.glasses[directions[i]].visible = false;
     }
 
     character.updateDirection();
 
     game.makeSmoke(character, 0, 0, 1.8, 1.8);
-    // console.log(character.shirt);
-    // console.log(character.direction);
-    // if (character.direction != null) character.shirt[character.direction].visible = true;
+  }
+
+  character.addHat = function(hat_type) {
+    if (character.hat != null) {
+      for(let i = 0; i < 8; i++) {
+        character.hat_layer.removeChild(character.hat[directions[i]]);
+        character.hat[directions[i]].destroy();
+      }
+    }
+
+    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + hat_type + ".json"].spritesheet;
+    character.hat = {};
+    character.hat_type = hat_type;
+    for(let i = 0; i < 8; i++) {
+      character.hat[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+      character.hat[directions[i]].anchor.set(0.5,0.78125);
+      character.hat[directions[i]].position.set(0, 0);
+      character.hat_layer.addChild(character.hat[directions[i]]);
+      character.hat[directions[i]].visible = false;
+    }
+
+    character.updateDirection();
+
+    game.makeSmoke(character, 0, 0, 1.8, 1.8);
   }
 
   return character;
