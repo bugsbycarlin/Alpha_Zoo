@@ -85,6 +85,9 @@ let shirts = [
 
 let hats = [
   "safari_hat",
+  "smurf_hat",
+  "safari_hat",
+  "smurf_hat",
 ]
 
 let glasses = [
@@ -120,9 +123,14 @@ let prices = {
 
   ball_cap: 6,
   safari_hat: 6,
+  smurf_hat: 6,
+
   scooter: 25,
   glasses: 3,
   sun_glasses: 3,
+
+  no_hat: 0,
+  no_glasses: 0,
 
   red_balloon: 1,
   blue_balloon: 1,
@@ -145,13 +153,13 @@ Game.prototype.initializeGiftShop = function() {
   console.log("initializing " + screen.name);
 
   //VERY TEMPORARY STUFF. HIDE, BUT KEEP, FOR FUTURE DEBUGGING.
-  this.dollar_bucks = 40;
-  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
-  this.dropshadow_filter.blur  = 2;
-  this.dropshadow_filter.quality = 3;
-  this.dropshadow_filter.alpha = 0.55;
-  this.dropshadow_filter.distance = 8;
-  this.dropshadow_filter.rotation = 45;
+  // this.dollar_bucks = 40;
+  // this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
+  // this.dropshadow_filter.blur  = 2;
+  // this.dropshadow_filter.quality = 3;
+  // this.dropshadow_filter.alpha = 0.55;
+  // this.dropshadow_filter.distance = 8;
+  // this.dropshadow_filter.rotation = 45;
   //////////////////
 
   this.chooseItemList();
@@ -187,10 +195,9 @@ Game.prototype.chooseItemList = function() {
     remaining.push(glasses[i]);
   }
   shuffleArray(remaining);
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     this.gift_shop_item_list.push(remaining[i]);
   }
-  console.log(this.gift_shop_item_list);
   shuffleArray(this.gift_shop_item_list);
 }
 
@@ -305,12 +312,12 @@ Game.prototype.initializeGiftShopObjects = function() {
     
   }
 
-  this.balloon_points = [];
-  for (let i = 0; i < 20; i++) {
-     this.balloon_points.push(new PIXI.Point(640 - Math.random() * 20, 800 - 50 * i));
-  };
-  this.balloon_rope = new PIXI.SimpleRope(PIXI.Texture.from("Art/rope_texture.png"), this.balloon_points);
-  screen.addChild(this.balloon_rope);
+  // this.balloon_points = [];
+  // for (let i = 0; i < 20; i++) {
+  //    this.balloon_points.push(new PIXI.Point(640 - Math.random() * 20, 800 - 50 * i));
+  // };
+  // this.balloon_rope = new PIXI.SimpleRope(PIXI.Texture.from("Art/rope_texture.png"), this.balloon_points);
+  // screen.addChild(this.balloon_rope);
 }
 
 
@@ -318,12 +325,10 @@ Game.prototype.giftShopAddItem = function(slot_number, item_name) {
   let slot = this.gift_shop_table_slots[slot_number];
   slot.price = prices[item_name];
   slot.name = item_name;
+  slot.number = slot_number;
   
   let item_container = new PIXI.Container();
   item_container.position.set(slot.x, slot.y - slot_number % 3);
-
-  console.log(item_name);
-  console.log(prices[item_name]);
 
   if (item_name.includes("stuffed")) {
     slot.type = "stuffie";
@@ -420,17 +425,19 @@ Game.prototype.giftShopAddHat = function(item_name, item_container) {
 
 
 Game.prototype.giftShopAddBalloon = function(balloon_color, item_container) {
-  let hanger = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/hanger.png"));
+  let hanger = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/balloon_hanger.png"));
   hanger.anchor.set(0.5,0.75);
   hanger.position.set(0, 0);
   item_container.addChild(hanger);
 
-  let balloon = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/balloon.png"));
-  balloon.anchor.set(0.5,0.75);
-  balloon.position.set(0, -60);
-  balloon.tint = balloon_color;
-  item_container.balloon = balloon;
-  item_container.addChild(balloon);
+  item_container.balloon = this.makeBalloon(item_container, balloon_color, -5, -45, 45, -105);
+
+  // let balloon = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/balloon.png"));
+  // balloon.anchor.set(0.5,0.75);
+  // balloon.position.set(0, -60);
+  // balloon.tint = balloon_color;
+  // item_container.balloon = balloon;
+  // item_container.addChild(balloon);
 }
 
 
@@ -554,7 +561,7 @@ Game.prototype.giftShopAddType = function(letter) {
         if (self.player != null) self.player.addStuffie(slot.name, self.decorations);
       } else if (slot.type == "shirt") {
         let old_color = self.gift_shop_player.shirt_color;
-        if (old_color == null) old_color = shirt_fills["blue_shirt"];
+        if (old_color == null) old_color = fills["blue"];
 
         self.gift_shop_player.addShirt(slot.color);
         if (self.player != null) self.player.addShirt(slot.color);
@@ -564,26 +571,64 @@ Game.prototype.giftShopAddType = function(letter) {
         slot.color = old_color;
         slot.price = 0;
       } else if (slot.type == "glasses") {
+        let old_glasses = self.gift_shop_player.glasses_type;
         self.gift_shop_player.addGlasses(slot.name);
         if (self.player != null) self.player.addGlasses(slot.name);
+
+        self.gift_shop_object_layer.removeChild(slot.item);
+        let index = self.gift_shop_objects.indexOf(slot.item);
+        if (index > -1) {
+          self.gift_shop_objects.splice(index, 1);
+        }
+
+        if (old_glasses == null || old_glasses == "no_glasses") {
+          self.giftShopAddItem(slot.number, "no_glasses");
+        } else {
+          console.log(old_glasses);
+          self.giftShopAddItem(slot.number, old_glasses);
+        }
+        slot.price = 0;
       } else if (slot.type == "hat") {
+        let old_hat = self.gift_shop_player.hat_type;
         self.gift_shop_player.addHat(slot.name);
         if (self.player != null) self.player.addHat(slot.name);
-      } else if (slot.type == "balloon") {
-        // self.gift_shop_player.addHat(slot.name);
-        // if (self.player != null) self.player.addHat(slot.name);
-      } else if (slot.type == "scooter") {
-        // self.gift_shop_player.addScooter();
-        // if (self.player != null) self.player.addScooter();
-      }
 
-      if (slot.type != "shirt") {
+        self.gift_shop_object_layer.removeChild(slot.item);
+        let index = self.gift_shop_objects.indexOf(slot.item);
+        if (index > -1) {
+          self.gift_shop_objects.splice(index, 1);
+        }
+
+        if (old_hat == null || old_hat == "no_hat") {
+          self.giftShopAddItem(slot.number, "no_hat");
+        } else {
+          self.giftShopAddItem(slot.number, old_hat);
+        }
+        slot.price = 0;
+      } else if (slot.type == "balloon") {
+        self.gift_shop_player.addBalloon(slot.color);
+        if (self.player != null) self.player.addBalloon(slot.color);
+
         self.gift_shop_object_layer.removeChild(slot.item);
         let index = self.gift_shop_objects.indexOf(slot.item);
         if (index > -1) {
           self.gift_shop_objects.splice(index, 1);
         }
         slot.item = null;
+      } else if (slot.type == "scooter") {
+        if (slot.name == "scooter") {
+          self.gift_shop_player.addScooter("scooter");
+          if (self.player != null) self.player.addScooter("scooter");
+          slot.item.alpha = 0.4;
+          slot.name = "no_scooter";
+          slot.price = 0;
+        } else if (slot.name == "no_scooter") {
+          self.gift_shop_player.addScooter("no_scooter");
+          if (self.player != null) self.player.addScooter("no_scooter");
+          slot.item.alpha = 1;
+          slot.name = "scooter";
+          slot.price = 0;
+        }
       }
 
       self.updatePriceTags();
@@ -675,6 +720,8 @@ Game.prototype.updateGiftShopPlayer = function() {
   var keymap = this.keymap;
   var player = this.gift_shop_player;
 
+  player.updateBalloons();
+
   let last_direction = player.direction;
 
   if (keymap["ArrowUp"] && keymap["ArrowRight"]) {
@@ -755,7 +802,7 @@ Game.prototype.giftShopRevealTypingText = function(slot) {
   } else if (slot.type == "hat") {
     this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/" + slot.name + ".png"));
   } else if (slot.type == "balloon") {
-    this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/balloon.png"));
+    this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/balloon.png"));
     this.gift_shop_typing_picture.tint = slot.color;
   } else if (slot.type == "scooter") {
     this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/Merchandise/scooter.png"));
@@ -819,36 +866,22 @@ Game.prototype.giftShopHideTypingText = function() {
     });
 }
 
-
-Game.prototype.updateBalloonPoints = function() {
-  for (let i = 0; i < this.balloon_points.length; i++) {
-    this.balloon_points[i].x = 640 + 10 * Math.sin((tick + i) / 20);
-  }
-}
-
-let tick = 0;
-
 Game.prototype.updateGiftShop = function(diff) {
   var self = this;
   var screen = this.screens["gift_shop"];
 
   let fractional = diff / (1000/30.0);
 
-  tick += 1;
-
-  if (this.gift_shop_mode == "active") this.updateGiftShopPlayer();
-  if (this.gift_shop_mode == "active") this.updateBalloonPoints();
-
-  // this.balloon_points = [];
-  // for (let i = 0; i < 20; i++) {
-  //    this.balloon_points.push(new PIXI.Point(640 - Math.random() * 20, 800 - 50 * i));
-  // };
-  // this.balloon_rope.update();
-  // for (let i = 0; i < 20; i++) {
-  //   this.balloon_points[i].x += 2
-  // }
-  // console.log(this.balloon_points);
-  // this.balloon_rope.dirty ++;
+  if (this.gift_shop_mode == "active") {
+    this.updateGiftShopPlayer();
+  
+    for (let i = 0; i < this.gift_shop_table_slots.length; i++) {
+      let slot = this.gift_shop_table_slots[i];
+      if (slot.item != null && slot.type == "balloon") {
+        slot.item.balloon.update();
+      }
+    }
+  }
 
   this.sortLayer(this.gift_shop_object_layer, this.gift_shop_objects);
 

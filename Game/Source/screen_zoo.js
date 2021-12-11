@@ -1546,6 +1546,8 @@ Game.prototype.updatePlayer = function() {
   var keymap = this.keymap;
   var player = this.player;
 
+  player.updateBalloons();
+
   if (keymap["ArrowUp"] && keymap["ArrowRight"]) {
     player.direction = "upright";
   } else if (keymap["ArrowUp"] && keymap["ArrowLeft"]) {

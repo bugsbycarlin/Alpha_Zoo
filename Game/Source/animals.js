@@ -457,7 +457,7 @@ animals = {
 
 
 console.log("There are " + Object.keys(animals).length + " different animals available!");
-console.log(Object.keys(animals));
+// console.log(Object.keys(animals));
 
 section_savannah = [
   "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE", "MEERKAT",

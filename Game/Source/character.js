@@ -31,6 +31,12 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
 
   character.history = [];
   character.stuffies = [];
+  character.balloons = [];
+
+  character.scooter_boost = 1.0;
+
+  character.balloon_layer = new PIXI.Container();
+  character.addChild(character.balloon_layer);
 
   if (subtype == "normal") {
     let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + ".json"].spritesheet;
@@ -56,6 +62,9 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.shirt = null;
   character.glasses = null;
   character.hat = null;
+  character.scooter = null;
+
+  character.scooter_last_puff = game.markTime();
 
   character.shirt_layer = new PIXI.Container();
   character.addChild(character.shirt_layer);
@@ -63,6 +72,8 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.addChild(character.glasses_layer);
   character.hat_layer = new PIXI.Container();
   character.addChild(character.hat_layer);
+  character.scooter_layer = new PIXI.Container();
+  character.addChild(character.scooter_layer);
 
   character.direction = "down";
   character.walk_frame_time = walk_frame_time;
@@ -81,29 +92,31 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     }
 
     if (character.direction == "upright") {
-      character.y -= 0.707 * character.walk_speed;
-      character.x += 0.707 * character.walk_speed; 
+      character.y -= 0.707 * character.walk_speed * character.scooter_boost;
+      character.x += 0.707 * character.walk_speed * character.scooter_boost; 
     } else if (character.direction == "upleft") {
-      character.y -= 0.707 * character.walk_speed;
-      character.x -= 0.707 * character.walk_speed;
+      character.y -= 0.707 * character.walk_speed * character.scooter_boost;
+      character.x -= 0.707 * character.walk_speed * character.scooter_boost;
     } else if (character.direction == "downright") {
-      character.y += 0.707 * character.walk_speed;
-      character.x += 0.707 * character.walk_speed;
+      character.y += 0.707 * character.walk_speed * character.scooter_boost;
+      character.x += 0.707 * character.walk_speed * character.scooter_boost;
     } else if (character.direction == "downleft") {
-      character.y += 0.707 * character.walk_speed;
-      character.x -= 0.707 * character.walk_speed;
+      character.y += 0.707 * character.walk_speed * character.scooter_boost;
+      character.x -= 0.707 * character.walk_speed * character.scooter_boost;
     } else if (character.direction == "down") {
-      character.y += character.walk_speed;
+      character.y += character.walk_speed * character.scooter_boost;
     } else if (character.direction == "up") {
-      character.y -= character.walk_speed;
+      character.y -= character.walk_speed * character.scooter_boost;
     } else if (character.direction == "left") {
-      character.x -= character.walk_speed;
+      character.x -= character.walk_speed * character.scooter_boost;
     } else if (character.direction == "right") {
-      character.x += character.walk_speed;
+      character.x += character.walk_speed * character.scooter_boost;
     }
 
     if (character.direction != null) {
       character.walkAnimation();
+
+      character.pushBalloons();
     }
 
     for (let i = 0; i < character.stuffies.length; i++) {
@@ -120,40 +133,63 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
           if (character.shirt != null) character.shirt[directions[i]].visible = true;
           if (character.glasses != null) character.glasses[directions[i]].visible = true;
           if (character.hat != null) character.hat[directions[i]].visible = true;
+          if (character.scooter != null) character.scooter[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
           if (character.shirt != null) character.shirt[directions[i]].visible = false;
           if (character.glasses != null) character.glasses[directions[i]].visible = false;
           if (character.hat != null) character.hat[directions[i]].visible = false;
+          if (character.scooter != null) character.scooter[directions[i]].visible = false;
         }
       }
 
-      var f0 = character.direction + "_0";
-      var f1 = character.direction + "_1";
-      if (character.current_image != f0 && character.current_image != f1) {
-        character.current_image = f0
-        character.last_image_time = Date.now();
-      } else if (character.last_image_time == null) {
-        character.last_image_time = Date.now();
-      } else if (Date.now() - character.last_image_time > character.walk_frame_time) {
-        if (character.current_image == f0) {
-          character.current_image = f1;
-        } else {
-          character.current_image = f0;
+      if (character.scooter == null) {
+        var f0 = character.direction + "_0";
+        var f1 = character.direction + "_1";
+        if (character.current_image != f0 && character.current_image != f1) {
+          character.current_image = f0
+          character.last_image_time = Date.now();
+        } else if (character.last_image_time == null) {
+          character.last_image_time = Date.now();
+        } else if (Date.now() - character.last_image_time > character.walk_frame_time) {
+          if (character.current_image == f0) {
+            character.current_image = f1;
+          } else {
+            character.current_image = f0;
+          }
+          character.last_image_time = Date.now();
         }
-        character.last_image_time = Date.now();
-      }
 
-      if (character.character_sprite[character.direction].currentFrame == 0 && character.current_image == f1) {
-        character.character_sprite[character.direction].gotoAndStop(1);
-        if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
-        if (character.glasses != null) character.glasses[character.direction].gotoAndStop(1);
-        if (character.hat != null) character.hat[character.direction].gotoAndStop(1);
-      } else if (character.character_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
+        if (character.character_sprite[character.direction].currentFrame == 0 && character.current_image == f1) {
+          character.character_sprite[character.direction].gotoAndStop(1);
+          if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
+          if (character.glasses != null) character.glasses[character.direction].gotoAndStop(1);
+          if (character.hat != null) character.hat[character.direction].gotoAndStop(1);
+        } else if (character.character_sprite[character.direction].currentFrame == 1 && character.current_image == f0) {
+          character.character_sprite[character.direction].gotoAndStop(0);
+          if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
+          if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
+          if (character.hat != null) character.hat[character.direction].gotoAndStop(0);
+        }
+      } else {
         character.character_sprite[character.direction].gotoAndStop(0);
         if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
         if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
         if (character.hat != null) character.hat[character.direction].gotoAndStop(0);
+        character.scooter[character.direction].gotoAndStop(0);
+
+        if (character.direction == "upright" || character.direction == "upleft") {
+          character.character_sprite[character.direction].gotoAndStop(1);
+          if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
+          if (character.glasses != null) character.glasses[character.direction].gotoAndStop(1);
+          if (character.hat != null) character.hat[character.direction].gotoAndStop(1);
+          character.scooter[character.direction].gotoAndStop(1);
+        }
+
+        if (game.timeSince(character.scooter_last_puff) > 3000) {
+          // character.scooter_last_puff = game.markTime();
+          // game.makeSmoke(character, 0, 0, 1.8, 1.8);
+        }
       }
     }
 
@@ -164,11 +200,13 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
           if (character.shirt != null) character.shirt[directions[i]].visible = true;
           if (character.glasses != null) character.glasses[directions[i]].visible = true;
           if (character.hat != null) character.hat[directions[i]].visible = true;
+          if (character.scooter != null) character.scooter[directions[i]].visible = true;
         } else {
           character.character_sprite[directions[i]].visible = false;
           if (character.shirt != null) character.shirt[directions[i]].visible = false;
           if (character.glasses != null) character.glasses[directions[i]].visible = false;
           if (character.hat != null) character.hat[directions[i]].visible = false;
+          if (character.scooter != null) character.scooter[directions[i]].visible = false;
         }
       }
 
@@ -176,6 +214,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       if (character.shirt != null) character.shirt[character.direction].gotoAndStop(0);
       if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
       if (character.hat != null) character.hat[character.direction].gotoAndStop(0);
+      if (character.scooter != null) character.scooter[character.direction].gotoAndStop(0);
     }
   } else if (subtype == "stuffed") {
     // empty, no walk animation and no updateDirection
@@ -252,20 +291,26 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       }
     }
 
-    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + glasses_type + ".json"].spritesheet;
-    character.glasses = {};
     character.glasses_type = glasses_type;
-    for(let i = 0; i < 8; i++) {
-      character.glasses[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
-      character.glasses[directions[i]].anchor.set(0.5,0.78125);
-      character.glasses[directions[i]].position.set(0, 0);
-      character.glasses_layer.addChild(character.glasses[directions[i]]);
-      character.glasses[directions[i]].visible = false;
+
+    if (glasses_type == "no_glasses") {
+      character.glasses = null;
+    } else {
+      let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + glasses_type + ".json"].spritesheet;
+      character.glasses = {};
+      character.glasses_type = glasses_type;
+      for(let i = 0; i < 8; i++) {
+        character.glasses[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+        character.glasses[directions[i]].anchor.set(0.5,0.78125);
+        character.glasses[directions[i]].position.set(0, 0);
+        character.glasses_layer.addChild(character.glasses[directions[i]]);
+        character.glasses[directions[i]].visible = false;
+      }
+
+      character.updateDirection();
+
+      game.makeSmoke(character, 0, 0, 1.8, 1.8);
     }
-
-    character.updateDirection();
-
-    game.makeSmoke(character, 0, 0, 1.8, 1.8);
   }
 
   character.addHat = function(hat_type) {
@@ -276,20 +321,96 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       }
     }
 
-    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + hat_type + ".json"].spritesheet;
-    character.hat = {};
     character.hat_type = hat_type;
-    for(let i = 0; i < 8; i++) {
-      character.hat[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
-      character.hat[directions[i]].anchor.set(0.5,0.78125);
-      character.hat[directions[i]].position.set(0, 0);
-      character.hat_layer.addChild(character.hat[directions[i]]);
-      character.hat[directions[i]].visible = false;
+
+    if (hat_type == "no_hat") {
+      character.hat = null;
+    } else {
+      let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + hat_type + ".json"].spritesheet;
+      character.hat = {};
+      character.hat_type = hat_type;
+      for(let i = 0; i < 8; i++) {
+        character.hat[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+        character.hat[directions[i]].anchor.set(0.5,0.78125);
+        character.hat[directions[i]].position.set(0, 0);
+        character.hat_layer.addChild(character.hat[directions[i]]);
+        character.hat[directions[i]].visible = false;
+      }
+
+      character.updateDirection();
+
+      game.makeSmoke(character, 0, 0, 1.8, 1.8);
+    }
+  }
+
+
+  character.addScooter = function(scooter_type) {
+    if (character.scooter != null) {
+      for(let i = 0; i < 8; i++) {
+        character.scooter_layer.removeChild(character.scooter[directions[i]]);
+        character.scooter[directions[i]].destroy();
+      }
     }
 
-    character.updateDirection();
+    
 
-    game.makeSmoke(character, 0, 0, 1.8, 1.8);
+    if (scooter_type == "no_scooter") {
+      character.scooter = null;
+      character.scooter_boost = 1.0;
+    } else {
+      character.scooter_boost = 1.5;
+
+      let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_scooter.json"].spritesheet;
+      character.scooter = {};
+      character.scooter_type = scooter_type;
+      for(let i = 0; i < 8; i++) {
+        character.scooter[directions[i]] = new PIXI.AnimatedSprite(sheet.animations[directions[i]]);
+        character.scooter[directions[i]].anchor.set(0.5,0.78125);
+        character.scooter[directions[i]].position.set(0, 0);
+        character.scooter_layer.addChild(character.scooter[directions[i]]);
+        character.scooter[directions[i]].visible = false;
+      }
+
+      character.updateDirection();
+
+      game.makeSmoke(character, 0, 0, 1.8, 1.8);
+    }
+  }
+
+
+  character.addBalloon = function(balloon_color) {
+    let balloon = game.makeBalloon(character.balloon_layer, balloon_color, 0, -77, -70 + Math.floor(140 * Math.random()), -50 - Math.floor(20 * Math.random()))
+    balloon.original_x = balloon.top_x;
+    balloon.original_y = balloon.top_y;
+    character.balloons.push(balloon);
+  }
+
+  character.updateBalloons = function() {
+    for (let i = 0; i < character.balloons.length; i++) {
+      if (character.balloons[i].original_x != character.balloons[i].top_x) character.balloons[i].top_x = 0.93 * character.balloons[i].top_x + 0.07 * character.balloons[i].original_x;
+      if (character.balloons[i].original_y != character.balloons[i].top_y) character.balloons[i].top_y = 0.93 * character.balloons[i].top_y + 0.07 * character.balloons[i].original_y;
+      character.balloons[i].update();
+    }
+  }
+
+  character.pushBalloons = function() {
+    // if (Math.random() < 0.01) {
+    //   character.balloon_layer.removeChildren();
+    //   shuffleArray(character.balloons);
+    //   for (let i = 0; i < character.balloons.length; i++) {
+    //     character.balloon_layer.addChild(character.balloons[i]);
+    //   }
+    // }
+
+    if (character.history.length > 0) {
+      let diff_x = character.position.x - character.history[character.history.length-1][0];
+      let diff_y = character.position.y - character.history[character.history.length-1][1];
+      for (let i = 0; i < character.balloons.length; i++) {
+        character.balloons[i].top_x -= diff_x * (0.97 + 0.06 * Math.random());
+        character.balloons[i].top_y -= diff_y * (0.97 + 0.06 * Math.random());
+      }
+    }
+    
   }
 
   return character;
