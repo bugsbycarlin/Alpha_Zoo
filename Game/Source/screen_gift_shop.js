@@ -66,7 +66,7 @@ let stuffies = [
   "stuffed_bear",
   "stuffed_giraffe",
   "stuffed_koala",
-  "stuffed_giraffe",
+  "stuffed_frog",
   "stuffed_koala",
   "stuffed_bear",
 ]
@@ -109,6 +109,7 @@ let prices = {
   stuffed_bear: 20,
   stuffed_koala: 15,
   stuffed_giraffe: 20,
+  stuffed_frog: 10,
 
   red_shirt: 8,
   pink_shirt: 8,
@@ -153,13 +154,13 @@ Game.prototype.initializeGiftShop = function() {
   console.log("initializing " + screen.name);
 
   //VERY TEMPORARY STUFF. HIDE, BUT KEEP, FOR FUTURE DEBUGGING.
-  // this.dollar_bucks = 40;
-  // this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
-  // this.dropshadow_filter.blur  = 2;
-  // this.dropshadow_filter.quality = 3;
-  // this.dropshadow_filter.alpha = 0.55;
-  // this.dropshadow_filter.distance = 8;
-  // this.dropshadow_filter.rotation = 45;
+  this.dollar_bucks = 40;
+  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
+  this.dropshadow_filter.blur  = 2;
+  this.dropshadow_filter.quality = 3;
+  this.dropshadow_filter.alpha = 0.55;
+  this.dropshadow_filter.distance = 8;
+  this.dropshadow_filter.rotation = 45;
   //////////////////
 
   this.chooseItemList();
@@ -176,6 +177,7 @@ Game.prototype.chooseItemList = function() {
   shuffleArray(shirts);
   shuffleArray(hats);
   shuffleArray(balloons);
+  shuffleArray(glasses);
 
   this.gift_shop_item_list = [stuffies[0], stuffies[1], hats[0], shirts[0], balloons[0], balloons[1], glasses[0], "scooter"];
   let remaining = [];
