@@ -85,9 +85,9 @@ let shirts = [
 
 let hats = [
   "safari_hat",
-  "smurf_hat",
+  "witch_hat",
   "safari_hat",
-  "smurf_hat",
+  "witch_hat",
 ]
 
 let glasses = [
@@ -124,7 +124,7 @@ let prices = {
 
   ball_cap: 6,
   safari_hat: 6,
-  smurf_hat: 6,
+  witch_hat: 6,
 
   scooter: 25,
   glasses: 3,

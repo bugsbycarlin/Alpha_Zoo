@@ -141,7 +141,7 @@
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
-	"image": "brown_bear_smurf_hat.png",
+	"image": "brown_bear_witch_hat.png",
 	"format": "RGBA8888",
 	"size": {"w":1024,"h":256},
 	"scale": "1",
