@@ -103,6 +103,7 @@ class Game {
       .add("Art/Characters/brown_bear_witch_hat.json")
       .add("Art/Characters/brown_bear_top_hat.json")
       .add("Art/Characters/brown_bear_ball_cap.json")
+      .add("Art/Characters/brown_bear_beanie.json")
       
 
       .add("Art/Characters/polar_bear.json")

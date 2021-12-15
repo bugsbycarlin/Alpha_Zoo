@@ -67,8 +67,7 @@ let stuffies = [
   "stuffed_giraffe",
   "stuffed_koala",
   "stuffed_frog",
-  "stuffed_koala",
-  "stuffed_bear",
+  "stuffed_chimp",
 ]
 
 let shirts = [
@@ -88,6 +87,7 @@ let hats = [
   "witch_hat",
   "top_hat",
   "ball_cap",
+  "beanie",
 ]
 
 let glasses = [
@@ -110,6 +110,7 @@ let prices = {
   stuffed_koala: 15,
   stuffed_giraffe: 20,
   stuffed_frog: 10,
+  stuffed_chimp: 15,
 
   red_shirt: 8,
   pink_shirt: 8,
