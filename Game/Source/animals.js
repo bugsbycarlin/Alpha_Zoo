@@ -659,6 +659,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           } else if (food.currentFrame == 2) {
             food.status = "dead";
             food.visible = false;
+            game.dollar_bucks += 1;
+            game.updateAnimalCount();
           }
           animal.shake = self.markTime();
 

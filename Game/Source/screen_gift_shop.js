@@ -68,6 +68,7 @@ let stuffies = [
   "stuffed_koala",
   "stuffed_frog",
   "stuffed_chimp",
+  "stuffed_wolf",
 ]
 
 let shirts = [
@@ -111,6 +112,7 @@ let prices = {
   stuffed_giraffe: 20,
   stuffed_frog: 10,
   stuffed_chimp: 15,
+  stuffed_wolf: 10,
 
   red_shirt: 8,
   pink_shirt: 8,
@@ -156,14 +158,16 @@ Game.prototype.initializeGiftShop = function() {
   this.clearScreen(screen);
   console.log("initializing " + screen.name);
 
-  //VERY TEMPORARY STUFF. HIDE, BUT KEEP, FOR FUTURE DEBUGGING.
-  this.dollar_bucks = 40;
-  this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
-  this.dropshadow_filter.blur  = 2;
-  this.dropshadow_filter.quality = 3;
-  this.dropshadow_filter.alpha = 0.55;
-  this.dropshadow_filter.distance = 8;
-  this.dropshadow_filter.rotation = 45;
+  // This triggers when debugging the store as the first screen.
+  if (first_screen == "gift_shop") {
+    this.dollar_bucks = 40;
+    this.dropshadow_filter = new PIXI.filters.DropShadowFilter();
+    this.dropshadow_filter.blur  = 2;
+    this.dropshadow_filter.quality = 3;
+    this.dropshadow_filter.alpha = 0.55;
+    this.dropshadow_filter.distance = 8;
+    this.dropshadow_filter.rotation = 45;
+  }
   //////////////////
 
   this.chooseItemList();
@@ -566,6 +570,13 @@ Game.prototype.giftShopAddType = function(letter) {
       if (slot.type == "stuffie") {
         self.gift_shop_player.addStuffie(slot.name, self.gift_shop_objects);
         if (self.player != null) self.player.addStuffie(slot.name, self.decorations);
+
+        self.gift_shop_object_layer.removeChild(slot.item);
+        let index = self.gift_shop_objects.indexOf(slot.item);
+        if (index > -1) {
+          self.gift_shop_objects.splice(index, 1);
+        }
+        slot.item = null;
       } else if (slot.type == "shirt") {
         let old_color = self.gift_shop_player.shirt_color;
         if (old_color == null) old_color = fills["blue"];

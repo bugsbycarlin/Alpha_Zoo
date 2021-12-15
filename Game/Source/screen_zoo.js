@@ -263,18 +263,20 @@ Game.prototype.makeUI = function() {
   this.animal_count_glyph.visible = false;
   screen.addChild(this.animal_count_glyph);
 
-  this.animal_count_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.animal_count_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 60, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.animal_count_text.anchor.set(1,0.5);
   this.animal_count_text.position.set(this.width - 110, 65);
   this.animal_count_text.alpha = 0.0;
   this.animal_count_text.visible = false;
+  this.animal_count_text.tint = 0x000000;
   screen.addChild(this.animal_count_text);
 
-  this.dollar_bucks_text = new PIXI.Text("0", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.dollar_bucks_text = new PIXI.Text("0", {fontFamily: default_font, fontSize: 60, fill: 0xFFFFFF, letterSpacing: 6, align: "left"});
   this.dollar_bucks_text.anchor.set(1,0.5);
   this.dollar_bucks_text.position.set(this.width - 110, 150);
   this.dollar_bucks_text.alpha = 0.0;
   this.dollar_bucks_text.visible = false;
+  this.dollar_bucks_text.tint = 0x000000;
   screen.addChild(this.dollar_bucks_text);
 
   this.dollar_bucks_glyph = new PIXI.Text("$", {fontFamily: default_font, fontSize: 60, fill: 0x000000, letterSpacing: 6, align: "left"});
@@ -450,7 +452,7 @@ Game.prototype.playerAndBoundaries = function() {
   this.player.position.set(min_location[0], min_location[1]);
   this.decorations.push(this.player);
 
-  this.dollar_bucks = 0;
+  this.dollar_bucks = 6;
 
   this.npcs = [];
 
@@ -1458,8 +1460,13 @@ Game.prototype.fadeTitle = function() {
 
 
 Game.prototype.updateAnimalCount = function() {
+  let old_animal_count_text = this.animal_count_text.text;
   this.animal_count_text.text = this.animals_obtained + " / " + this.animals_available;
+  if (old_animal_count_text != this.animal_count_text.text) flicker(this.animal_count_text, 300, 0x000000, 0xFFFFFF);
+
+  let old_dollar_bucks_text = this.dollar_bucks_text.text;
   this.dollar_bucks_text.text = this.dollar_bucks;
+  if (old_dollar_bucks_text != this.dollar_bucks_text.text) flicker(this.dollar_bucks_text, 300, 0x000000, 0xFFFFFF);
 }
 
 
