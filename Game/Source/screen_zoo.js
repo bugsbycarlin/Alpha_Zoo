@@ -118,6 +118,7 @@ Game.prototype.resetZooScreen = function() {
   // this.ungreyAll();
 
   this.initializeScreen("gift_shop");
+  this.initializeScreen("cafe");
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -602,6 +603,9 @@ Game.prototype.zooKeyDown = function(ev) {
     }, 900)
 
     delay(function() {
+        for (let i = 0; i < self.player.stuffies.length; i++) {
+          self.decorations.push(self.player.stuffies[i]);
+        }
         self.decorations.push(self.player);
         self.sortLayer(self.map.decoration_layer, self.decorations);
 
@@ -1228,9 +1232,9 @@ Game.prototype.rideFerrisWheel = function() {
 
     new_decorations = [];
     for (let i = 0; i < self.decorations.length; i++) {
-      if (self.decorations[i].character_name != "brown_bear") {
+      if (self.decorations[i].character_name != "brown_bear"
+        && (self.decorations[i].character_name == null || !self.decorations[i].character_name.includes("stuffed"))) {
         new_decorations.push(self.decorations[i]);
-      } else {
       }
     }
     self.decorations = new_decorations;
@@ -1270,7 +1274,11 @@ Game.prototype.rideFerrisWheel = function() {
 
   delay(function() {
     if (self.ferris_wheel.ride_number == ride_number) {
+      for (let i = 0; i < self.player.stuffies.length; i++) {
+        self.decorations.push(self.player.stuffies[i]);
+      }
       self.decorations.push(self.player);
+
       self.sortLayer(self.map.decoration_layer, self.decorations);
 
       self.fadeFromBlack(1000);
@@ -1488,6 +1496,7 @@ Game.prototype.sortLayer = function(layer_name, layer_object_list, artificial_y 
   }
 
   for (let i = 0; i < layer_object_list.length; i++) {
+    // if (layer_object_list[i].character_name != null && layer_object_list[i].character_name == "brown_bear") console.log("uep");
     if (!(layer_object_list[i].status == "dead")) {
       layer_name.addChild(layer_object_list[i]);
     }
@@ -1580,35 +1589,38 @@ Game.prototype.updatePlayer = function() {
       this.fadeTitle();
     }
 
-    player.move();
-    this.updateGhost();
+    if (player.direction != null) {
+      player.move();
+      this.updateGhost();
 
-    this.updateEnts();
+      this.updateEnts();
 
-    if (player.direction != null && this.map_visible == false) {
-      this.checkPenProximity(player.x, player.y, player.direction);
-    }
-
-    if (this.cafe != null) {
-      if (Math.abs(player.x - this.cafe.x) <= 80 && player.y < this.cafe.y && player.y > this.cafe.y - 50) {
-        this.player.visible = false;
-        this.ghost.visible = false;
-        this.zoo_mode = "fading";
-        this.initializeScreen("cafe");
-        this.fadeScreens("zoo", "cafe", true);
+      if (player.direction != null && this.map_visible == false) {
+        this.checkPenProximity(player.x, player.y, player.direction);
       }
-    }
 
-    if (this.gift_shop != null) {
-      if (Math.abs(player.x - this.gift_shop.x) <= 80 && player.y < this.gift_shop.y && player.y > this.gift_shop.y - 50) {
-        this.player.visible = false;
-        this.player.history = [];
-        this.ghost.visible = false;
-        this.zoo_mode = "fading";
-        this.gift_shop_mode = "active";
-        this.gift_shop_dollar_bucks_text.text = this.dollar_bucks;
-        this.updatePriceTags();
-        this.fadeScreens("zoo", "gift_shop", true);
+      if (this.cafe != null) {
+        if (Math.abs(player.x - this.cafe.x) <= 80 && player.y < this.cafe.y && player.y > this.cafe.y - 50) {
+          this.player.visible = false;
+          this.ghost.visible = false;
+          this.zoo_mode = "fading";
+          // this.initializeScreen("cafe");
+
+          this.fadeScreens("zoo", "cafe", true);
+        }
+      }
+
+      if (this.gift_shop != null) {
+        if (Math.abs(player.x - this.gift_shop.x) <= 80 && player.y < this.gift_shop.y && player.y > this.gift_shop.y - 50) {
+          this.player.visible = false;
+          this.player.history = [];
+          this.ghost.visible = false;
+          this.zoo_mode = "fading";
+          this.gift_shop_mode = "active";
+          this.gift_shop_dollar_bucks_text.text = this.dollar_bucks;
+          this.updatePriceTags();
+          this.fadeScreens("zoo", "gift_shop", true);
+        }
       }
     }
   } else if (player.direction != null) {

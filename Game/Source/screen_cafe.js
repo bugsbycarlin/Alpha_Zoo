@@ -6,9 +6,9 @@
 // Written by Matthew Carlin
 //
 
-let cafe_diner_locations = [[1299,604+36], [1333, 415+36], [738, 837+36], [1098, 757+36], [324, 829+36],];
-let cafe_table_locations = [[1262,700], [1303, 508], [699, 932], [1059, 852], [355, 923]];
-let cafe_food_locations = [[1276, 647], [1315, 449], [712, 874], [1072, 794], [352, 870]];
+let cafe_diner_locations = [[1333, 415+36], [1299,604+36], [738, 837+36], [1098, 757+36], [324, 829+36],];
+let cafe_table_locations = [[1303, 508], [1262,700], [699, 932], [1059, 852], [355, 923]];
+let cafe_food_locations = [[1315, 449], [1276, 647], [712, 874], [1072, 794], [352, 870]];
 
 let menu_layout = [
   ["PIZZA", 60, 50],
@@ -101,6 +101,7 @@ Game.prototype.initializeCafe = function() {
     screen.addChild(diner);
     this.shakers.push(diner);
     this.cafe_diners.push(diner);
+    if (i == 0) this.cafe_player = diner;
   }
 
   // make four tables.
@@ -349,6 +350,8 @@ Game.prototype.updateCafe = function(diff) {
   var screen = this.screens["cafe"];
 
   let fractional = diff / (1000/30.0);
+
+  this.cafe_player.updateBalloons();
 
   if (this.cafe_diners != null) {
     for (let i = 1; i < this.cafe_diners.length; i++) {

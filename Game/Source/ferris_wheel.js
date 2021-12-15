@@ -112,10 +112,18 @@ Game.prototype.makeFerrisWheel = function(pen) {
         0 + 850 * Math.cos(270 * Math.PI / 180),
         -1346 - 850 * Math.sin(270 * Math.PI / 180) + 186
       );
+
     while(fw.cart_layer.children[0]) {
       fw.cart_layer.removeChild(fw.cart_layer.children[0]);
     }
+
     fw.cart_layer.addChild(fw.player);
+    for (let i = 0; i < fw.player.stuffies.length; i++) {
+      console.log("adding " + fw.player.stuffies[i].character_name);
+      fw.cart_layer.addChild(fw.player.stuffies[i]);
+    }
+    fw.player.lineUpStuffies();
+
     for (let i = 0; i < fw.riders.length; i++) {
       fw.riders[i].visible = true;
       fw.cart_layer.addChild(fw.riders[i]);
@@ -123,12 +131,23 @@ Game.prototype.makeFerrisWheel = function(pen) {
     for (let i = 0; i < 12; i++) {
       fw.cart_layer.addChild(fw.carts[i]);
     }
+
+    fw.player.hideBalloons();
+    fw.player.hideScooter();
   }
 
   fw.removePlayer = function() {
     if (fw.player != null) {
       fw.player.position.set(fw.player.old_position[0], fw.player.old_position[1])
       fw.cart_layer.removeChild(fw.player);
+
+      for (let i = 0; i < fw.player.stuffies.length; i++) {
+        fw.cart_layer.removeChild(fw.player.stuffies[i]);
+      }
+
+      fw.player.showBalloons(); 
+      fw.player.showScooter();     
+
       fw.player = null;
     }
   }
@@ -162,9 +181,9 @@ Game.prototype.makeFerrisWheel = function(pen) {
       self.ents[k].visible = false;
     }
 
-    for (let i = 0; i < self.npcs.length; i++) {
-      self.npcs[i].visible = false;
-    }
+    // for (let i = 0; i < self.npcs.length; i++) {
+    //   self.npcs[i].visible = false;
+    // }
 
     for (let i = 0; i < self.zoo_pens.length; i++) {
       let pen = self.zoo_pens[i];
@@ -202,9 +221,9 @@ Game.prototype.makeFerrisWheel = function(pen) {
 
   fw.unhideTheStuff = function() {
 
-    for (let i = 0; i < self.npcs.length; i++) {
-      self.npcs[i].visible = true;
-    }
+    // for (let i = 0; i < self.npcs.length; i++) {
+    //   self.npcs[i].visible = true;
+    // }
 
     for (let i = 0; i < self.zoo_pens.length; i++) {
       let pen = self.zoo_pens[i];
@@ -299,6 +318,8 @@ Game.prototype.makeFerrisWheel = function(pen) {
           fw.player.direction = "left";
           fw.player.updateDirection();
         }
+
+        fw.player.lineUpStuffies();
       }
 
       // fw.sky.x = fw.player.position.x;

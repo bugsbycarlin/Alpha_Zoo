@@ -570,6 +570,7 @@ Game.prototype.giftShopAddType = function(letter) {
       if (slot.type == "stuffie") {
         self.gift_shop_player.addStuffie(slot.name, self.gift_shop_objects);
         if (self.player != null) self.player.addStuffie(slot.name, self.decorations);
+        //if (self.cafe_player != null) self.cafe_player.addStuffie(slot.name, self.decorations);
 
         self.gift_shop_object_layer.removeChild(slot.item);
         let index = self.gift_shop_objects.indexOf(slot.item);
@@ -583,6 +584,7 @@ Game.prototype.giftShopAddType = function(letter) {
 
         self.gift_shop_player.addShirt(slot.color);
         if (self.player != null) self.player.addShirt(slot.color);
+        if (self.cafe_player != null) self.cafe_player.addShirt(slot.color);
 
         slot.name = shirt_reference[old_color];
         slot.item.shirt.tint = old_color;
@@ -592,6 +594,7 @@ Game.prototype.giftShopAddType = function(letter) {
         let old_glasses = self.gift_shop_player.glasses_type;
         self.gift_shop_player.addGlasses(slot.name);
         if (self.player != null) self.player.addGlasses(slot.name);
+        if (self.cafe_player != null) self.cafe_player.addGlasses(slot.name);
 
         self.gift_shop_object_layer.removeChild(slot.item);
         let index = self.gift_shop_objects.indexOf(slot.item);
@@ -610,6 +613,7 @@ Game.prototype.giftShopAddType = function(letter) {
         let old_hat = self.gift_shop_player.hat_type;
         self.gift_shop_player.addHat(slot.name);
         if (self.player != null) self.player.addHat(slot.name);
+        if (self.cafe_player != null) self.cafe_player.addHat(slot.name);
 
         self.gift_shop_object_layer.removeChild(slot.item);
         let index = self.gift_shop_objects.indexOf(slot.item);
@@ -626,6 +630,7 @@ Game.prototype.giftShopAddType = function(letter) {
       } else if (slot.type == "balloon") {
         self.gift_shop_player.addBalloon(slot.color);
         if (self.player != null) self.player.addBalloon(slot.color);
+        if (self.cafe_player != null) self.cafe_player.addBalloon(slot.color);
 
         self.gift_shop_object_layer.removeChild(slot.item);
         let index = self.gift_shop_objects.indexOf(slot.item);

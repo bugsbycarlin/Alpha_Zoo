@@ -81,8 +81,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.walk_speed = default_walk_speed;
 
   character.move = function() {
-
-    //character.direction = character.level.testWalk(character, character.direction);
+    // if (character.character_name == "brown_bear") console.log("moving " + character.x);
 
     if (character.direction != null) {
       character.history.push([character.x, character.y, character.direction]);
@@ -258,6 +257,13 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     game.makeSmoke(character, stuffie.x - character.x + 10, stuffie.y - character.y - 40, 1.8, 1.8);
   }
 
+  character.lineUpStuffies = function() {
+    for (let i = 0; i < character.stuffies.length; i++) {
+      dir = (i % 2 == 0) ? -1 : 1
+      character.stuffies[i].position.set(character.x + dir * (35 + Math.floor(i/2) * 20), character.y - 1);
+    }
+  }
+
   character.addShirt = function(shirt_color) {
     if (character.shirt != null) {
       for(let i = 0; i < 8; i++) {
@@ -394,6 +400,22 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       if (character.balloons[i].original_y != character.balloons[i].top_y) character.balloons[i].top_y = 0.93 * character.balloons[i].top_y + 0.07 * character.balloons[i].original_y;
       character.balloons[i].update();
     }
+  }
+
+  character.hideBalloons = function() {
+    character.balloon_layer.visible = false;
+  }
+
+  character.showBalloons = function() {
+    character.balloon_layer.visible = true;
+  }
+
+  character.hideScooter = function() {
+    character.scooter_layer.visible = false;
+  }
+
+  character.showScooter = function() {
+    character.scooter_layer.visible = true;
   }
 
   character.pushBalloons = function() {
