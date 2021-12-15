@@ -334,6 +334,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
         character.hat[directions[i]].anchor.set(0.5,0.78125);
         character.hat[directions[i]].position.set(0, 0);
         if (hat_type == "witch_hat") character.hat[directions[i]].position.set(0, -32); // witch hat is tall and needs adjustment to fit the sprite sheet.
+        if (hat_type == "top_hat") character.hat[directions[i]].position.set(0, -32); // top hat is tall and needs adjustment to fit the sprite sheet.
         character.hat_layer.addChild(character.hat[directions[i]]);
         character.hat[directions[i]].visible = false;
       }

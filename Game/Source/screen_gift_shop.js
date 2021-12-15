@@ -86,8 +86,8 @@ let shirts = [
 let hats = [
   "safari_hat",
   "witch_hat",
-  "safari_hat",
-  "witch_hat",
+  "top_hat",
+  "ball_cap",
 ]
 
 let glasses = [
@@ -124,7 +124,9 @@ let prices = {
 
   ball_cap: 6,
   safari_hat: 6,
+  top_hat: 6,
   witch_hat: 6,
+  beanie: 6,
 
   scooter: 25,
   glasses: 3,
@@ -309,6 +311,8 @@ Game.prototype.initializeGiftShopObjects = function() {
       || item_name.includes("shirt")
       || item_name.includes("glasses")
       || item_name.includes("hat")
+      || item_name.includes("cap")
+      || item_name.includes("beanie")
       || item_name.includes("balloon")
       || item_name.includes("scooter")) this.giftShopAddItem(i, item_name);
     
@@ -343,7 +347,7 @@ Game.prototype.giftShopAddItem = function(slot_number, item_name) {
   } else if (item_name.includes("glasses")) {
     slot.type = "glasses";
     this.giftShopAddGlasses(item_name, item_container);
-  } else if (item_name.includes("hat")) {
+  } else if (item_name.includes("hat") || item_name.includes("cap") || item_name.includes("beanie")) {
     slot.type = "hat";
     this.giftShopAddHat(item_name, item_container);
   } else if (item_name.includes("balloon")) {
@@ -793,6 +797,7 @@ Game.prototype.giftShopRevealTypingText = function(slot) {
   let measure = new PIXI.TextMetrics.measureText(slot.name, this.gift_shop_typing_text.style);
 
   // make the icon
+
   if (slot.type == "stuffie") {
     this.gift_shop_typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Stuffed_Animals/" + slot.name + ".png"));
     this.gift_shop_typing_picture.scale.set(1, 1);
@@ -812,6 +817,15 @@ Game.prototype.giftShopRevealTypingText = function(slot) {
 
   this.gift_shop_typing_picture.anchor.set(0.5, 0.77);
   this.gift_shop_typing_picture.position.set(110 + measure.width, 133);
+  if (slot.type == "hat" || slot.type == "glasses") {
+    this.gift_shop_typing_picture.position.set(110 + measure.width, 155);
+  } else if (slot.type == "shirt") {
+    this.gift_shop_typing_picture.position.set(110 + measure.width, 145);
+  } else if (slot.type == "scooter") {
+    this.gift_shop_typing_picture.position.set(125 + measure.width, 155);
+  } else if (slot.type == "balloon") {
+    this.gift_shop_typing_picture.position.set(100 + measure.width, 133);
+  }
 
   this.gift_shop_typing_backing = new PIXI.Graphics();
   this.gift_shop_typing_backing.beginFill(0xFFFFFF, 1);
