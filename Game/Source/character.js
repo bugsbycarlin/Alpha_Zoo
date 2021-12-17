@@ -441,9 +441,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
 
 
   character.addBalloon = function(balloon_color) {
-    let balloon = game.makeBalloon(character.balloon_layer, balloon_color, 0, -77, -70 + Math.floor(140 * Math.random()), -50 - Math.floor(20 * Math.random()))
-    balloon.original_x = balloon.top_x;
-    balloon.original_y = balloon.top_y;
+    let balloon = game.makeBalloon(character.balloon_layer, balloon_color, 0, -77, -70 + Math.floor(140 * Math.random()), -50 - Math.floor(20 * Math.random()));
     character.balloons.push(balloon);
     game.makeSmoke(character.balloon_layer, balloon.top_x, balloon.top_y - 100, 1.8, 1.8);
   }
@@ -467,8 +465,6 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
 
   character.updateBalloons = function() {
     for (let i = 0; i < character.balloons.length; i++) {
-      if (character.balloons[i].original_x != character.balloons[i].top_x) character.balloons[i].top_x = 0.93 * character.balloons[i].top_x + 0.07 * character.balloons[i].original_x;
-      if (character.balloons[i].original_y != character.balloons[i].top_y) character.balloons[i].top_y = 0.93 * character.balloons[i].top_y + 0.07 * character.balloons[i].original_y;
       character.balloons[i].update();
     }
   }
@@ -490,23 +486,21 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   }
 
   character.pushBalloons = function() {
-    // if (Math.random() < 0.01) {
-    //   character.balloon_layer.removeChildren();
-    //   shuffleArray(character.balloons);
-    //   for (let i = 0; i < character.balloons.length; i++) {
-    //     character.balloon_layer.addChild(character.balloons[i]);
-    //   }
-    // }
-
     if (character.history.length > 0) {
       let diff_x = character.position.x - character.history[character.history.length-1][0];
       let diff_y = character.position.y - character.history[character.history.length-1][1];
       for (let i = 0; i < character.balloons.length; i++) {
-        character.balloons[i].top_x -= diff_x * (0.97 + 0.06 * Math.random());
-        character.balloons[i].top_y -= diff_y * (0.97 + 0.06 * Math.random());
+        character.balloons[i].push(-1 * diff_x * (0.97 + 0.06 * Math.random()), -1 * diff_y * (0.97 + 0.06 * Math.random()));
       }
     }
-    
+  }
+
+  character.releaseBalloon = function() {
+    if (character.balloons.length > 0) {
+      let balloon = character.balloons.pop();
+      balloon.scale.set(character.scale.x, character.scale.y);
+      balloon.free(character.x + balloon.x * character.scale.x, character.y + balloon.y * character.scale.y, game.map.balloon_layer);   // this would be different in other screens
+    }
   }
 
   return character;

@@ -34,6 +34,8 @@ Game.prototype.makeFerrisWheel = function(pen) {
   fw.moving = false;
   fw.ride_number = 0;
 
+  fw.balloons = [];
+
   fw.sky = new PIXI.Sprite(PIXI.Texture.from("Art/sky.png"));
   fw.sky.visible = false;
   fw.sky.anchor.set(0.5, 1);
@@ -132,8 +134,27 @@ Game.prototype.makeFerrisWheel = function(pen) {
       fw.cart_layer.addChild(fw.carts[i]);
     }
 
-    fw.player.hideBalloons();
+    //fw.player.hideBalloons();
+    fw.balloons = [];
+    for (let i = 0; i < fw.player.balloons.length; i++) {
+      let balloon = fw.player.balloons[i];
+      fw.cart_layer.addChild(balloon);
+      x_diff = fw.player.x - fw.player.old_position[0];
+      y_diff = fw.player.y - fw.player.old_position[1];
+      balloon.reposition(fw.player.x, fw.player.y - 57);
+      balloon.scale.set(fw.player.scale.x, fw.player.scale.y);
+      fw.balloons.push(balloon);
+    }
+    fw.player.balloons = [];
+
     fw.player.hideScooter();
+  }
+
+  fw.releaseBalloon = function() {
+    if (fw.balloons.length > 0) {
+      let balloon = fw.balloons.pop();
+      balloon.free(fw.x + balloon.x, fw.y + balloon.y, game.map.balloon_layer);   // this would be different in other screens
+    }
   }
 
   fw.removePlayer = function() {
@@ -145,7 +166,17 @@ Game.prototype.makeFerrisWheel = function(pen) {
         fw.cart_layer.removeChild(fw.player.stuffies[i]);
       }
 
-      fw.player.showBalloons(); 
+      // fw.player.showBalloons();
+      for (let i = 0; i < fw.balloons.length; i++) {
+        let balloon = fw.balloons[i];
+        fw.player.balloon_layer.addChild(balloon);
+        balloon.parent = fw.player.balloon_layer;
+        balloon.reposition(0, -77);
+        balloon.scale.set(1,1);
+        fw.player.balloons.push(balloon);
+      }
+      fw.balloons = [];
+
       fw.player.showScooter();     
 
       fw.player = null;
@@ -282,6 +313,12 @@ Game.prototype.makeFerrisWheel = function(pen) {
   }
   
   fw.update = function(fractional) {
+
+    for (let i = 0; i < fw.balloons.length; i++) {
+      let balloon = fw.balloons[i];
+      balloon.update();
+    }
+
     if (fw.moving) {
       fw.last_angle = fw.wheel_angle;
       fw.wheel_angle += fw.angular_velocity * fractional;
@@ -320,6 +357,15 @@ Game.prototype.makeFerrisWheel = function(pen) {
         }
 
         fw.player.lineUpStuffies();
+      }
+
+
+      for (let i = 0; i < fw.balloons.length; i++) {
+        let balloon = fw.balloons[i];
+        let old_x = balloon.x;
+        let old_y = balloon.y;
+        balloon.reposition(fw.player.x, fw.player.y - 57)
+        balloon.push(old_x - balloon.x, old_y - balloon.y);
       }
 
       // fw.sky.x = fw.player.position.x;

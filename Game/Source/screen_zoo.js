@@ -18,6 +18,7 @@ Game.prototype.initializeZoo = function() {
   this.shakers = [];
   this.drops = [];
   this.foods = [];
+  this.free_balloons = [];
 
   this.terrain = [];
   this.decorations = [];
@@ -202,14 +203,14 @@ Game.prototype.makeUI = function() {
   this.display_ui.addChild(this.action_glyphs["MAP"]);
   this.action_glyphs["MAP"].visible = false;
 
-  this.action_glyphs["WAFT"] = new PIXI.Sprite(PIXI.Texture.from("Art/balloon_icon.png"));
-  this.action_glyphs["WAFT"].anchor.set(0.5,0.75);
-  this.action_glyphs["WAFT"].position.set(70, this.height - 50);
-  this.action_glyphs["WAFT"].scale.set(0.75, 0.75);
-  this.action_glyphs["WAFT"].tint = 0xec4e4e;
-  this.action_glyphs["WAFT"].visible = false;
-  this.display_ui.addChild(this.action_glyphs["WAFT"]);
-  this.action_glyphs["WAFT"].visible = false;
+  this.action_glyphs["LET GO"] = new PIXI.Sprite(PIXI.Texture.from("Art/balloon_icon.png"));
+  this.action_glyphs["LET GO"].anchor.set(0.5,0.75);
+  this.action_glyphs["LET GO"].position.set(70, this.height - 50);
+  this.action_glyphs["LET GO"].scale.set(0.75, 0.75);
+  this.action_glyphs["LET GO"].tint = 0xec4e4e;
+  this.action_glyphs["LET GO"].visible = false;
+  this.display_ui.addChild(this.action_glyphs["LET GO"]);
+  this.action_glyphs["LET GO"].visible = false;
 
   this.action_glyphs["THROW"] = new PIXI.Sprite(PIXI.Texture.from("Art/throw_icon.png"));
   this.action_glyphs["THROW"].anchor.set(0.5,0.75);
@@ -766,35 +767,61 @@ Game.prototype.addDisplayType = function(letter) {
     }
   }
 
+  let text_box = this.action_typing_text[this.action_default_slot];
+  let grey_text_box = this.action_grey_text[this.action_default_slot];
+
   if (prefix) {
     for (let i = 0; i < this.action_list.length; i++) {
       if (i == this.action_default_slot) {
-        if (this.action_typing_text[this.action_default_slot].text.length < this.action_grey_text[this.action_default_slot].text.length) {
-          this.action_typing_text[this.action_default_slot].text += letter;
+        if (text_box.text.length < grey_text_box.text.length) {
+          if (grey_text_box.text[text_box.text.length] == " ") {
+            text_box.text += " ";
+          }
+
+          text_box.text += letter;
         }
       } else {
         this.action_typing_text[i].text = "";
       }
     }
   } else {
-    if (this.action_typing_text[this.action_default_slot].text.length < this.action_grey_text[this.action_default_slot].text.length) {
-      this.action_typing_text[this.action_default_slot].text += letter;
+    if (text_box.text.length < grey_text_box.text.length) {
+      if (grey_text_box.text[text_box.text.length] == " ") {
+        text_box.text += " ";
+      }
+
+      text_box.text += letter;
     }
   }
 
 
-  if (this.action_typing_text[this.action_default_slot].text == this.action_grey_text[this.action_default_slot].text) {
-    if (this.action_typing_text[this.action_default_slot].text == "RIDE") {
+  if (text_box.text == grey_text_box.text) {
+    if (text_box.text == "RIDE") {
       this.rideFerrisWheel();
-    } else if (this.action_typing_text[this.action_default_slot].text == "FEED") {
+    } else if (text_box.text == "FEED") {
       this.feedAnimal();
-    } else if (this.action_typing_text[this.action_default_slot].text == "POOP") {
+    } else if (text_box.text == "POOP") {
       this.poopAnimal();
-    } else if (this.action_typing_text[this.action_default_slot].text == "MAP") {
+    } else if (text_box.text == "MAP") {
       this.activateMap();
-    } else if (this.action_typing_text[this.action_default_slot].text == "THROW") {
+    } else if (text_box.text == "LET GO") {
+      this.soundEffect("success");
+    
+      this.display_typing_allowed = false;
+
+      delay(function() {
+        self.action_typing_text[self.action_default_slot].text = "";
+        self.display_typing_allowed = true;
+        self.changeDisplayText("FERRIS_WHEEL_OPTIONS", null);
+      }, 300);
+
+      flicker(text_box, 300, 0x000000, 0xFFFFFF);
+
+
+      this.ferris_wheel.releaseBalloon();
+    } else if (text_box.text == "THROW") {
       this.throwHotDog();
-    } else if (this.action_typing_text[this.action_default_slot].text == "COLOR") {
+    } else if (text_box.text == "COLOR") {
 
       this.soundEffect("success");
     
@@ -805,7 +832,7 @@ Game.prototype.addDisplayType = function(letter) {
         self.display_typing_allowed = true;
       }, 300);
 
-      flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);
+      flicker(text_box, 300, 0x000000, 0xFFFFFF);
 
       // remove previous ferris wheel, I think.
       let new_decorations = [];
@@ -833,6 +860,10 @@ Game.prototype.deleteDisplayType = function() {
   var screen = this.screens["zoo"];
 
   let text_box = this.action_typing_text[this.action_default_slot];
+
+  if (text_box.text[text_box.text.length - 1] === " ") {
+    text_box.text = text_box.text.slice(0, -1);
+  }
 
   let l = text_box.text.slice(-1, text_box.text.length);
   let t = new PIXI.Text(l, {fontFamily: default_font, fontSize: 80, fill: 0x000000, letterSpacing: 3, align: "left"});
@@ -966,8 +997,8 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
     } else if (this.thing_to_display == "GIFT SHOP") {
       word_list = [];
     } else if (this.thing_to_display == "FERRIS_WHEEL_OPTIONS") {
-      if (this.player.balloons.length > 0) {
-        word_list = ["WAFT, THROW"];
+      if (this.ferris_wheel.balloons.length > 0) {
+        word_list = ["LET GO", "THROW"];
       } else {
         word_list = ["THROW"];
       }
@@ -1625,6 +1656,42 @@ Game.prototype.poopsAndFoods = function(fractional) {
 }
 
 
+Game.prototype.balloonsRise = function(fractional) {
+  var self = this;
+  var screen = this.screens[this.current_screen];
+
+  for (let i = 0; i < this.free_balloons.length; i++) {
+    let balloon = this.free_balloons[i];
+
+    balloon.update();
+
+    balloon.reposition(balloon.x + (1.8 + 0.4 * Math.random()) * fractional, balloon.y - (2.2 + 0.4 * Math.random()) * fractional);
+    if (distance(balloon.top_x, balloon.top_y, 0, 0) < 200) {
+      balloon.top_x += 0.25 * fractional;
+      balloon.original_x += 0.25 * fractional;
+      balloon.top_y -= 0.35 * fractional;
+      balloon.original_y -= 0.35 * fractional;
+    }
+    
+    if (balloon.ceiling != null && balloon.position.y < balloon.ceiling) {
+      if (balloon.parent != null) {
+        balloon.parent.removeChild(balloon);
+      }
+      balloon.status = "dead";
+    }
+  }
+
+  let new_free_balloons = [];
+  for (let i = 0; i < this.free_balloons.length; i++) {
+    let balloon = this.free_balloons[i];
+    if (balloon.status != "dead") {
+      new_free_balloons.push(balloon);
+    }
+  }
+  this.free_balloons = new_free_balloons;
+}
+
+
 Game.prototype.updateGhost = function() {
   if (this.player.direction != null) {
     this.ghost.direction = this.player.direction;
@@ -2004,6 +2071,7 @@ Game.prototype.updateZoo = function(diff) {
 
   this.shakeThings();
   this.freeeeeFreeeeeFalling(fractional);
+  this.balloonsRise(fractional);
   this.poopsAndFoods(fractional);
 
 }
