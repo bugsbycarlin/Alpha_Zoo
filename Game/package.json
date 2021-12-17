@@ -25,7 +25,7 @@
     "copyright": "Copyright 2021 AlphaZoo LLC",
     "afterSign": "Source/notarize.js",
     "directories": {
-      "output": "../Release/Alpha Zoo/"
+      "output": "../Release/Alpha Zoo ${version}/"
     },
     "dmg": {
       "sign": false,

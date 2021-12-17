@@ -65,6 +65,8 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   character.scooter = null;
 
   character.scooter_last_puff = game.markTime();
+  character.scooter_next_puff = 200 + 150 * Math.random();
+  character.scooter_last_puff_sound = game.markTime();
 
   character.shirt_layer = new PIXI.Container();
   character.addChild(character.shirt_layer);
@@ -185,14 +187,38 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
           character.scooter[character.direction].gotoAndStop(1);
         }
 
-        if (game.timeSince(character.scooter_last_puff) > 3000) {
-          // character.scooter_last_puff = game.markTime();
-          // game.makeSmoke(character, 0, 0, 1.8, 1.8);
+        if (game.timeSince(character.scooter_last_puff) > character.scooter_next_puff
+          && character.history.length > 2) {
+          character.scooter_last_puff = game.markTime();
+          character.scooter_next_puff = 100 + 200 * Math.random();
+          // character.scooter_next_puff = 120 + 50 * Math.random();
+          let scale = 0.5 + 0.2 * Math.random();
+          let px = character.history[character.history.length - 1][0];
+          let py = character.history[character.history.length - 1][1];
+
+
+          
+          if (character.scooter_scene == "gift_shop") {
+            let puff = game.makePuff(game.gift_shop_object_layer, px - 5 + 10 * Math.random(), py - 5 + Math.random() * 10, scale, scale);
+            game.gift_shop_objects.push(puff);
+          } else if (character.scooter_scene == "zoo") {
+            let puff = game.makePuff(game.map.decoration_layer, px - 5 + 10 * Math.random(), py - 5 + Math.random() * 10, scale, scale);
+            game.decorations.push(puff);
+          }
         }
+
+        if (game.timeSince(character.scooter_last_puff_sound) > 226) {
+          game.soundEffect("puff");
+          character.scooter_last_puff_sound = game.markTime();
+        }
+
+        
       }
     }
 
     character.updateDirection = function() {
+      if (character.direction == null) return;
+
       for(let i = 0; i < 8; i++) {
         if (directions[i] == character.direction) {
           character.character_sprite[directions[i]].visible = true;
@@ -214,6 +240,16 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       if (character.glasses != null) character.glasses[character.direction].gotoAndStop(0);
       if (character.hat != null) character.hat[character.direction].gotoAndStop(0);
       if (character.scooter != null) character.scooter[character.direction].gotoAndStop(0);
+
+      if (character.scooter != null && 
+        (character.direction == "upright" || character.direction == "upleft")) {
+          character.character_sprite[character.direction].gotoAndStop(1);
+        if (character.shirt != null) character.shirt[character.direction].gotoAndStop(1);
+        if (character.glasses != null) character.glasses[character.direction].gotoAndStop(1);
+        if (character.hat != null) character.hat[character.direction].gotoAndStop(1);
+        character.scooter[character.direction].gotoAndStop(1);
+      }
+
     }
   } else if (subtype == "stuffed") {
     // empty, no walk animation and no updateDirection
@@ -255,6 +291,23 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     }
 
     game.makeSmoke(character, stuffie.x - character.x + 10, stuffie.y - character.y - 40, 1.8, 1.8);
+  }
+
+  character.removeStuffie = function(stuffed_animal, decorations_list) {
+    // Remove one instance of the matching stuffie.
+    let removed = false;
+    let new_stuffies = [];
+    for (let i = 0; i < character.stuffies.length; i++) {
+      let stuffie = character.stuffies[i];
+      if (stuffie.character_name == stuffed_animal && removed == false) {
+        game.makeSmoke(character, stuffie.x - character.x + 10, stuffie.y - character.y - 40, 1.8, 1.8);
+        removed = true;
+        stuffie.status = "dead";
+      } else {
+        new_stuffies.push(stuffie);
+      }
+    }
+    character.stuffies = new_stuffies;
   }
 
   character.lineUpStuffies = function() {
@@ -353,7 +406,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
   }
 
 
-  character.addScooter = function(scooter_type) {
+  character.addScooter = function(scooter_type, scooter_scene) {
     if (character.scooter != null) {
       for(let i = 0; i < 8; i++) {
         character.scooter_layer.removeChild(character.scooter[directions[i]]);
@@ -361,13 +414,13 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       }
     }
 
-    
+    character.scooter_scene = scooter_scene;
 
     if (scooter_type == "no_scooter") {
       character.scooter = null;
       character.scooter_boost = 1.0;
     } else {
-      character.scooter_boost = 1.5;
+      character.scooter_boost = 1.3;
 
       let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_scooter.json"].spritesheet;
       character.scooter = {};
@@ -392,7 +445,25 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     balloon.original_x = balloon.top_x;
     balloon.original_y = balloon.top_y;
     character.balloons.push(balloon);
+    game.makeSmoke(character.balloon_layer, balloon.top_x, balloon.top_y - 100, 1.8, 1.8);
   }
+
+  // character.removeBalloon = function(balloon_color) {
+  //   // Remove one instance of the matching balloon.
+  //   let removed = false;
+  //   let new_balloons = [];
+  //   for (let i = 0; i < character.balloons.length; i++) {
+  //     let balloon = character.balloons[i];
+  //     if (stuffie.character_name == stuffed_animal && removed == false) {
+  //       game.makeSmoke(character, stuffie.x - character.x + 10, stuffie.y - character.y - 40, 1.8, 1.8);
+  //       removed = true;
+  //       stuffie.status = "dead";
+  //     } else {
+  //       new_balloons.push(stuffie);
+  //     }
+  //   }
+  //   character.balloons = new_balloons;
+  // }
 
   character.updateBalloons = function() {
     for (let i = 0; i < character.balloons.length; i++) {

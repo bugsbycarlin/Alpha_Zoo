@@ -248,6 +248,13 @@ animals = {
     butt: [181, 334],
     food: "herbivore",
   },
+  "BIGHORN_SHEEP": {
+    mouth: [327, 333],
+    butt: [177, 317],
+    food: "herbivore",
+    terrace: "rock",
+    land: "grass",
+  },
   "DEER": {
     mouth: [317, 327],
     butt: [192, 332],
@@ -477,7 +484,7 @@ section_primates = [
 
 section_north_and_water = [
   "POLAR_BEAR", "SEAL", "BLACK_BEAR", "BROWN_BEAR", "MOOSE", "ELK", "DEER",
-  "YAK", "OTTER", "WOLF", "FOX", "PENGUIN", "RACCOON", "BEAVER",
+  "YAK", "OTTER", "WOLF", "FOX", "PENGUIN", "RACCOON", "BEAVER", "BIGHORN_SHEEP"
 ]
 
 section_starter_and_farm = [

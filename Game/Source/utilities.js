@@ -31,6 +31,12 @@ function distance(x1, y1, x2, y2) {
 }
 
 
+// Truly idiotic that the language needs this.
+function replaceAll(string, search, replace) {
+  return string.split(search).join(replace);
+}
+
+
 lloydRelaxation = function (points, width, height) {
   let vals = [];
   for(let i = 0; i < points.length; i++) {

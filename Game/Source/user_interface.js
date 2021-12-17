@@ -202,12 +202,32 @@ Game.prototype.makeSmoke = function(parent, x, y, xScale, yScale) {
   parent.addChild(smoke_sprite);
   smoke_sprite.loop = false;
   smoke_sprite.onComplete = function() {
+    smoke_sprite.state = "dead";
     parent.removeChild(smoke_sprite);
   }
   smoke_sprite.play();
   return smoke_sprite;
 }
 
+
+Game.prototype.makePuff = function(parent, x, y, xScale, yScale) {
+  let sheet = PIXI.Loader.shared.resources["Art/puff.json"].spritesheet;
+  let puff_sprite = new PIXI.AnimatedSprite(sheet.animations["puff"]);
+  puff_sprite.anchor.set(0.5,0.5);
+  puff_sprite.position.set(x, y);
+  parent.addChild(puff_sprite);
+  puff_sprite.animationSpeed = 0.17; 
+  puff_sprite.scale.set(xScale, yScale);
+  parent.addChild(puff_sprite);
+  puff_sprite.loop = false;
+  puff_sprite.gotoAndStop(1);
+  puff_sprite.onComplete = function() {
+    puff_sprite.status = "dead";
+    parent.removeChild(puff_sprite);
+  }
+  puff_sprite.play();
+  return puff_sprite;
+}
 
 
 Game.prototype.makePop = function(parent, x, y, xScale, yScale) {

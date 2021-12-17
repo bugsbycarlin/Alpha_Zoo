@@ -410,7 +410,7 @@ Game.prototype.makeMapPens = function() {
     let potential_gift_shop_tiles = [];
     for (let i = 1; i < this.zoo_size - 1; i++) {
       for (let j = 1; j < this.zoo_size - 1; j++) {
-        if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isGiftShopTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
+        if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isCafeTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
           && this.zoo_squares[i][j].s_edge == true) { // put the gift shop somewhere where there's a road below it.
           potential_gift_shop_tiles.push([i,j]);
         }

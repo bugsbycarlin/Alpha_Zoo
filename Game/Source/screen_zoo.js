@@ -1912,6 +1912,15 @@ Game.prototype.updateZoo = function(diff) {
     this.updateNPC(this.npcs[i]);
   }
 
+  let new_decorations = [];
+  for (let i = 0; i < this.decorations.length; i++) {
+    if (!(this.decorations[i].status == "dead")) {
+      new_decorations.push(this.decorations[i])
+    } else {
+      // console.log("dead");
+    }
+  }
+  this.decorations = new_decorations;
   this.sortLayer(this.map.decoration_layer, this.decorations);
 
   this.shakeThings();
