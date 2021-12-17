@@ -251,6 +251,13 @@ animals = {
     food: "herbivore",
     sound: "pig",
   },
+  "ANTEATER": {
+    land: "grass",
+    terrace: "sand",
+    mouth: [372, 325],
+    butt: [203, 351],
+    food: ["micro"],
+  },
   "SHEEP": {
     mouth: [312, 349],
     butt: [181, 334],
@@ -475,7 +482,7 @@ console.log("There are " + Object.keys(animals).length + " different animals ava
 // console.log(Object.keys(animals));
 
 section_savannah = [
-  "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE", "MEERKAT", "WARTHOG",
+  "HIPPO", "RHINO", "GIRAFFE", "ZEBRA", "ELEPHANT", "GAZELLE", "MEERKAT", "WARTHOG", "ANTEATER",
 ]
 
 section_desert_special = [
