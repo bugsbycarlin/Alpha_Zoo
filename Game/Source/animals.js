@@ -1059,5 +1059,30 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     if (animal.direction < 0) return [animal.x + animal_scale * (animal.sprite.x + 256 - mouth[0]), animal.y + animal_scale * (animal.sprite.y + mouth[1] - 384)];
   }
 
+
+   // The "visible" property is used by the system, and I need several different things to feed into it,
+  // such as culling, and whether something should be hidden from view.
+  // So I've made hidden and culled into properties that can be controlled independently.
+  animal.hidden = false;
+  animal.culled = false;
+
+  animal.computeVisibility = function() {
+    if (animal.hidden || animal.culled) {
+      animal.visible = false;
+    } else {
+      animal.visible = true;
+    }
+  }
+
+  animal.hide = function() {
+    animal.hidden = true;
+    animal.computeVisibility();
+  }
+
+  animal.show = function() {
+    animal.hidden = false;
+    animal.computeVisibility();
+  }
+
   return animal;
 }

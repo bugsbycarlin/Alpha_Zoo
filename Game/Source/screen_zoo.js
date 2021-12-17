@@ -1079,7 +1079,8 @@ Game.prototype.grey = function(pen) {
   if (pen.animal_objects != null) {
     for (let j = 0; j < pen.animal_objects.length; j++) {
       pen.animal_objects[j].alpha = 0.4;
-      if (j > 0) pen.animal_objects[j].visible = false;
+      //if (j > 0) pen.animal_objects[j].visible = false;
+      if (j > 0) pen.animal_objects[j].hide();
     }
   }
   for (let j = 0; j < pen.decoration_objects.length; j++) {
@@ -1112,7 +1113,8 @@ Game.prototype.ungrey = function(pen) {
   if (pen.animal_objects != null) {
     for (let j = 0; j < pen.animal_objects.length; j++) {
       pen.animal_objects[j].alpha  = 1;
-      pen.animal_objects[j].visible = true;
+      //pen.animal_objects[j].visible = true;
+      pen.animal_objects[j].show();
     }
   }
   for (let j = 0; j < pen.decoration_objects.length; j++) {
@@ -1180,7 +1182,8 @@ Game.prototype.displayMap = function() {
     if (pen.animal_objects != null) {
       for (let j = 0; j < pen.animal_objects.length; j++) {
         if (pen.state == "grey") pen.animal_objects[j].alpha = 0.4;
-        if (j > 0) pen.animal_objects[j].visible = false;
+        // if (j > 0) pen.animal_objects[j].visible = false;
+        if (j > 0) pen.animal_objects[j].hide();
         pen.animal_objects[j].scale.set(3,3);
       }
     }
@@ -1230,7 +1233,8 @@ Game.prototype.hideMap = function() {
         if (pen.state == "grey") pen.animal_objects[j].alpha = 0.4;
         if (pen.state == "ungrey") {
           pen.animal_objects[j].alpha = 1.0;
-          pen.animal_objects[j].visible = true;
+          // pen.animal_objects[j].visible = true;
+          pen.animal_objects[j].show();
         }
         pen.animal_objects[j].scale.set(1,1);
       }

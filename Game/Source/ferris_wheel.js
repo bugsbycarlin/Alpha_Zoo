@@ -221,20 +221,20 @@ Game.prototype.makeFerrisWheel = function(pen) {
       if (pen.cy < fw.y - sight_line) {
         if (pen.animal_objects != null) {
           for (let j = 0; j < pen.animal_objects.length; j++) {
-            pen.animal_objects[j].pre_ferris_visible = pen.animal_objects[j].visible;
-            pen.animal_objects[j].visible = false;
+            pen.animal_objects[j].pre_ferris_hidden = pen.animal_objects[j].hidden;
+            pen.animal_objects[j].hide();
           }
         }
         for (let j = 0; j < pen.decoration_objects.length; j++) {
-          pen.decoration_objects[j].pre_ferris_visible = pen.decoration_objects[j].visible;
+          pen.decoration_objects[j].pre_ferris_hidden = pen.decoration_objects[j].visible;
           pen.decoration_objects[j].visible = false;
         }
         if (pen.special == "CAFE") {
-          pen.special_object.pre_ferris_visible = pen.special_object.visible;
+          pen.special_object.pre_ferris_hidden = pen.special_object.visible;
           pen.special_object.visible = false;
         }
         if (pen.land_object != null) {
-          pen.land_object.pre_ferris_visible = pen.land_object.visible;
+          pen.land_object.pre_ferris_hidden = pen.land_object.visible;
           pen.land_object.visible = false;
         }
       }
@@ -242,7 +242,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
 
     for (let i = 0; i < self.decorations.length; i++) {
       if (self.decorations[i].y < fw.y - decoration_sight_line && self.decorations[i].type == "tree") {
-        self.decorations[i].pre_ferris_visible = self.decorations[i].visible;
+        self.decorations[i].pre_ferris_hidden = self.decorations[i].visible;
         self.decorations[i].visible = false;
       }
     }
@@ -261,24 +261,26 @@ Game.prototype.makeFerrisWheel = function(pen) {
       if (pen.cy < fw.y - sight_line) {
         if (pen.animal_objects != null) {
           for (let j = 0; j < pen.animal_objects.length; j++) {
-            pen.animal_objects[j].visible = pen.animal_objects[j].pre_ferris_visible;
+            if (pen.animal_objects[j].pre_ferris_hidden == false) {
+              pen.animal_objects[j].show();
+            }
           }
         }
         for (let j = 0; j < pen.decoration_objects.length; j++) {
-          pen.decoration_objects[j].visible = pen.decoration_objects[j].pre_ferris_visible;
+          pen.decoration_objects[j].visible = pen.decoration_objects[j].pre_ferris_hidden;
         }
         if (pen.special == "CAFE") {
-          pen.special_object.visible = pen.special_object.pre_ferris_visible;
+          pen.special_object.visible = pen.special_object.pre_ferris_hidden;
         }
         if (pen.land_object != null) {
-          pen.land_object.visible = pen.land_object.pre_ferris_visible;
+          pen.land_object.visible = pen.land_object.pre_ferris_hidden;
         }
       }
     }
 
     for (let i = 0; i < self.decorations.length; i++) {
       if (self.decorations[i].y < fw.y - decoration_sight_line && self.decorations[i].type == "tree") {
-        self.decorations[i].visible = self.decorations[i].pre_ferris_visible;
+        self.decorations[i].visible = self.decorations[i].pre_ferris_hidden;
       }
     }
 
