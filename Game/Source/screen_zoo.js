@@ -202,6 +202,23 @@ Game.prototype.makeUI = function() {
   this.display_ui.addChild(this.action_glyphs["MAP"]);
   this.action_glyphs["MAP"].visible = false;
 
+  this.action_glyphs["WAFT"] = new PIXI.Sprite(PIXI.Texture.from("Art/balloon_icon.png"));
+  this.action_glyphs["WAFT"].anchor.set(0.5,0.75);
+  this.action_glyphs["WAFT"].position.set(70, this.height - 50);
+  this.action_glyphs["WAFT"].scale.set(0.75, 0.75);
+  this.action_glyphs["WAFT"].tint = 0xec4e4e;
+  this.action_glyphs["WAFT"].visible = false;
+  this.display_ui.addChild(this.action_glyphs["WAFT"]);
+  this.action_glyphs["WAFT"].visible = false;
+
+  this.action_glyphs["THROW"] = new PIXI.Sprite(PIXI.Texture.from("Art/throw_icon.png"));
+  this.action_glyphs["THROW"].anchor.set(0.5,0.75);
+  this.action_glyphs["THROW"].position.set(70, this.height - 50);
+  this.action_glyphs["THROW"].scale.set(0.75, 0.75);
+  this.action_glyphs["THROW"].visible = false;
+  this.display_ui.addChild(this.action_glyphs["THROW"]);
+  this.action_glyphs["THROW"].visible = false;
+
   this.action_glyphs["COLOR"] = new PIXI.Sprite(PIXI.Texture.from("Art/color_icon.png"));
   this.action_glyphs["COLOR"].anchor.set(0.5,0.75);
   this.action_glyphs["COLOR"].position.set(70, this.height - 50);
@@ -217,13 +234,13 @@ Game.prototype.makeUI = function() {
   this.action_typing_text = [];
 
   for (let i = 0; i < 4; i++) {
-    let grey_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xDDDDDD, letterSpacing: 8, align: "left"});
+    let grey_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xDDDDDD, letterSpacing: 5, align: "left"});
     grey_text.anchor.set(0,1);
     grey_text.position.set(130, this.height - 15 - 90 * i);
     this.display_ui.addChild(grey_text);
     this.action_grey_text.push(grey_text);
 
-    let typing_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xFFFFFF, letterSpacing: 8, align: "left"});
+    let typing_text = new PIXI.Text("", {fontFamily: default_font, fontSize: 80, fill: 0xFFFFFF, letterSpacing: 5, align: "left"});
     typing_text.tint = 0x000000;
     typing_text.anchor.set(0,1);
     typing_text.position.set(130, this.height - 15 - 90 * i);
@@ -591,30 +608,45 @@ Game.prototype.zooKeyDown = function(ev) {
     }
   }
 
-  if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.moving == true && key === "Escape") {
-    this.ferris_wheel.ride_number += 1;
-    this.ferris_wheel.stopMoving();
-    this.fadeToBlack(1000);
+  if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.moving == true) {
 
-    delay(function() {
-      self.ferris_wheel.reset();
-      self.ghost.visible = true;
-      self.updateGhost();
-    }, 900)
+    if (key === "Escape") {
+      this.ferris_wheel.ride_number += 1;
+      this.ferris_wheel.stopMoving();
+      this.fadeToBlack(1000);
 
-    delay(function() {
-        for (let i = 0; i < self.player.stuffies.length; i++) {
-          self.decorations.push(self.player.stuffies[i]);
+      delay(function() {
+        self.ferris_wheel.reset();
+        self.ghost.visible = true;
+        self.updateGhost();
+      }, 900)
+
+      delay(function() {
+          for (let i = 0; i < self.player.stuffies.length; i++) {
+            self.decorations.push(self.player.stuffies[i]);
+          }
+          self.decorations.push(self.player);
+          self.sortLayer(self.map.decoration_layer, self.decorations);
+
+          self.fadeFromBlack(1000);
+
+          self.zoo_mode = "active";
+
+          self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
+      }, 2400);
+    }
+
+    if (this.display_typing_allowed && this.display_ui.visible) {
+      for (i in lower_array) {
+        if (key === lower_array[i] || key === letter_array[i]) {
+          this.addDisplayType(letter_array[i]);
         }
-        self.decorations.push(self.player);
-        self.sortLayer(self.map.decoration_layer, self.decorations);
+      }
 
-        self.fadeFromBlack(1000);
-
-        self.zoo_mode = "active";
-
-        self.checkPenProximity(self.player.x, self.player.y, self.player.direction);
-    }, 2400);
+      if (key === "Backspace" || key === "Delete") {
+        this.deleteDisplayType();
+      }
+    }
   }
 
   if (this.zoo_mode == "active") {
@@ -760,6 +792,8 @@ Game.prototype.addDisplayType = function(letter) {
       this.poopAnimal();
     } else if (this.action_typing_text[this.action_default_slot].text == "MAP") {
       this.activateMap();
+    } else if (this.action_typing_text[this.action_default_slot].text == "THROW") {
+      this.throwHotDog();
     } else if (this.action_typing_text[this.action_default_slot].text == "COLOR") {
 
       this.soundEffect("success");
@@ -931,12 +965,20 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
       word_list = [];
     } else if (this.thing_to_display == "GIFT SHOP") {
       word_list = [];
+    } else if (this.thing_to_display == "FERRIS_WHEEL_OPTIONS") {
+      if (this.player.balloons.length > 0) {
+        word_list = ["WAFT, THROW"];
+      } else {
+        word_list = ["THROW"];
+      }
+      
     } else {
       word_list = ["POOP", "FEED", "MAP"];
     }
   }
 
-  if (word_list.length > 1 || word_list[0] != "MAP") {
+  //if (word_list.length > 1 || word_list[0] != "MAP") {
+  if (this.thing_to_display != "MAP" && this.thing_to_display != "FERRIS_WHEEL_OPTIONS") {
     this.display_backing.visible = true;
     this.display_text.visible = true;
   } else {
@@ -1199,6 +1241,38 @@ Game.prototype.hideMap = function() {
 }
 
 
+Game.prototype.throwHotDog = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  this.soundEffect("throw");
+    
+  this.display_typing_allowed = false;
+
+  flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);
+
+  delay(function() {
+    self.action_typing_text[self.action_default_slot].text = "";
+    self.display_typing_allowed = true;
+  }, 300);
+
+  delay(function() {
+    
+
+    let food = new PIXI.Sprite(PIXI.Texture.from("Art/throw_icon.png"));
+    food.scale.set(1,1);
+    food.position.set(self.player.x, self.player.y - 40);
+    food.anchor.set(0.5,0.75)
+    
+    food.vx = (self.player.direction == "left" ? -1 : 1) * (30 + 20 * Math.random());
+    food.vy = -7 - 10 * Math.random();
+    food.floor = food.y + 1500;
+    self.ferris_wheel.cart_layer.addChild(food);
+    self.freefalling.push(food);
+  }, 50);
+}
+
+
 Game.prototype.rideFerrisWheel = function() {
   var self = this;
   var screen = this.screens["zoo"];
@@ -1251,6 +1325,11 @@ Game.prototype.rideFerrisWheel = function() {
   delay(function() {
     self.ferris_wheel.startMoving();
   }, 2800);
+
+  delay(function() {
+    // self.ferris_wheel.startMoving();
+    self.changeDisplayText("FERRIS_WHEEL_OPTIONS", null);
+  }, 3300);
 
   delay(function() {
     if (self.ferris_wheel.ride_number == ride_number) { // guard so we can skip a ride
