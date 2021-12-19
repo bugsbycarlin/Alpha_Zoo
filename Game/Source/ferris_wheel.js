@@ -208,9 +208,9 @@ Game.prototype.makeFerrisWheel = function(pen) {
   let decoration_sight_line = 2000;
 
   fw.hideSoMuchStuff = function() {
-    for (let k = 0; k < total_ents; k++) {
-      self.ents[k].visible = false;
-    }
+    // for (let k = 0; k < total_ents; k++) {
+    //   self.ents[k].visible = false;
+    // }
 
     // for (let i = 0; i < self.npcs.length; i++) {
     //   self.npcs[i].visible = false;
@@ -226,24 +226,29 @@ Game.prototype.makeFerrisWheel = function(pen) {
           }
         }
         for (let j = 0; j < pen.decoration_objects.length; j++) {
-          pen.decoration_objects[j].pre_ferris_hidden = pen.decoration_objects[j].visible;
-          pen.decoration_objects[j].visible = false;
+          if (pen.decoration_objects[j].hide != null) {
+            pen.decoration_objects[j].pre_ferris_hidden = pen.decoration_objects[j].hidden;
+            pen.decoration_objects[j].hide();
+          } else {
+            pen.decoration_objects[j].pre_ferris_visible = pen.decoration_objects[j].visible;
+            pen.decoration_objects[j].visible = false;
+          }
         }
         if (pen.special == "CAFE") {
-          pen.special_object.pre_ferris_hidden = pen.special_object.visible;
+          pen.special_object.pre_ferris_visible = pen.special_object.visible;
           pen.special_object.visible = false;
         }
         if (pen.land_object != null) {
-          pen.land_object.pre_ferris_hidden = pen.land_object.visible;
-          pen.land_object.visible = false;
+          pen.land_object.pre_ferris_hidden = pen.land_object.hidden;
+          pen.land_object.hide();
         }
       }
     }
 
     for (let i = 0; i < self.decorations.length; i++) {
       if (self.decorations[i].y < fw.y - decoration_sight_line && self.decorations[i].type == "tree") {
-        self.decorations[i].pre_ferris_hidden = self.decorations[i].visible;
-        self.decorations[i].visible = false;
+        self.decorations[i].pre_ferris_hidden = self.decorations[i].hidden;
+        self.decorations[i].hide();
       }
     }
 
@@ -267,13 +272,21 @@ Game.prototype.makeFerrisWheel = function(pen) {
           }
         }
         for (let j = 0; j < pen.decoration_objects.length; j++) {
-          pen.decoration_objects[j].visible = pen.decoration_objects[j].pre_ferris_hidden;
+          if (pen.decoration_objects[j].hide != null) {
+            if (pen.decoration_objects[j].pre_ferris_hidden == false) {
+              pen.decoration_objects[j].show();
+            }            
+          } else {
+            pen.decoration_objects[j].visible = pen.decoration_objects[j].pre_ferris_visible;
+          }
         }
         if (pen.special == "CAFE") {
-          pen.special_object.visible = pen.special_object.pre_ferris_hidden;
+          pen.special_object.visible = pen.special_object.pre_ferris_visible;
         }
         if (pen.land_object != null) {
-          pen.land_object.visible = pen.land_object.pre_ferris_hidden;
+          if (pen.land_object.pre_ferris_hidden == false) {
+            pen.land_object.show();
+          }
         }
       }
     }

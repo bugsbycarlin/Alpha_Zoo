@@ -29,6 +29,8 @@ var default_font = "Bebas Neue";
 
 let game_fullscreen = false;
 
+let pixi_draw_count = 0;
+
 function initialize() {
   game = new Game();
 }
@@ -302,6 +304,14 @@ class Game {
     let last_frame = 0;
     let last_performance_update = 0;
 
+    // // count the number of drawings
+    // // https://stackoverflow.com/questions/63294038/pixi-js-how-do-i-get-draw-count
+    // const drawElements = this.renderer.gl.drawElements;
+    // this.renderer.gl.drawElements = (...args) => {
+    //   drawElements.call(self.renderer.gl, ...args);
+    //   pixi_draw_count++;
+    // }; // rewrite drawElements to count draws
+
     function animate(now) {
       
       fps_counter += 1;
@@ -332,11 +342,14 @@ class Game {
           // // There were 3000 milliseconds, so divide fps_counter by 3
           // console.log("FPS: " + fps_counter / 3);
           // self.trackPrint(["update", "tween", "animate"]);
-          
+          // console.log("Pixi draw count: " + pixi_draw_count);
+          // console.log("Ents: " + ent_count);
           fps_counter = 0;
           last_performance_update = now;
         }
       }
+
+      pixi_draw_count = 0;
 
       requestAnimationFrame(animate);
     }

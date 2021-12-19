@@ -169,6 +169,9 @@ Game.prototype.cafeKeyDown = function(ev) {
     this.updateGhost();
     this.checkPenProximity(this.player.x, this.player.y, this.player.direction);
     this.fadeScreens("cafe", "zoo", true);
+    delay(function() {
+      self.cafe_exit_sequence = false;
+    }, 2000);
     return;
   }
 

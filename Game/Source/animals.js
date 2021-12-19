@@ -1060,7 +1060,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   }
 
 
-   // The "visible" property is used by the system, and I need several different things to feed into it,
+  // The "visible" property is used by the system, and I need several different things to feed into it,
   // such as culling, and whether something should be hidden from view.
   // So I've made hidden and culled into properties that can be controlled independently.
   animal.hidden = false;
@@ -1081,6 +1081,15 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.show = function() {
     animal.hidden = false;
+    animal.computeVisibility();
+  }
+
+  animal.computeCulling = function(x, y) {
+    if(game.map_visible == true || (Math.abs(x - animal.x) < 900 && Math.abs(y - (animal.y - 128)) < 700)) {
+      animal.culled = false;
+    } else {
+      animal.culled = true;
+    }
     animal.computeVisibility();
   }
 

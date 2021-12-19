@@ -1332,6 +1332,8 @@ Game.prototype.addAnimalsAndDecorations = function() {
               decoration.addChild(rock_sprite);
             }
 
+            this.addDecorationCulling(decoration);
+
 
             this.decorations.push(decoration);
             pen.decoration_objects.push(decoration);
@@ -1442,7 +1444,68 @@ Game.prototype.addAnimalsAndDecorations = function() {
     }
   }
 
-  
+  // Add a few trees around the edges of the pens
+  let tree_lining_points = [];
+  for (let i = 0; i < this.zoo_size; i++) {
+    for (let j = 0; j < this.zoo_size; j++) {
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge
+        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
+        for (let t = 0; t < 4; t++) {
+          if (Math.random() > 0.4) {
+            let x = square_width * i + 120 + 20 * Math.random();
+            let y = square_width * j + 200 + (square_width - 400) * Math.random();
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
+              // tree_lining_points.push([x, y])
+              this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
+            }
+          }
+        }
+      }
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].e_edge
+        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
+        for (let t = 0; t < 4; t++) {
+          if (Math.random() > 0.4) {
+            let x = square_width * i + square_width - 120 - 20 * Math.random();
+            let y = square_width * j + 200 + (square_width - 400) * Math.random();
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
+              // tree_lining_points.push([x, y]);
+              this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
+            }
+          }
+        }
+      }
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].n_edge) {
+        for (let t = 0; t < 3; t++) {
+          if (Math.random() > 0.3) {
+            let x = square_width * i + 200 + (square_width - 400) * Math.random();
+            let y = square_width * j + 120 + 20 * Math.random();
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
+              // tree_lining_points.push([x, y]);
+              this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
+            }
+          }
+        }
+      }
+      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].s_edge
+        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
+        for (let t = 0; t < 3; t++) {
+          if (Math.random() > 0.2) {
+            let x = square_width * i + 200 + (square_width - 400) * Math.random();
+            let y = square_width * j + square_width - 120 - 20 * Math.random();
+            if (this.pointInPen(x, y) == null
+              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
+              // tree_lining_points.push([x, y]);
+              this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
+            }
+          }
+        }
+      }
+    }
+  }
+
   this.ents = [];
   for (let k = 0; k < total_ents; k++) {
 
@@ -1466,82 +1529,25 @@ Game.prototype.addAnimalsAndDecorations = function() {
   }
 
 
-  // Add a few trees around the edges of the pens
-  let tree_lining_points = [];
-  for (let i = 0; i < this.zoo_size; i++) {
-    for (let j = 0; j < this.zoo_size; j++) {
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].w_edge
-        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
-        for (let t = 0; t < 4; t++) {
-          if (Math.random() > 0.4) {
-            let x = square_width * i + 120 + 20 * Math.random();
-            let y = square_width * j + 200 + (square_width - 400) * Math.random();
-            if (this.pointInPen(x, y) == null
-              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
-              tree_lining_points.push([x, y])
-            }
-          }
-        }
-      }
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].e_edge
-        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
-        for (let t = 0; t < 4; t++) {
-          if (Math.random() > 0.4) {
-            let x = square_width * i + square_width - 120 - 20 * Math.random();
-            let y = square_width * j + 200 + (square_width - 400) * Math.random();
-            if (this.pointInPen(x, y) == null
-              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
-              tree_lining_points.push([x, y]);
-            }
-          }
-        }
-      }
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].n_edge) {
-        for (let t = 0; t < 3; t++) {
-          if (Math.random() > 0.3) {
-            let x = square_width * i + 200 + (square_width - 400) * Math.random();
-            let y = square_width * j + 120 + 20 * Math.random();
-            if (this.pointInPen(x, y) == null
-              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
-              tree_lining_points.push([x, y]);
-            }
-          }
-        }
-      }
-      if (this.zoo_squares[i][j].reachable && this.zoo_squares[i][j].s_edge
-        && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j)) {
-        for (let t = 0; t < 3; t++) {
-          if (Math.random() > 0.2) {
-            let x = square_width * i + 200 + (square_width - 400) * Math.random();
-            let y = square_width * j + square_width - 120 - 20 * Math.random();
-            if (this.pointInPen(x, y) == null
-              && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))) {
-              tree_lining_points.push([x, y]);
-            }
-          }
-        }
-      }
-    }
-  }
 
-  for (let i = 0; i < tree_lining_points.length; i++) {
-    let x = tree_lining_points[i][0];
-    let y = tree_lining_points[i][1];
+  // for (let i = 0; i < tree_lining_points.length; i++) {
+  //   let x = tree_lining_points[i][0];
+  //   let y = tree_lining_points[i][1];
 
-    let decoration = new PIXI.Container();
-    decoration.type = "tree";
-    decoration.tree_number = Math.ceil(Math.random() * 3)
-    let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
-    shadow.anchor.set(0.5, 0.5);
-    shadow.position.set(0,7);
-    decoration.addChild(shadow);
-    let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
-    tree.gotoAndStop(decoration.tree_number - 1);
-    tree.anchor.set(0.5, 0.92);
-    decoration.addChild(tree);
-    decoration.position.set(x, y);
-    this.decorations.push(decoration);
-  }
+  //   let decoration = new PIXI.Container();
+  //   decoration.type = "tree";
+  //   decoration.tree_number = Math.ceil(Math.random() * 3)
+  //   let shadow = new PIXI.Sprite(PIXI.Texture.from("Art/Decorations/tree_shadow.png"));
+  //   shadow.anchor.set(0.5, 0.5);
+  //   shadow.position.set(0,7);
+  //   decoration.addChild(shadow);
+  //   let tree = new PIXI.AnimatedSprite(sheet.animations["tree_v4"]);
+  //   tree.gotoAndStop(decoration.tree_number - 1);
+  //   tree.anchor.set(0.5, 0.92);
+  //   decoration.addChild(tree);
+  //   decoration.position.set(x, y);
+  //   this.decorations.push(decoration);
+  // }
 
   this.updateAnimalCount();
 
@@ -1738,6 +1744,7 @@ Game.prototype.drawMap = function() {
       fences[1].destroy();
 
     }
+    this.addLandCulling(pen.land_object);
     this.terrain.push(pen.land_object)
   }
 
@@ -2325,6 +2332,8 @@ Game.prototype.drawTerrace = function(pen, land, corner_x, corner_y, terraces, t
   terrace.position.set(top_point[0], top_point[1]);
   terrace.addChild(terrace_sprite);
 
+  this.addDecorationCulling(terrace);
+
   // pen.land_object.addChild(terrace);
   pen.decoration_objects.push(terrace);
   this.decorations.push(terrace);
@@ -2690,7 +2699,135 @@ Game.prototype.drawFence = function(polygon, corner_x, corner_y) {
   // don't destroy the fences, because we will use them to make minimap sprites.
   //bottom_fence_render_container.destroy();
 
+  this.addCulling(top_fence);
+  this.addCulling(bottom_fence);
+
   return [top_fence_render_container, bottom_fence_render_container];
+}
+
+
+// Culling testing
+Game.prototype.testCulling = function() {
+  // White screen tester;
+  this.player.red_circle = PIXI.Sprite.from(PIXI.Texture.WHITE);
+  this.player.red_circle.width = 1400;
+  this.player.red_circle.height = 900;
+  this.player.red_circle.anchor.set(0.5,0.5);
+  this.player.red_circle.alpha = 0.4;
+  this.player.red_circle.position.set(0,0);
+  this.player.addChild(this.player.red_circle);
+
+  this.ungreyAll();
+  this.map.scale.set(0.2, 0.2);
+}
+
+
+// I don't care that this is code duplication. It's fast to write.
+Game.prototype.addDecorationCulling = function(decoration) {
+  decoration.hidden = false;
+  decoration.culled = false;
+
+  decoration.computeVisibility = function() {
+    if (decoration.hidden || decoration.culled) {
+      decoration.visible = false;
+    } else {
+      decoration.visible = true;
+    }
+  }
+
+  decoration.hide = function() {
+    decoration.hidden = true;
+    decoration.computeVisibility();
+  }
+
+  decoration.show = function() {
+    decoration.hidden = false;
+    decoration.computeVisibility();
+  }
+
+  decoration.computeCulling = function(x, y) {
+    if(
+      game.map_visible == true || 
+        (decoration.x > x - 1200 && decoration.x < x + 1200
+      && decoration.y > y - 900 && decoration.y < y + 900)) {
+      decoration.culled = false;
+    } else {
+      decoration.culled = true;
+    }
+    decoration.computeVisibility();
+  }
+}
+
+
+Game.prototype.addLandCulling = function(land_element) {
+  land_element.hidden = false;
+  land_element.culled = false;
+
+  land_element.computeVisibility = function() {
+    if (land_element.hidden || land_element.culled) {
+      land_element.visible = false;
+    } else {
+      land_element.visible = true;
+    }
+  }
+
+  land_element.hide = function() {
+    land_element.hidden = true;
+    land_element.computeVisibility();
+  }
+
+  land_element.show = function() {
+    land_element.hidden = false;
+    land_element.computeVisibility();
+  }
+
+  land_element.computeCulling = function(x, y) {
+    if(
+      game.map_visible == true || 
+      (land_element.cx > x - 1300 && land_element.cx < x + 1300
+      && land_element.cy > y - 900 && land_element.cy < y + 900)) {
+      land_element.culled = false;
+    } else {
+      land_element.culled = true;
+    }
+    land_element.computeVisibility();
+  }
+}
+
+
+Game.prototype.addCulling = function(land_element) {
+  land_element.hidden = false;
+  land_element.culled = false;
+
+  land_element.computeVisibility = function() {
+    if (land_element.hidden || land_element.culled) {
+      land_element.visible = false;
+    } else {
+      land_element.visible = true;
+    }
+  }
+
+  land_element.hide = function() {
+    land_element.hidden = true;
+    land_element.computeVisibility();
+  }
+
+  land_element.show = function() {
+    land_element.hidden = false;
+    land_element.computeVisibility();
+  }
+
+  land_element.computeCulling = function(x, y) {
+    if(
+      game.map_visible == true || 
+      (land_element.x > x - 1800 && land_element.x < x + 900
+      && land_element.y > y - 1500 && land_element.y < y + 900)) {
+      land_element.culled = false;
+    } else {
+      land_element.culled = true;
+    }
+    land_element.computeVisibility();
+  }
 }
 
 

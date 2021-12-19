@@ -1084,7 +1084,11 @@ Game.prototype.grey = function(pen) {
     }
   }
   for (let j = 0; j < pen.decoration_objects.length; j++) {
-    pen.decoration_objects[j].visible = false;
+    if (pen.decoration_objects[j].hide == null) {
+      pen.decoration_objects[j].visible = false;
+    } else {
+      pen.decoration_objects[j].hide();
+    }
   }
   if (pen.special == "FERRIS_WHEEL") {
     for (let j = 0; j < pen.special_object.all_objects.length; j++) {
@@ -1095,10 +1099,11 @@ Game.prototype.grey = function(pen) {
     pen.special_object.grey();
   }
   if (pen.special != "RIVER" && pen.land_object != null) {
-    for (let j = 0; j < pen.land_object.children.length; j++) {
-      let land = pen.land_object.children[j];
-      land.visible = false;
-    }
+    // for (let j = 0; j < pen.land_object.children.length; j++) {
+    //   let land = pen.land_object.children[j];
+    //   land.visible = false;
+    // }
+    pen.land_object.hide();
   }
 
   if (pen.mini_sprite != null) pen.mini_sprite.alpha = 0.5;
@@ -1118,7 +1123,11 @@ Game.prototype.ungrey = function(pen) {
     }
   }
   for (let j = 0; j < pen.decoration_objects.length; j++) {
-    pen.decoration_objects[j].visible = true;
+    if (pen.decoration_objects[j].hide == null) {
+      pen.decoration_objects[j].visible = true;
+    } else {
+      pen.decoration_objects[j].show();
+    }
   }
   if (pen.special == "FERRIS_WHEEL") {
     for (let j = 0; j < pen.special_object.all_objects.length; j++) {
@@ -1129,10 +1138,11 @@ Game.prototype.ungrey = function(pen) {
     pen.special_object.ungrey();
   }
   if (pen.special != "RIVER" && pen.land_object != null) {
-    for (let j = 0; j < pen.land_object.children.length; j++) {
-      let land = pen.land_object.children[j];
-      land.visible = true;
-    }
+    // for (let j = 0; j < pen.land_object.children.length; j++) {
+    //   let land = pen.land_object.children[j];
+    //   land.visible = true;
+    // }
+    pen.land_object.show();
   }
 
   if (pen.mini_sprite != null) pen.mini_sprite.alpha = 1.0;
@@ -1188,18 +1198,30 @@ Game.prototype.displayMap = function() {
       }
     }
     for (let j = 0; j < pen.decoration_objects.length; j++) {
-      pen.decoration_objects[j].visible = false;
+      if (pen.decoration_objects[j].hide == null) {
+        pen.decoration_objects[j].visible = false;
+      } else {
+        pen.decoration_objects[j].hide();
+      }
     }
     // if (pen.land_object != null) {
     //   pen.land_object.visible = false;
     // }
+    if (pen.land_object != null) {
+      // pen.land_object.visible = true;
+      //pen.land_object.hide();
+    }
   }
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = false;
   }
   for (let i = 0; i < this.decorations.length; i++) {
-    if (this.decorations[i].type == "fence") {
-      this.decorations[i].visible = false;
+    if (this.decorations[i].type == "tree" || this.decorations[i].type == "fence") {
+      if (this.decorations[i].hide == null) {
+        this.decorations[i].visible = false;
+      } else {
+        this.decorations[i].hide();
+      }
     }
   }
   this.player.scale.set(3 * 0.72,3 * 0.72);
@@ -1211,14 +1233,17 @@ Game.prototype.displayMap = function() {
   if (this.typing_allowed) this.hideTypingText();
   this.hideDisplayText();
 
-  this.map.scale.set(0.2, 0.2);
-
   this.escape_glyph.visible = true;
   this.escape_text.visible = true;
 
   this.map.minimap_layer.visible = true;
 
   this.map_visible = true;
+
+  this.updateEnts();
+  this.doCulling();
+
+  this.map.scale.set(0.2, 0.2);
 }
 
 
@@ -1241,19 +1266,28 @@ Game.prototype.hideMap = function() {
     }
     if (pen.state == "ungrey") {
       for (let j = 0; j < pen.decoration_objects.length; j++) {
-        pen.decoration_objects[j].visible = true;
+        if (pen.decoration_objects[j].hide == null) {
+          pen.decoration_objects[j].visible = true;
+        } else {
+          pen.decoration_objects[j].show();
+        }
       }
     }
     if (pen.land_object != null) {
-      pen.land_object.visible = true;
+      // pen.land_object.visible = true;
+      //pen.land_object.show();
     }
   }
   for (let i = 0; i < this.npcs.length; i++) {
     this.npcs[i].visible = true;
   }
   for (let i = 0; i < this.decorations.length; i++) {
-    if (this.decorations[i].type == "fence") {
-      this.decorations[i].visible = true;
+    if (this.decorations[i].type == "tree" || this.decorations[i].type == "fence") {
+      if (this.decorations[i].hide == null) {
+        this.decorations[i].visible = true;
+      } else {
+        this.decorations[i].show();
+      }
     }
   }
   this.player.scale.set(0.72,0.72);
@@ -1269,6 +1303,9 @@ Game.prototype.hideMap = function() {
 
   this.escape_glyph.visible = false;
   this.escape_text.visible = false;
+
+  this.doCulling();
+  this.updateEnts();
 
   if (this.map_visible == false) {
     this.checkPenProximity(this.player.x, this.player.y, this.player.direction);
@@ -1963,6 +2000,7 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
 }
 
 
+ent_count = 0;
 Game.prototype.updateEnts = function() {
   if (this.ents.length == 0) return;
   if (this.player == null) return;
@@ -2010,6 +2048,37 @@ Game.prototype.updateNPC = function(npc) {
   }
 }
 
+let do_culling = true;
+Game.prototype.doCulling = function() {
+  if (do_culling) {
+    let x = this.player.x;
+    let y = this.player.y;
+
+    if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.player != null) {
+      x = this.ferris_wheel.x + this.ferris_wheel.player.x;
+      y = this.ferris_wheel.y + this.ferris_wheel.player.y;
+    }
+
+    for (let i = 0; i < this.decorations.length; i++) {
+      if (this.decorations[i].computeCulling != null) {
+        this.decorations[i].computeCulling(x,y);
+      }
+    }
+
+    for (let i = 0; i < this.zoo_pens.length; i++) {
+      let pen = this.zoo_pens[i];
+      
+      if (pen.land_object != null) {
+        // then go back and fix land culling to be on the centers
+        // then go back and fix hidemap / showmap to hide and show the right stuff
+        // then go back and fix culling to use the map toggle as part of calculation
+        if (pen.land_object.computeCulling != null) {
+          pen.land_object.computeCulling(x,y);
+        }
+      }
+    }
+  }
+}
 
 Game.prototype.updateZoo = function(diff) {
   var self = this;
@@ -2061,6 +2130,8 @@ Game.prototype.updateZoo = function(diff) {
   for (let i = 0; i < this.npcs.length; i++) {
     this.updateNPC(this.npcs[i]);
   }
+
+  this.doCulling();
 
   let new_decorations = [];
   for (let i = 0; i < this.decorations.length; i++) {
