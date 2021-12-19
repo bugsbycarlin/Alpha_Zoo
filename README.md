@@ -27,6 +27,15 @@ All programming and art assets by Matthew Carlin. Sound is from splice.com, free
 
 # Version history
 
+1.2
+- 5 more animals (now 65 total)
+- Gift shop! Full working gift shop which sells 12 items at a time from a rotating stock of 37 items.
+- Earn money for building animal pens and feeding animals.
+- Culling to improve game performance.
+- Can release balloons and throw hot dogs while on the ferris wheel.
+- Outline ghost of the player is visible when player is behind trees or objects.
+- Aspect ratio changed from 4:3 to 16:9 for better visibility.
+
 1.1
 - Terrain improvements!
 - Fences
