@@ -1414,7 +1414,13 @@ Game.prototype.addAnimalsAndDecorations = function() {
             //     }
             //   }
             // }
-            if (this.pointInPen(x, y) == null 
+            let tracks = false;
+            if (Math.abs(y - (this.zoo_size + 0.5) * square_width) < 150) tracks = true;
+            if (Math.abs(y - (-0.5) * square_width) < 150) tracks = true;
+            if (Math.abs(x - (this.zoo_size + 0.5) * square_width) < 150) tracks = true;
+            if (Math.abs(x - (-0.5) * square_width) < 150) tracks = true;
+
+            if (this.pointInPen(x, y) == null && !tracks
               && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))
                 && distance(x, y, this.player.x, this.player.y) > 250) { // && distance(x, y, blobs)
               this.ent_positions.push([x,y, Math.ceil(Math.random() * 3)]);
@@ -1592,6 +1598,7 @@ Game.prototype.drawMap = function() {
   }
 
   this.drawRiver();
+  this.drawTrainTracks();
   this.drawMapPath();
 
   for (let i = 0; i < this.zoo_pens.length; i++) {
@@ -2934,6 +2941,92 @@ Game.prototype.drawRiver = function() {
 
   }
   
+}
+
+
+Game.prototype.drawTrainTracks = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  let nw_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_1.png"));
+  nw_arc.anchor.set(0.5, 0.5);
+  nw_arc.position.set(-0.5 * square_width, -0.5 * square_width);
+  this.map.background_layer.addChild(nw_arc);
+
+  let ne_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_1.png"));
+  ne_arc.anchor.set(0.5, 0.5);
+  ne_arc.position.set((this.zoo_size + 0.5) * square_width, -0.5 * square_width);
+  ne_arc.scale.set(-1,1);
+  this.map.background_layer.addChild(ne_arc);
+
+  let sw_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_2.png"));
+  sw_arc.anchor.set(0.5, 0.5);
+  sw_arc.position.set(-0.5 * square_width, (this.zoo_size + 0.5) * square_width);
+  this.map.background_layer.addChild(sw_arc);
+
+  let se_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_2.png"));
+  se_arc.anchor.set(0.5, 0.5);
+  se_arc.position.set((this.zoo_size + 0.5) * square_width, (this.zoo_size + 0.5) * square_width);
+  se_arc.scale.set(-1,1);
+  this.map.background_layer.addChild(se_arc);
+
+  for (let i = -1; i < this.zoo_size; i++) {
+    let section = null;
+
+    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
+    section.anchor.set(0.5, 0.5);
+    // section.tint = 0xAAAAAA;
+    section.position.set(square_width * i + square_width, square_width * (this.zoo_size + 0.5));
+    this.map.background_layer.addChild(section);
+
+    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
+    section.anchor.set(0.5, 0.5);
+    // section.tint = 0xAAAAAA;
+    section.position.set(square_width * i + square_width, square_width * (-0.5));
+    this.map.background_layer.addChild(section);
+
+    if (i >= 0) {
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_span.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * i + square_width/2, square_width * (this.zoo_size + 0.5));
+      this.map.background_layer.addChild(section);
+
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_span.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * i + square_width/2, square_width * (-0.5));
+      this.map.background_layer.addChild(section);
+    }
+  }
+
+
+  for (let i = -1; i < this.zoo_size; i++) {
+    let section = null;
+
+    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
+    section.anchor.set(0.5, 0.5);
+    // section.tint = 0xAAAAAA;
+    section.position.set(square_width * (this.zoo_size + 0.5),square_width * i + square_width, );
+    this.map.background_layer.addChild(section);
+
+    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
+    section.anchor.set(0.5, 0.5);
+    // section.tint = 0xAAAAAA;
+    section.position.set(square_width * (-0.5),square_width * i + square_width);
+    this.map.background_layer.addChild(section);
+
+    if (i >= 0) {
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_span.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * (this.zoo_size + 0.5),square_width * i + square_width/2, );
+      this.map.background_layer.addChild(section);
+
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_span.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * (-0.5),square_width * i + square_width/2);
+      this.map.background_layer.addChild(section);
+    }
+  }
+
 }
 
 
