@@ -113,6 +113,7 @@ Game.prototype.resetZooScreen = function() {
   this.playerAndBoundaries();
   // populate zoo
   this.addAnimalsAndDecorations();
+  this.addTrains();
   
   this.sortLayer(this.map.decoration_layer, this.decorations);
   this.greyAllActivePens();
