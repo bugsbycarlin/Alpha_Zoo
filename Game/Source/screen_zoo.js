@@ -2132,6 +2132,10 @@ Game.prototype.updateZoo = function(diff) {
     this.updateNPC(this.npcs[i]);
   }
 
+  for (let i = 0; i < this.trains.length; i++) {
+    this.trains[i].update();
+  }
+
   this.doCulling();
 
   let new_decorations = [];

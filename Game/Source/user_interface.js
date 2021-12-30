@@ -230,6 +230,25 @@ Game.prototype.makePuff = function(parent, x, y, xScale, yScale) {
 }
 
 
+Game.prototype.makeSteam = function(parent, x, y, xScale, yScale) {
+  let sheet = PIXI.Loader.shared.resources["Art/steam.json"].spritesheet;
+  let steam_sprite = new PIXI.AnimatedSprite(sheet.animations["steam"]);
+  steam_sprite.anchor.set(0.5,0.5);
+  steam_sprite.position.set(x, y);
+  parent.addChild(steam_sprite);
+  steam_sprite.animationSpeed = 0.25; 
+  steam_sprite.scale.set(xScale, yScale);
+  parent.addChild(steam_sprite);
+  steam_sprite.loop = false;
+  steam_sprite.onComplete = function() {
+    steam_sprite.status = "dead";
+    parent.removeChild(steam_sprite);
+  }
+  steam_sprite.play();
+  return steam_sprite;
+}
+
+
 Game.prototype.makePop = function(parent, x, y, xScale, yScale) {
   let sheet = PIXI.Loader.shared.resources["Art/pop.json"].spritesheet;
   let pop_sprite = new PIXI.AnimatedSprite(sheet.animations["pop"]);

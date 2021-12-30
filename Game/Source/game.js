@@ -202,6 +202,7 @@ class Game {
       .add("Art/Food/micro.json")
 
       .add("Art/smoke.json")
+      .add("Art/steam.json")
       .add("Art/puff.json")
       .add("Art/pop.json")
 

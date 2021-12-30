@@ -101,6 +101,9 @@ Game.prototype.initializeMap = function() {
   this.map.balloon_layer = new PIXI.Container();
   this.map.addChild(this.map.balloon_layer);
 
+  this.map.train_smoke_layer = new PIXI.Container();
+  this.map.addChild(this.map.train_smoke_layer);
+
   this.decorations = [];
 
   // Vertices (crossroads in the path)
