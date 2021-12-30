@@ -2003,6 +2003,14 @@ Game.prototype.checkPenProximity = function(x, y, direction) {
 
 ent_count = 0;
 Game.prototype.updateEnts = function() {
+  let x = this.player.x;
+  let y = this.player.y;
+  if (this.zoo_mode == "train_ride") {
+    x = this.trains[1].x;
+    y = this.trains[1].y - 250;
+  }
+
+
   if (this.ents.length == 0) return;
   if (this.player == null) return;
   for (let k = 0; k < total_ents; k++) {
@@ -2013,7 +2021,7 @@ Game.prototype.updateEnts = function() {
     for (let e = 0; e < this.ent_positions.length; e++) {
       let pos = this.ent_positions[e];
 
-      if(Math.abs(this.player.x - pos[0]) < 900 && Math.abs(this.player.y - pos[1]) < 700) {
+      if(Math.abs(x - pos[0]) < 900 && Math.abs(y - pos[1]) < 700) {
         if (ent_count < total_ents) {
           this.ents[ent_count].visible = true;
           this.ents[ent_count].position.set(pos[0], pos[1]);
@@ -2058,6 +2066,11 @@ Game.prototype.doCulling = function() {
     if (this.zoo_mode == "ferris_wheel" && this.ferris_wheel.player != null) {
       x = this.ferris_wheel.x + this.ferris_wheel.player.x;
       y = this.ferris_wheel.y + this.ferris_wheel.player.y;
+    }
+
+    if (this.zoo_mode == "train_ride") {
+      x = this.trains[1].x;
+      y = this.trains[1].y - 250;
     }
 
     for (let i = 0; i < this.decorations.length; i++) {
@@ -2111,7 +2124,9 @@ Game.prototype.updateZoo = function(diff) {
     let x = this.ferris_wheel.x + this.player.x;
     let y = this.ferris_wheel.y + this.player.y;
     this.map.position.set(this.width/2 - x * this.map.scale.x, this.height/2 - y * this.map.scale.y);
-  }
+  } else if (this.zoo_mode == "train_ride") {
+    this.map.position.set(this.width/2 - this.trains[1].x * this.map.scale.x, this.height/2 - (this.trains[1].y - 250) * this.map.scale.y);
+  } 
 
   
   if (this.ferris_wheel != null) {
@@ -2120,6 +2135,11 @@ Game.prototype.updateZoo = function(diff) {
     } else {
       this.ferris_wheel.alpha = 1;
     }
+  }
+
+  if (this.zoo_mode == "train_ride") {
+    // always moving, update ents
+    this.updateEnts();
   }
 
   for (let i = 0; i < this.animals.length; i++) {

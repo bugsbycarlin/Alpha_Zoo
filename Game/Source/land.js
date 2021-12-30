@@ -1212,19 +1212,6 @@ Game.prototype.prepPondsAndTerraces = function() {
 }
 
 
-Game.prototype.addTrains = function() {
-  this.trains = [];
-
-  let train = this.makeTrain(
-    this.map.decoration_layer,
-    // pick(ferris_wheel_colors),
-    this.zoo_size / 2 * square_width,
-    (this.zoo_size + 0.5) * square_width + 36);
-  //this.decorations.push(train);
-  //this.trains.push(train);
-}
-
-
 // populate zoo
 Game.prototype.addAnimalsAndDecorations = function() {
 
@@ -3042,7 +3029,6 @@ Game.prototype.drawTrainTracks = function() {
       this.map.background_layer.addChild(section);
     }
   }
-
 }
 
 
