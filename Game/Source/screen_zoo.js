@@ -2007,7 +2007,7 @@ Game.prototype.updateEnts = function() {
   let y = this.player.y;
   if (this.zoo_mode == "train_ride") {
     x = this.trains[1].x;
-    y = this.trains[1].y - 250;
+    y = this.trains[1].y - 150;
   }
 
 
@@ -2070,7 +2070,7 @@ Game.prototype.doCulling = function() {
 
     if (this.zoo_mode == "train_ride") {
       x = this.trains[1].x;
-      y = this.trains[1].y - 250;
+      y = this.trains[1].y - 150;
     }
 
     for (let i = 0; i < this.decorations.length; i++) {
@@ -2125,7 +2125,7 @@ Game.prototype.updateZoo = function(diff) {
     let y = this.ferris_wheel.y + this.player.y;
     this.map.position.set(this.width/2 - x * this.map.scale.x, this.height/2 - y * this.map.scale.y);
   } else if (this.zoo_mode == "train_ride") {
-    this.map.position.set(this.width/2 - this.trains[1].x * this.map.scale.x, this.height/2 - (this.trains[1].y - 250) * this.map.scale.y);
+    this.map.position.set(this.width/2 - this.trains[1].x * this.map.scale.x, this.height/2 - (this.trains[1].y - 150) * this.map.scale.y);
   } 
 
   
