@@ -9,12 +9,15 @@
 
 
 let train_max_speed = 5;
+let track_edge_size = 0;
 // let train_max_speed = 2.5;
 
 Game.prototype.addTrains = function() {
   this.trains = [];
 
-  let track_position = (this.zoo_size + 1) * square_width / 2;
+  track_edge_size = (this.zoo_size + 1) * square_width - 400;
+
+  let track_position = track_edge_size / 2;
   // track_position = 5800;
   // track_position = 256*3;
   // let track_position = 4 * (this.zoo_size + 1) * square_width - 7000;
@@ -282,7 +285,7 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
 
    // Use track_position as a parameter to choose x, y coordinates on the track.
   train.updatePosition = function() {
-    let track_size = 4 * (self.zoo_size + 1) * square_width;
+    let track_size = 4 * track_edge_size;
 
     // console.log(train.track_position);
     if (train.track_position > track_size) {
@@ -291,8 +294,8 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
 
     let p = train.track_position;
 
-    if (p >= 0 && p < (self.zoo_size + 1) * square_width) {
-      train.position.set(-0.5 * square_width + p, (self.zoo_size + 0.5) * square_width + 36);
+    if (p >= 0 && p < track_edge_size) {
+      train.position.set(-0.5 * square_width + p + 200, (self.zoo_size + 0.5) * square_width + 36 - 200);
       train.scale.x = 1;
     
       if (p < 200) {
@@ -301,9 +304,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
         train.y -= diff/4;
       }
 
-      if ((self.zoo_size + 1) * square_width - p < 200) {
+      if (track_edge_size - p < 200) {
         // for the last 200 pixels, parametrize to a point -50,-50 from the target.
-        let diff = 200 + p - (self.zoo_size + 1) * square_width;
+        let diff = 200 + p - track_edge_size;
         train.x -= diff/4;
         train.y -= diff/4;
       }
@@ -321,9 +324,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       train.vertical_sprite.visible = false;
       train.vertical_backing.visible = false;
 
-    } else if (p >= (self.zoo_size + 1) * square_width && p < 2 * (self.zoo_size + 1) * square_width) {
-      let p2 = p - ((self.zoo_size + 1) * square_width);
-      train.position.set((self.zoo_size + 0.5) * square_width, (self.zoo_size + 0.5) * square_width + 36 - p2);
+    } else if (p >= track_edge_size && p < 2 * track_edge_size) {
+      let p2 = p - track_edge_size;
+      train.position.set((self.zoo_size + 0.5) * square_width - 200, (self.zoo_size + 0.5) * square_width + 36 - p2 - 200);
     
       if (p2 < 200) {
         let diff = 200 - p2;
@@ -331,9 +334,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
         train.y -= diff/4;
       }
 
-      if ((self.zoo_size + 1) * square_width * 2 - p < 200) {
+      if (track_edge_size * 2 - p < 200) {
         // for the last 200 pixels, parametrize to a point -50,-50 from the target.
-        let diff = 200 + p - (self.zoo_size + 1) * square_width * 2;
+        let diff = 200 + p - track_edge_size * 2;
         train.x -= diff/4;
         train.y += diff/4;
       }
@@ -361,9 +364,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       }
 
 
-    } else if (p >= (self.zoo_size + 1) * square_width * 2 && p < 3 * (self.zoo_size + 1) * square_width) {
-      let p3 = p - 2 * (self.zoo_size + 1) * square_width;
-      train.position.set((self.zoo_size + 0.5) * square_width - p3, -0.5 * square_width + 36);
+    } else if (p >= track_edge_size * 2 && p < 3 * track_edge_size) {
+      let p3 = p - 2 * track_edge_size;
+      train.position.set((self.zoo_size + 0.5) * square_width - p3 - 200, -0.5 * square_width + 36 + 200);
       train.scale.x = -1;
     
       if (p3 < 200) {
@@ -372,9 +375,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
         train.y += diff/4;
       }
 
-      if ((self.zoo_size + 1) * square_width * 3 - p < 200) {
+      if (track_edge_size * 3 - p < 200) {
         // for the last 200 pixels, parametrize to a point -50,-50 from the target.
-        let diff = 200 + p - (self.zoo_size + 1) * square_width * 3;
+        let diff = 200 + p - track_edge_size * 3;
         train.x += diff/4;
         train.y += diff/4;
       }
@@ -391,9 +394,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       train.horizontal_sprite.visible = true;
       train.vertical_sprite.visible = false;
       train.vertical_backing.visible = false;
-    } else if (p >= (self.zoo_size + 1) * square_width * 3) {
-      let p4 = p - 3 * ((self.zoo_size + 1) * square_width);
-      train.position.set(-0.5 * square_width, -0.5 * square_width + 36 + p4);
+    } else if (p >= track_edge_size * 3) {
+      let p4 = p - 3 * track_edge_size;
+      train.position.set(-0.5 * square_width + 200, -0.5 * square_width + 36 + p4 + 200);
     
       if (p4 < 200) {
         let diff = 200 - p4;
@@ -401,9 +404,9 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
         train.y += diff/4;
       }
 
-      if ((self.zoo_size + 1) * square_width * 4 - p < 200) {
+      if (track_edge_size * 4 - p < 200) {
         // for the last 200 pixels, parametrize to a point -50,-50 from the target.
-        let diff = 200 + p - (self.zoo_size + 1) * square_width * 4;
+        let diff = 200 + p - track_edge_size * 4;
         train.x += diff/4;
         train.y -= diff/4;
       }

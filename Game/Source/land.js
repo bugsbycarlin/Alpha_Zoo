@@ -816,6 +816,83 @@ Game.prototype.makeMapPens = function() {
 }
 
 
+// The map is only valid if there are road connections near each of the four compass edges,
+// and the gift shop, ferris wheel, and cafe exist.
+Game.prototype.checkMapValidity = function() {
+
+  if (this.special_cafe_tile == null) {
+    console.log("No cafe!");
+    return false;
+  }
+
+  if (this.special_ferris_tile == null) {
+    console.log("No ferris wheel!");
+    return false;
+  }
+
+  if (this.special_gift_shop_tile == null) {
+    console.log("No gift shop!");
+    return false;
+  }
+
+  // Hack: this is actually setting up the train station.
+  this.east_station = null;
+  for (let i = this.zoo_size/2 - 1; i <= this.zoo_size/2 + 1; i++) {
+    if (this.zoo_vertices[this.zoo_size][i].w_path) {
+      if (this.east_station == null || i < this.zoo_size/2 + 1) {
+        this.east_station = i;
+      }
+    }
+  }
+  if (this.east_station == null) {
+    console.log("No east station!");
+    return false;
+  }
+
+  this.west_station = null;
+  for (let i = this.zoo_size/2 - 1; i <= this.zoo_size/2 + 1; i++) {
+    if (this.zoo_vertices[0][i].e_path) {
+      if (this.west_station == null || i < this.zoo_size/2 + 1) {
+        this.west_station = i;
+      }
+    }
+  }
+  if (this.west_station == null) {
+    console.log("No west station!");
+    return false;
+  }
+
+  this.north_station = null;
+  for (let i = this.zoo_size/2 - 1; i <= this.zoo_size/2 + 1; i++) {
+    if (this.zoo_vertices[i][0].s_path) {
+      if (this.north_station == null || i < this.zoo_size/2 + 1) {
+        this.north_station = i;
+      }
+    }
+  }
+  if (this.north_station == null) {
+    console.log("No north station!");
+    return false;
+  }
+
+  this.south_station = null;
+  for (let i = this.zoo_size/2 - 1; i <= this.zoo_size/2 + 1; i++) {
+    if (this.zoo_vertices[i][this.zoo_size].n_path) {
+      if (this.south_station == null || i < this.zoo_size/2 + 1) {
+        this.south_station = i;
+      }
+    }
+  }
+  if (this.south_station == null) {
+    console.log("No south station!");
+    return false;
+  }
+
+  console.log("Everything is fine with this map.");
+  return true;
+}
+
+
 Game.prototype.designatePens = function() {
   console.log("There are " + this.zoo_pens.length + " pens.");
 
@@ -1418,10 +1495,11 @@ Game.prototype.addAnimalsAndDecorations = function() {
             //   }
             // }
             let tracks = false;
-            if (Math.abs(y - (this.zoo_size + 0.5) * square_width) < 150) tracks = true;
-            if (Math.abs(y - (-0.5) * square_width) < 150) tracks = true;
-            if (Math.abs(x - (this.zoo_size + 0.5) * square_width) < 150) tracks = true;
-            if (Math.abs(x - (-0.5) * square_width) < 150) tracks = true;
+            if (Math.abs(y - ((this.zoo_size + 0.5) * square_width - 200)) < 150) tracks = true;
+            if (Math.abs(y - ((-0.5) * square_width + 200)) < 150) tracks = true;
+            if (Math.abs(x - ((this.zoo_size + 0.5) * square_width - 200)) < 150) tracks = true;
+            if (Math.abs(x - ((-0.5) * square_width + 200)) < 150) tracks = true;
+            if (Math.abs(x - 0) < 300 && Math.abs(y - this.north_station * square_width) < 300) tracks = true; // okay, well, northern station. 
 
             if (this.pointInPen(x, y) == null && !tracks
               && !(this.river_safety_zone != null && pointInsidePolygon([x,y], this.river_safety_zone))
@@ -2953,50 +3031,82 @@ Game.prototype.drawTrainTracks = function() {
 
   let nw_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_1.png"));
   nw_arc.anchor.set(0.5, 0.5);
-  nw_arc.position.set(-0.5 * square_width, -0.5 * square_width);
+  nw_arc.position.set(-0.5 * square_width + 200, -0.5 * square_width + 200);
   this.map.background_layer.addChild(nw_arc);
 
   let ne_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_1.png"));
   ne_arc.anchor.set(0.5, 0.5);
-  ne_arc.position.set((this.zoo_size + 0.5) * square_width, -0.5 * square_width);
+  ne_arc.position.set((this.zoo_size + 0.5) * square_width - 200, -0.5 * square_width + 200);
   ne_arc.scale.set(-1,1);
   this.map.background_layer.addChild(ne_arc);
 
   let sw_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_2.png"));
   sw_arc.anchor.set(0.5, 0.5);
-  sw_arc.position.set(-0.5 * square_width, (this.zoo_size + 0.5) * square_width);
+  sw_arc.position.set(-0.5 * square_width + 200, (this.zoo_size + 0.5) * square_width - 200);
   this.map.background_layer.addChild(sw_arc);
 
   let se_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_2.png"));
   se_arc.anchor.set(0.5, 0.5);
-  se_arc.position.set((this.zoo_size + 0.5) * square_width, (this.zoo_size + 0.5) * square_width);
+  se_arc.position.set((this.zoo_size + 0.5) * square_width - 200, (this.zoo_size + 0.5) * square_width - 200);
   se_arc.scale.set(-1,1);
   this.map.background_layer.addChild(se_arc);
+
+  this.southern_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
+  this.southern_station.anchor.set(0.5, 1);
+  this.southern_station.position.set(this.south_station * square_width, (this.zoo_size + 0.5) * square_width - 80 - 200);
+  this.decorations.push(this.southern_station);
+
+  this.eastern_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
+  this.eastern_station.anchor.set(0.5, 1);
+  this.eastern_station.position.set((this.zoo_size + 0.5) * square_width - 200 - 296, this.east_station * square_width + 120);
+  this.decorations.push(this.eastern_station);
+
+  this.northern_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
+  this.northern_station.anchor.set(0.5, 1);
+  this.northern_station.position.set(this.north_station * square_width, -0.5 * square_width + 80 + 200 + 120);
+  this.decorations.push(this.northern_station);
+
+  this.western_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
+  this.western_station.anchor.set(0.5, 1);
+  this.western_station.position.set(-0.5 * square_width + 200 + 296, this.west_station * square_width + 120);
+  this.decorations.push(this.western_station);
 
   for (let i = -1; i < this.zoo_size; i++) {
     let section = null;
 
-    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
-    section.anchor.set(0.5, 0.5);
-    // section.tint = 0xAAAAAA;
-    section.position.set(square_width * i + square_width, square_width * (this.zoo_size + 0.5));
-    this.map.background_layer.addChild(section);
+    if (i < this.zoo_size - 1) {
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      // section.tint = 0x999999;
+      section.position.set(square_width * i + square_width + 200, square_width * (this.zoo_size + 0.5) - 200);
+      this.map.background_layer.addChild(section);
 
-    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
-    section.anchor.set(0.5, 0.5);
-    // section.tint = 0xAAAAAA;
-    section.position.set(square_width * i + square_width, square_width * (-0.5));
-    this.map.background_layer.addChild(section);
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      // section.tint = 0x999999;
+      section.position.set(square_width * i + square_width + 200, square_width * (-0.5) + 200);
+      this.map.background_layer.addChild(section);
+    }
 
-    if (i >= 0) {
+    if (i >= 0 && i < this.zoo_size - 1) {
       section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_span.png"));
       section.anchor.set(0.5, 0.5);
-      section.position.set(square_width * i + square_width/2, square_width * (this.zoo_size + 0.5));
+      section.position.set(square_width * i + square_width/2 + 200, square_width * (this.zoo_size + 0.5) - 200);
       this.map.background_layer.addChild(section);
 
       section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_span.png"));
       section.anchor.set(0.5, 0.5);
-      section.position.set(square_width * i + square_width/2, square_width * (-0.5));
+      section.position.set(square_width * i + square_width/2 + 200, square_width * (-0.5) + 200);
+      this.map.background_layer.addChild(section);
+    } else if (i == this.zoo_size - 1) {
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * i + square_width/2 + 250, square_width * (this.zoo_size + 0.5) - 200);
+      this.map.background_layer.addChild(section);
+
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_horizontal_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * i + square_width/2 + 250, square_width * (-0.5) + 200);
       this.map.background_layer.addChild(section);
     }
   }
@@ -3005,27 +3115,39 @@ Game.prototype.drawTrainTracks = function() {
   for (let i = -1; i < this.zoo_size; i++) {
     let section = null;
 
-    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
-    section.anchor.set(0.5, 0.5);
-    // section.tint = 0xAAAAAA;
-    section.position.set(square_width * (this.zoo_size + 0.5),square_width * i + square_width, );
-    this.map.background_layer.addChild(section);
+    if (i < this.zoo_size - 1) {
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      // section.tint = 0xAAAAAA;
+      section.position.set(square_width * (this.zoo_size + 0.5) - 200, square_width * i + square_width + 200);
+      this.map.background_layer.addChild(section);
 
-    section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
-    section.anchor.set(0.5, 0.5);
-    // section.tint = 0xAAAAAA;
-    section.position.set(square_width * (-0.5),square_width * i + square_width);
-    this.map.background_layer.addChild(section);
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      // section.tint = 0xAAAAAA;
+      section.position.set(square_width * (-0.5) + 200,square_width * i + square_width + 200);
+      this.map.background_layer.addChild(section);
+    }
 
-    if (i >= 0) {
+    if (i >= 0 && i < this.zoo_size - 1) {
       section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_span.png"));
       section.anchor.set(0.5, 0.5);
-      section.position.set(square_width * (this.zoo_size + 0.5),square_width * i + square_width/2, );
+      section.position.set(square_width * (this.zoo_size + 0.5) - 200, square_width * i + square_width/2 + 200);
       this.map.background_layer.addChild(section);
 
       section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_span.png"));
       section.anchor.set(0.5, 0.5);
-      section.position.set(square_width * (-0.5),square_width * i + square_width/2);
+      section.position.set(square_width * (-0.5) + 200, square_width * i + square_width/2 + 200);
+      this.map.background_layer.addChild(section);
+    } else if (i == this.zoo_size - 1) {
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * (this.zoo_size + 0.5) - 200, square_width * i + square_width/2 + 250);
+      this.map.background_layer.addChild(section);
+
+      section = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_vertical_straight.png"));
+      section.anchor.set(0.5, 0.5);
+      section.position.set(square_width * (-0.5) + 200, square_width * i + square_width/2 + 250);
       this.map.background_layer.addChild(section);
     }
   }

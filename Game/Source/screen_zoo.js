@@ -74,10 +74,19 @@ Game.prototype.resetZooScreen = function() {
   this.zoo_mode = "loading"; // loading, active, ferris_wheel, fading, menu
 
   // Make the map. These methods are in land.js.
-  this.initializeMap();
-  this.makeMapGroups();
-  this.makeMapPath();
-  this.makeMapPens();
+
+  let valid = false;
+  for (let i = 0; i < 30; i++) {
+    if (!valid) {
+      console.log("rolling a map");
+      this.initializeMap();
+      this.makeMapGroups();
+      this.makeMapPath();
+      this.makeMapPens();
+      valid = this.checkMapValidity();
+    }
+  }
+  
 
   // Make the title image
   this.title_image = new PIXI.Sprite(PIXI.Texture.from("Art/alpha_zoo_title.png"));
@@ -453,10 +462,10 @@ Game.prototype.playerAndBoundaries = function() {
   this.right_bound = 0;
 
 
-  this.upper_bound = -0.5 * square_width;
-  this.lower_bound = square_width * (this.zoo_size + 0.5);
-  this.left_bound = -0.5 * square_width;
-  this.right_bound = square_width * (this.zoo_size + 0.5);
+  this.upper_bound = -0.5 * square_width + 250;
+  this.lower_bound = square_width * (this.zoo_size + 0.5) - 220;
+  this.left_bound = -0.5 * square_width + 240;
+  this.right_bound = square_width * (this.zoo_size + 0.5) - 240;
 
   min_location = [-square_width,-square_width];
 
