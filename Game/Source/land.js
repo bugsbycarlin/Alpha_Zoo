@@ -3062,8 +3062,8 @@ Game.prototype.drawTrainTracks = function() {
   this.stations["west"] = this.makeTrainStation("west", -0.5 * square_width + 200 + 296, this.west_station * square_width + 120)
 
   this.stations["south"].stop = this.south_station * square_width + 200 + 256;
-  this.stations["east"].stop = track_edge_size + this.east_station * square_width + 200 + 256;
-  this.stations["north"].stop = 2 * track_edge_size + this.north_station * square_width + 200 + 256;
+  this.stations["east"].stop = track_edge_size + (this.zoo_size - this.east_station) * square_width + 200 + 256;
+  this.stations["north"].stop = 2 * track_edge_size + (this.zoo_size - this.north_station) * square_width + 200 + 256;
   this.stations["west"].stop = 3 * track_edge_size + this.west_station * square_width + 200 + 256;
 
   for (let i = -1; i < this.zoo_size; i++) {

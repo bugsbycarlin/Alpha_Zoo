@@ -206,8 +206,8 @@ Game.prototype.makeUI = function() {
   this.action_glyphs["RIDE"].visible = false;
 
   this.action_glyphs["GO"] = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/icon.png"));
-  this.action_glyphs["GO"].anchor.set(0.5,0.75);
-  this.action_glyphs["GO"].position.set(70, this.height - 30);
+  this.action_glyphs["GO"].anchor.set(0.5,0.67);
+  this.action_glyphs["GO"].position.set(70, this.height);
   this.action_glyphs["GO"].scale.set(0.5, 0.5);
   this.action_glyphs["GO"].visible = false;
   this.display_ui.addChild(this.action_glyphs["GO"]);
@@ -338,6 +338,58 @@ Game.prototype.makeUI = function() {
   this.escape_text.alpha = 0.6;
   this.escape_text.visible = false;
   screen.addChild(this.escape_text);
+
+  this.train_control = {};
+
+  this.train_control["north"] = new PIXI.Container();
+  this.train_control["north"].next = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_left.png"));
+  this.train_control["north"].next.anchor.set(0.5,0.5);
+  this.train_control["north"].next.position.set(this.width / 2 - 200, this.height / 2);
+  this.train_control["north"].addChild(this.train_control["north"].next)
+  this.train_control["north"].out = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_down.png"));
+  this.train_control["north"].out.anchor.set(0.5,0.5);
+  this.train_control["north"].out.position.set(this.width / 2, this.height / 2 + 200);
+  this.train_control["north"].addChild(this.train_control["north"].out)
+  screen.addChild(this.train_control["north"]);
+  this.train_control["north"].visible = false;
+
+  this.train_control["south"] = new PIXI.Container();
+  this.train_control["south"].next = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_right.png"));
+  this.train_control["south"].next.anchor.set(0.5,0.5);
+  this.train_control["south"].next.position.set(this.width / 2 + 200, this.height / 2);
+  this.train_control["south"].addChild(this.train_control["south"].next)
+  this.train_control["south"].out = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_up.png"));
+  this.train_control["south"].out.anchor.set(0.5,0.5);
+  this.train_control["south"].out.position.set(this.width / 2, this.height / 2 - 200);
+  this.train_control["south"].addChild(this.train_control["south"].out)
+  screen.addChild(this.train_control["south"]);
+  this.train_control["south"].visible = false;
+
+  this.train_control["west"] = new PIXI.Container();
+  this.train_control["west"].next = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_down.png"));
+  this.train_control["west"].next.anchor.set(0.5,0.5);
+  this.train_control["west"].next.position.set(this.width / 2, this.height / 2 + 200);
+  this.train_control["west"].addChild(this.train_control["west"].next)
+  this.train_control["west"].out = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_right.png"));
+  this.train_control["west"].out.anchor.set(0.5,0.5);
+  this.train_control["west"].out.position.set(this.width / 2 + 200, this.height / 2);
+  this.train_control["west"].addChild(this.train_control["west"].out)
+  screen.addChild(this.train_control["west"]);
+  this.train_control["west"].visible = false;
+
+  this.train_control["east"] = new PIXI.Container();
+  this.train_control["east"].next = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_up.png"));
+  this.train_control["east"].next.anchor.set(0.5,0.5);
+  this.train_control["east"].next.position.set(this.width / 2, this.height / 2 - 200);
+  this.train_control["east"].addChild(this.train_control["east"].next)
+  this.train_control["east"].out = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_left.png"));
+  this.train_control["east"].out.anchor.set(0.5,0.5);
+  this.train_control["east"].out.position.set(this.width / 2 - 200, this.height / 2);
+  this.train_control["east"].addChild(this.train_control["east"].out)
+  screen.addChild(this.train_control["east"]);
+  this.train_control["east"].visible = false;
+
+  this.train_control_blink = this.markTime();
 }
 
 
@@ -539,6 +591,34 @@ Game.prototype.zooKeyDown = function(ev) {
     if (key === "Escape") {
       this.zoo_mode = "active";
       this.menu_layer.visible = false;
+    }
+  }
+
+  if (this.zoo_mode == "train_control") {
+    if (this.train_stop == "north") {
+      if (key === "ArrowLeft") {
+        this.rollTrains();
+      } else if (key === "ArrowDown") {
+        this.disembarkTrain();
+      }
+    } else if (this.train_stop == "south") {
+      if (key === "ArrowRight") {
+        this.rollTrains();
+      } else if (key === "ArrowUp") {
+        this.disembarkTrain();
+      }
+    } else if (this.train_stop == "east") {
+      if (key === "ArrowUp") {
+        this.rollTrains();
+      } else if (key === "ArrowLeft") {
+        this.disembarkTrain();
+      }
+    } else if (this.train_stop == "west") {
+      if (key === "ArrowDown") {
+        this.rollTrains();
+      } else if (key === "ArrowRight") {
+        this.disembarkTrain();
+      }
     }
   }
 
@@ -1402,6 +1482,8 @@ Game.prototype.rideTrain = function() {
     
   this.display_typing_allowed = false;
 
+  this.zoo_mode = "pre_train_ride";
+
   flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);
 
   delay(function() {
@@ -1412,25 +1494,15 @@ Game.prototype.rideTrain = function() {
   delay(function() {
     self.hideDisplayText();
     self.hideTypingText();
+    self.fadeToBlack(1000);
   });
 
-  let min_dist = 30000;
-  this.train_start = "south"
-  for (const [key, station] of Object.entries(this.stations)) {
-    let d = distance(this.player.x, this.player.y, station.x, station.y);
-    if (d < min_dist) {
-      min_dist = d;
-      this.train_start = station.name;
-      console.log("START IS " + this.train_start)
-      if (this.train_start == "south") this.train_stop = "east";
-      if (this.train_start == "east") this.train_stop = "north";
-      if (this.train_start == "north") this.train_stop = "west";
-      if (this.train_start == "west") this.train_stop = "south";
-      console.log("STOP IS " + this.train_stop);
-    }
-  }
+  delay(function() {
+    self.fadeFromBlack(1000);
+    self.rollTrains();
+  }, 1800);
 
-  this.rollTrains();
+  
 }
 
 
@@ -2173,6 +2245,31 @@ Game.prototype.magicTrainWarp = function() {
   } 
 }
 
+Game.prototype.trainControlBlink = function() {
+  if (this.timeSince(this.train_control_blink) > 500) {
+    this.train_control_blink = this.markTime();
+    if (this.train_control["north"].next.visible == true) {
+      this.train_control["north"].next.visible = false;
+      this.train_control["north"].out.visible = false;
+      this.train_control["south"].next.visible = false;
+      this.train_control["south"].out.visible = false;
+      this.train_control["east"].next.visible = false;
+      this.train_control["east"].out.visible = false;
+      this.train_control["west"].next.visible = false;
+      this.train_control["west"].out.visible = false;
+    } else {
+      this.train_control["north"].next.visible = true;
+      this.train_control["north"].out.visible = true;
+      this.train_control["south"].next.visible = true;
+      this.train_control["south"].out.visible = true;
+      this.train_control["east"].next.visible = true;
+      this.train_control["east"].out.visible = true;
+      this.train_control["west"].next.visible = true;
+      this.train_control["west"].out.visible = true;
+    }
+  }
+}
+
 let do_culling = true;
 Game.prototype.doCulling = function() {
   if (do_culling) {
@@ -2240,7 +2337,7 @@ Game.prototype.updateZoo = function(diff) {
     let x = this.ferris_wheel.x + this.player.x;
     let y = this.ferris_wheel.y + this.player.y;
     this.map.position.set(this.width/2 - x * this.map.scale.x, this.height/2 - y * this.map.scale.y);
-  } else if (this.zoo_mode == "train_ride") {
+  } else if (this.zoo_mode == "train_ride" || this.zoo_mode == "train_control" || this.zoo_mode == "train_fade") {
     this.map.position.set(this.width/2 - this.trains[1].x * this.map.scale.x, this.height/2 - (this.trains[1].y - 150) * this.map.scale.y);
   } 
 
@@ -2282,6 +2379,7 @@ Game.prototype.updateZoo = function(diff) {
     }
   }
 
+  this.trainControlBlink();
 
   this.doCulling();
 

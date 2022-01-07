@@ -8,7 +8,7 @@
 //
 
 
-let train_max_speed = 5;
+let train_max_speed = 6;
 // let train_max_speed = 2.5;
 
 Game.prototype.addTrains = function() {
@@ -49,30 +49,57 @@ Game.prototype.makeTrain = function(parent, track_position) {
 Game.prototype.rollTrains = function() {
   let self = this;
 
-  for (let i = 0; i < this.trains.length; i++) {
-    this.trains[i].status = "rolling";
-  }
+  if (this.trains[0].status == "active") {
+    this.zoo_mode = "train_ride";
 
-  this.zoo_mode = "train_ride";
-  this.player.old_position = [this.player.position.x, this.player.position.y];
-
-  new_decorations = [];
-  for (let i = 0; i < this.decorations.length; i++) {
-    if (this.decorations[i].character_name != "brown_bear"
-      && (this.decorations[i].character_name == null || !this.decorations[i].character_name.includes("stuffed"))) {
-      new_decorations.push(this.decorations[i]);
+    let min_dist = 30000;
+    this.train_start = "south"
+    for (const [key, station] of Object.entries(this.stations)) {
+      let d = distance(this.player.x, this.player.y, station.x, station.y);
+      if (d < min_dist) {
+        min_dist = d;
+        this.train_start = station.name;
+        console.log("START IS " + this.train_start)
+        if (this.train_start == "south") this.train_stop = "east";
+        if (this.train_start == "east") this.train_stop = "north";
+        if (this.train_start == "north") this.train_stop = "west";
+        if (this.train_start == "west") this.train_stop = "south";
+        console.log("STOP IS " + this.train_stop);
+      }
     }
+
+    this.train_control["north"].visible = false;
+    this.train_control["south"].visible = false;
+    this.train_control["east"].visible = false;
+    this.train_control["west"].visible = false;
+
+    for (let i = 0; i < this.trains.length; i++) {
+      this.trains[i].status = "rolling";
+      // for (let j = -200; j <= 200; j += 50) {
+      //   this.makeSmoke(this.map.build_effect_layer, this.trains[i].x + j + Math.random() * 20, this.trains[i].y, 1.8, 1.8);
+      // }
+    }
+
+    this.player.old_position = [this.player.position.x, this.player.position.y];
+
+    new_decorations = [];
+    for (let i = 0; i < this.decorations.length; i++) {
+      if (this.decorations[i].character_name != "brown_bear"
+        && (this.decorations[i].character_name == null || !this.decorations[i].character_name.includes("stuffed"))) {
+        new_decorations.push(this.decorations[i]);
+      }
+    }
+    this.decorations = new_decorations;
+    this.sortLayer(this.map.decoration_layer, this.decorations);
+
+    this.trains[1].passenger_layer.addChild(this.player);
+    this.player.position.set(0, -100);
+
+    this.ghost.visible = false;
+
+    this.soundEffect("train_whistle");
+    this.soundEffect("train_rolling");
   }
-  this.decorations = new_decorations;
-  this.sortLayer(this.map.decoration_layer, this.decorations);
-
-  this.trains[1].passenger_layer.addChild(this.player);
-  this.player.position.set(0, -100);
-
-  this.ghost.visible = false;
-
-  this.soundEffect("train_whistle");
-  this.soundEffect("train_rolling");
 }
 
 
@@ -81,23 +108,63 @@ Game.prototype.stopTrains = function() {
 
   for (let i = 0; i < this.trains.length; i++) {
     this.trains[i].status = "active";
+    if (i > 0) this.trains[i].track_position = this.trains[0].track_position - 256 * i;
+    this.trains[i].updatePosition();
   }
-
-  this.zoo_mode = "active";
-
-  this.trains[1].passenger_layer.removeChild(this.player);
-
-  this.player.position.set(this.stations[this.train_stop].x, this.stations[this.train_stop].y);
-  if (this.train_stop == "south") this.player.y -= 330;
-  if (this.train_stop == "north") this.player.y += 200;
-  if (this.train_stop == "east") this.player.x -= 400;
-  if (this.train_stop == "west") this.player.x += 400;
-  this.decorations.push(this.player);
-
-  this.ghost.visible = true;
 
   this.soundEffect("train_whistle");
   this.stopSoundEffect("train_rolling");
+
+  this.zoo_mode = "train_control";
+
+  this.train_control["north"].visible = false;
+  this.train_control["south"].visible = false;
+  this.train_control["east"].visible = false;
+  this.train_control["west"].visible = false;
+  this.train_control[this.train_stop].visible = true;
+}
+
+
+Game.prototype.disembarkTrain = function() {
+  let self = this;
+
+  this.train_control["north"].visible = false;
+  this.train_control["south"].visible = false;
+  this.train_control["east"].visible = false;
+  this.train_control["west"].visible = false;
+
+  // for (let i = 0; i < this.trains.length; i++) {
+  //   this.trains[i].status = "active";
+  //   if (i > 0) this.trains[i].track_position = this.trains[0].track_position - 256 * i;
+  //   this.trains[i].updatePosition();
+  // }
+
+  // this.soundEffect("train_whistle");
+  // this.stopSoundEffect("train_rolling");
+
+  this.zoo_mode = "train_fade";
+  this.fadeToBlack(1000);
+
+  delay(function() {
+    self.fadeFromBlack(1000);
+    self.zoo_mode = "active";
+
+    self.trains[1].passenger_layer.removeChild(self.player);
+
+    self.player.position.set(self.stations[self.train_stop].x, self.stations[self.train_stop].y);
+    if (self.train_stop == "south") self.player.y -= 330;
+    if (self.train_stop == "north") self.player.y += 200;
+    if (self.train_stop == "east") self.player.x -= 400;
+    if (self.train_stop == "west") self.player.x += 400;
+    self.decorations.push(self.player);
+
+    self.ghost.visible = true;
+    self.ghost.direction = self.player.direction;
+    self.ghost.updateDirection();
+  }, 1500);
+
+
+
 }
 
 
@@ -223,11 +290,11 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
   train.right_wheel.tint = 0x999999;
   train.horizontal_sprite.addChild(train.right_wheel);
 
-  train.red_circle = new PIXI.Sprite(PIXI.Texture.from("Art/red_circle.png"));
-  train.red_circle.anchor.set(0.5,0.5);
-  train.red_circle.position.set(0,0);
-  train.red_circle.scale.set(0.25, 0.25);
-  train.horizontal_sprite.addChild(train.red_circle);
+  // train.red_circle = new PIXI.Sprite(PIXI.Texture.from("Art/red_circle.png"));
+  // train.red_circle.anchor.set(0.5,0.5);
+  // train.red_circle.position.set(0,0);
+  // train.red_circle.scale.set(0.25, 0.25);
+  // train.horizontal_sprite.addChild(train.red_circle);
 
   if (type == "engine") {
     train.right_wheel.position.set(74, -39);
@@ -254,14 +321,16 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       train.tick += 1;
 
       // horrible hack
-      if (game.stations[game.train_stop].stop - game.trains[0].track_position > 800)
+      if (game.stations[game.train_stop].stop - game.trains[0].track_position > 800
+        || game.trains[0].track_position - game.stations[game.train_stop].stop > 8000)
       {
         if (train.speed < train_max_speed) train.speed += 0.02;
       } else {
         if (train.speed > 0.5) train.speed -= 0.02;
       }
 
-      if (game.trains[0].track_position > game.stations[game.train_stop].stop) {
+      if (game.trains[0].track_position > game.stations[game.train_stop].stop
+        && (game.train_stop != "south" || game.trains[0].track_position < game.stations["north"].stop)) {
         game.trains[0].track_position = game.stations[game.train_stop].stop;
         game.stopTrains();
         return;
