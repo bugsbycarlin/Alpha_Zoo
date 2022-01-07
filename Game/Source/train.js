@@ -9,15 +9,14 @@
 
 
 let train_max_speed = 5;
-let track_edge_size = 0;
 // let train_max_speed = 2.5;
 
 Game.prototype.addTrains = function() {
   this.trains = [];
 
-  track_edge_size = (this.zoo_size + 1) * square_width - 400;
+  let track_position = this.stations["south"].stop;
 
-  let track_position = track_edge_size / 2;
+  // let track_position = track_edge_size / 2;
   // track_position = 5800;
   // track_position = 256*3;
   // let track_position = 4 * (this.zoo_size + 1) * square_width - 7000;
@@ -28,7 +27,8 @@ Game.prototype.addTrains = function() {
 Game.prototype.makeTrain = function(parent, track_position) {
   
   for (let i = 0; i < 4; i++) {
-    let train = this.makeTrainCar(parent, i, pick(ferris_wheel_colors), (i == 0) ? "engine" : "car", track_position);
+    //pick(ferris_wheel_colors)
+    let train = this.makeTrainCar(parent, i, 0xFFFFFF, (i == 0) ? "engine" : "car", track_position);
     this.decorations.push(train);
     this.trains.push(train);
 
@@ -40,6 +40,8 @@ Game.prototype.makeTrain = function(parent, track_position) {
         new_npc.position.set(-60, -110);
       }
     }
+
+    train.updatePosition();
   }
 }
 
@@ -64,8 +66,6 @@ Game.prototype.rollTrains = function() {
   this.decorations = new_decorations;
   this.sortLayer(this.map.decoration_layer, this.decorations);
 
-
-
   this.trains[1].passenger_layer.addChild(this.player);
   this.player.position.set(0, -100);
 
@@ -73,6 +73,31 @@ Game.prototype.rollTrains = function() {
 
   this.soundEffect("train_whistle");
   this.soundEffect("train_rolling");
+}
+
+
+Game.prototype.stopTrains = function() {
+  let self = this;
+
+  for (let i = 0; i < this.trains.length; i++) {
+    this.trains[i].status = "active";
+  }
+
+  this.zoo_mode = "active";
+
+  this.trains[1].passenger_layer.removeChild(this.player);
+
+  this.player.position.set(this.stations[this.train_stop].x, this.stations[this.train_stop].y);
+  if (this.train_stop == "south") this.player.y -= 330;
+  if (this.train_stop == "north") this.player.y += 200;
+  if (this.train_stop == "east") this.player.x -= 400;
+  if (this.train_stop == "west") this.player.x += 400;
+  this.decorations.push(this.player);
+
+  this.ghost.visible = true;
+
+  this.soundEffect("train_whistle");
+  this.stopSoundEffect("train_rolling");
 }
 
 
@@ -214,11 +239,33 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
   train.bar.position.set(2, -57);
   train.horizontal_sprite.addChild(train.bar);
 
+  train.recolor = function() {
+    train.color = pick(ferris_wheel_colors);
+    train.vertical_backing.tint = train.color;
+    train.horizontal_body.tint = train.color;
+    if (train.vertical_body) train.vertical_body.tint = train.color;
+    if (train.down_body) train.down_body.tint = train.color;
+    if (train.up_body) train.up_body.tint = train.color;
+  }
+
   train.tick = 0
   train.update = function() {
     if (train.status == "rolling") {
       train.tick += 1;
-      if (train.speed < train_max_speed) train.speed += 0.02;
+
+      // horrible hack
+      if (game.stations[game.train_stop].stop - game.trains[0].track_position > 800)
+      {
+        if (train.speed < train_max_speed) train.speed += 0.02;
+      } else {
+        if (train.speed > 0.5) train.speed -= 0.02;
+      }
+
+      if (game.trains[0].track_position > game.stations[game.train_stop].stop) {
+        game.trains[0].track_position = game.stations[game.train_stop].stop;
+        game.stopTrains();
+        return;
+      }
 
       train.right_wheel.angle += train.speed;
       train.right_wheel_shadow.angle = train.right_wheel.angle;
@@ -434,6 +481,7 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       }
     } 
   }
+
 
   train.track_position = track_position - 256 * number;
   train.updatePosition();

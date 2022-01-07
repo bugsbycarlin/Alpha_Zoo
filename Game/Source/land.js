@@ -3025,9 +3025,12 @@ Game.prototype.drawRiver = function() {
 }
 
 
+let track_edge_size = 0;
 Game.prototype.drawTrainTracks = function() {
   var self = this;
   var screen = this.screens["zoo"];
+
+  track_edge_size = (this.zoo_size + 1) * square_width - 400;
 
   let nw_arc = new PIXI.Sprite(PIXI.Texture.from("Art/PathElements/rail_arc_1.png"));
   nw_arc.anchor.set(0.5, 0.5);
@@ -3051,25 +3054,17 @@ Game.prototype.drawTrainTracks = function() {
   se_arc.scale.set(-1,1);
   this.map.background_layer.addChild(se_arc);
 
-  this.southern_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
-  this.southern_station.anchor.set(0.5, 1);
-  this.southern_station.position.set(this.south_station * square_width, (this.zoo_size + 0.5) * square_width - 80 - 200);
-  this.decorations.push(this.southern_station);
+  this.stations = {};
+  this.stops = {};
+  this.stations["north"] = this.makeTrainStation("north", this.north_station * square_width, -0.5 * square_width + 80 + 200 + 120)
+  this.stations["south"] = this.makeTrainStation("south", this.south_station * square_width, (this.zoo_size + 0.5) * square_width - 80 - 200)
+  this.stations["east"] = this.makeTrainStation("east", (this.zoo_size + 0.5) * square_width - 200 - 296, this.east_station * square_width + 120)
+  this.stations["west"] = this.makeTrainStation("west", -0.5 * square_width + 200 + 296, this.west_station * square_width + 120)
 
-  this.eastern_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
-  this.eastern_station.anchor.set(0.5, 1);
-  this.eastern_station.position.set((this.zoo_size + 0.5) * square_width - 200 - 296, this.east_station * square_width + 120);
-  this.decorations.push(this.eastern_station);
-
-  this.northern_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
-  this.northern_station.anchor.set(0.5, 1);
-  this.northern_station.position.set(this.north_station * square_width, -0.5 * square_width + 80 + 200 + 120);
-  this.decorations.push(this.northern_station);
-
-  this.western_station = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/train_station.png"));
-  this.western_station.anchor.set(0.5, 1);
-  this.western_station.position.set(-0.5 * square_width + 200 + 296, this.west_station * square_width + 120);
-  this.decorations.push(this.western_station);
+  this.stations["south"].stop = this.south_station * square_width + 200 + 256;
+  this.stations["east"].stop = track_edge_size + this.east_station * square_width + 200 + 256;
+  this.stations["north"].stop = 2 * track_edge_size + this.north_station * square_width + 200 + 256;
+  this.stations["west"].stop = 3 * track_edge_size + this.west_station * square_width + 200 + 256;
 
   for (let i = -1; i < this.zoo_size; i++) {
     let section = null;

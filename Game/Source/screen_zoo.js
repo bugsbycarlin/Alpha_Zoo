@@ -205,6 +205,14 @@ Game.prototype.makeUI = function() {
   this.display_ui.addChild(this.action_glyphs["RIDE"]);
   this.action_glyphs["RIDE"].visible = false;
 
+  this.action_glyphs["GO"] = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/icon.png"));
+  this.action_glyphs["GO"].anchor.set(0.5,0.75);
+  this.action_glyphs["GO"].position.set(70, this.height - 30);
+  this.action_glyphs["GO"].scale.set(0.5, 0.5);
+  this.action_glyphs["GO"].visible = false;
+  this.display_ui.addChild(this.action_glyphs["GO"]);
+  this.action_glyphs["GO"].visible = false;
+
   this.action_glyphs["MAP"] = new PIXI.Sprite(PIXI.Texture.from("Art/map_icon.png"));
   this.action_glyphs["MAP"].anchor.set(0.5,0.75);
   this.action_glyphs["MAP"].position.set(70, this.height - 50);
@@ -471,7 +479,9 @@ Game.prototype.playerAndBoundaries = function() {
 
   for (let i = 0; i <= this.zoo_size; i++) {
     for (let j = 0; j <= this.zoo_size; j++) {
-      if (this.zoo_vertices[i][j].n_path == true && square_width * j + square_width / 2 > min_location[1]) {
+      if (this.zoo_vertices[i][j].n_path == true 
+        && square_width * j + square_width / 2 > min_location[1]
+        && (i != this.south_station ||  j != this.zoo_size)) {
         min_location = [square_width * i, square_width * j];
       }
     }
@@ -706,14 +716,25 @@ Game.prototype.addType = function(letter) {
     let pen_to_fix = this.pen_to_fix;
 
     delay(function() {
-      self.ungrey(pen_to_fix);
+      if (pen_to_fix.special != "TRAIN") {
+        self.ungrey(pen_to_fix);
+        pen_to_fix.land_object.shake = self.markTime();
+      } else {
+        self.stations["north"].ungrey();
+        self.stations["south"].ungrey();
+        self.stations["east"].ungrey();
+        self.stations["west"].ungrey();
+        for (let i = 0; i < self.trains.length; i++) {
+          self.trains[i].recolor();
+        }
+      }
+      
       self.soundEffect("build");
       if (pen_to_fix.animal_objects != null) {
         self.animals_obtained += 1;
         self.dollar_bucks += 2;
         self.updateAnimalCount();
       }
-      pen_to_fix.land_object.shake = self.markTime();
 
       for (let i = 0; i < self.pen_to_fix.polygon.length; i++) {
         let x = pen_to_fix.polygon[i][0];
@@ -808,6 +829,8 @@ Game.prototype.addDisplayType = function(letter) {
   if (text_box.text == grey_text_box.text) {
     if (text_box.text == "RIDE") {
       this.rideFerrisWheel();
+    } if (text_box.text == "GO") {
+      this.rideTrain();
     } else if (text_box.text == "FEED") {
       this.feedAnimal();
     } else if (text_box.text == "POOP") {
@@ -844,22 +867,30 @@ Game.prototype.addDisplayType = function(letter) {
 
       flicker(text_box, 300, 0x000000, 0xFFFFFF);
 
-      // remove previous ferris wheel, I think.
-      let new_decorations = [];
-      for (let i = 0; i < this.decorations.length; i++) {
-        if (this.decorations[i] != this.ferris_wheel) {
-          new_decorations.push(this.decorations[i]);
+      if (this.thing_to_display == "FERRIS_WHEEL") {
+        // remove previous ferris wheel, I think.
+        let new_decorations = [];
+        for (let i = 0; i < this.decorations.length; i++) {
+          if (this.decorations[i] != this.ferris_wheel) {
+            new_decorations.push(this.decorations[i]);
+          }
+        }
+        this.decorations = new_decorations;
+        this.sortLayer(this.map.decoration_layer, this.decorations);
+
+        let pen = this.ferris_wheel.pen;
+
+        this.ferris_wheel = this.makeFerrisWheel(pen);
+        this.ferris_wheel.position.set(pen.cx, pen.cy + 180);
+        this.decorations.push(this.ferris_wheel);
+        pen.special_object = this.ferris_wheel;
+      } else if (this.thing_to_display == "TRAIN") {
+        for (let i = 0; i < this.trains.length; i++) {
+          this.trains[i].recolor();
         }
       }
-      this.decorations = new_decorations;
-      this.sortLayer(this.map.decoration_layer, this.decorations);
 
-      let pen = this.ferris_wheel.pen;
-
-      this.ferris_wheel = this.makeFerrisWheel(pen);
-      this.ferris_wheel.position.set(pen.cx, pen.cy + 180);
-      this.decorations.push(this.ferris_wheel);
-      pen.special_object = this.ferris_wheel;
+      
     }
   }
 }
@@ -917,6 +948,8 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Cafe/icon.png"));
   } else if (this.thing_to_type == "GIFT_SHOP") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/icon.png"));
+  } else if (this.thing_to_type == "TRAIN") {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/icon.png"));
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     let thing = this.thing_to_type.toLowerCase();
     if (animals[this.thing_to_type].variations > 1) thing += "_1";
@@ -1002,6 +1035,8 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
       word_list = ["MAP"];
     } else if (this.thing_to_display == "FERRIS_WHEEL") {
       word_list = ["COLOR", "RIDE"];
+    } else if (this.thing_to_display == "TRAIN") {
+      word_list = ["COLOR", "GO"];
     } else if (this.thing_to_display == "CAFE") {
       word_list = [];
     } else if (this.thing_to_display == "GIFT SHOP") {
@@ -1253,6 +1288,8 @@ Game.prototype.displayMap = function() {
   this.updateEnts();
   this.doCulling();
 
+  this.magicTrainWarp();
+
   this.map.scale.set(0.2, 0.2);
 }
 
@@ -1314,6 +1351,8 @@ Game.prototype.hideMap = function() {
   this.escape_glyph.visible = false;
   this.escape_text.visible = false;
 
+  this.magicTrainWarp();
+
   this.doCulling();
   this.updateEnts();
 
@@ -1352,6 +1391,46 @@ Game.prototype.throwHotDog = function() {
     self.ferris_wheel.cart_layer.addChild(food);
     self.freefalling.push(food);
   }, 50);
+}
+
+
+Game.prototype.rideTrain = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  this.soundEffect("success");
+    
+  this.display_typing_allowed = false;
+
+  flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);
+
+  delay(function() {
+    self.action_typing_text[self.action_default_slot].text = "";
+    self.display_typing_allowed = true;
+  }, 300);
+
+  delay(function() {
+    self.hideDisplayText();
+    self.hideTypingText();
+  });
+
+  let min_dist = 30000;
+  this.train_start = "south"
+  for (const [key, station] of Object.entries(this.stations)) {
+    let d = distance(this.player.x, this.player.y, station.x, station.y);
+    if (d < min_dist) {
+      min_dist = d;
+      this.train_start = station.name;
+      console.log("START IS " + this.train_start)
+      if (this.train_start == "south") this.train_stop = "east";
+      if (this.train_start == "east") this.train_stop = "north";
+      if (this.train_start == "north") this.train_stop = "west";
+      if (this.train_start == "west") this.train_stop = "south";
+      console.log("STOP IS " + this.train_stop);
+    }
+  }
+
+  this.rollTrains();
 }
 
 
@@ -1869,7 +1948,6 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
   }
 
   // check for path crossings 
-
   if (this.river_polygon != null && pointInsidePolygon([tx, ty], this.river_polygon)) {
     crossing = false;
     for (let k = 0; k < this.river_tiles.length; k++) {
@@ -1880,10 +1958,16 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
         crossing = true; 
       }
     }
-
     if (crossing == false) return crossing;
   }
   
+  // check for train stations
+  for (const [key, station] of Object.entries(this.stations)) {
+    // console.log(station.polygon);
+    if (pointInsidePolygon([tx, ty], station.polygon)) {
+      return false;
+    }
+  }
   
 
   return true;
@@ -1893,6 +1977,13 @@ Game.prototype.testMove = function(x, y, use_bounds, direction) {
 Game.prototype.pointInPen = function(x, y, find_closest=false) {
   let min_distance = 100000;
   let closest_pen = null;
+
+  for (const [key, station] of Object.entries(this.stations)) {
+    if (pointInsidePolygon([x, y], station.polygon)) {
+      return station;
+    }
+  } 
+
   for (let i = 0; i < this.zoo_pens.length; i++) {
     if (this.zoo_pens[i].animal_objects != null || this.zoo_pens[i].special_object != null) {
       if (pointInsidePolygon([x, y], this.zoo_pens[i].polygon)) {
@@ -2066,6 +2157,22 @@ Game.prototype.updateNPC = function(npc) {
   }
 }
 
+Game.prototype.magicTrainWarp = function() {
+  let min_dist = 30000;
+  for (const [key, station] of Object.entries(this.stations)) {
+    // console.log(station.polygon);
+    let d = distance(this.player.x, this.player.y, station.x, station.y);
+    if (d < min_dist) {
+      min_dist = d;
+      let track_position = station.stop;
+      for (let i = 0; i < this.trains.length; i++) {
+        this.trains[i].track_position = track_position - 256 * i;
+        this.trains[i].updatePosition();
+      }
+    }
+  } 
+}
+
 let do_culling = true;
 Game.prototype.doCulling = function() {
   if (do_culling) {
@@ -2164,6 +2271,17 @@ Game.prototype.updateZoo = function(diff) {
   for (let i = 0; i < this.trains.length; i++) {
     this.trains[i].update();
   }
+
+  if (this.zoo_mode == "active" && this.map_visible == false) {
+    let min_dist = 30000;
+    for (let i = 0; i < this.trains.length; i++) {
+      min_dist = Math.min(min_dist, distance(this.player.x, this.player.y, this.trains[i].x, this.trains[i].y));
+    }
+    if (min_dist > 1200) {
+      this.magicTrainWarp();
+    }
+  }
+
 
   this.doCulling();
 

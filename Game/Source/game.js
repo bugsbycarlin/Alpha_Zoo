@@ -420,6 +420,16 @@ class Game {
   }
 
 
+  stopSoundEffect(effect_name) {
+    if (sound_volume > 0) {
+      var sound_effect = document.getElementById(effect_name);
+      if (sound_effect != null) {
+        sound_effect.pause();
+      }
+    }
+  }
+
+
   setMusic(music_name) {
     if (music_volume > 0) {
       if (this.music_name == music_name) {
