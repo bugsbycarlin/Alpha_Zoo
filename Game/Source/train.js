@@ -55,16 +55,16 @@ Game.prototype.rollTrains = function() {
     let min_dist = 30000;
     this.train_start = "south"
     for (const [key, station] of Object.entries(this.stations)) {
-      let d = distance(this.player.x, this.player.y, station.x, station.y);
+      let d = distance(this.trains[0].x, this.trains[0].y, station.x, station.y);
       if (d < min_dist) {
         min_dist = d;
         this.train_start = station.name;
-        console.log("START IS " + this.train_start)
+        // console.log("START IS " + this.train_start)
         if (this.train_start == "south") this.train_stop = "east";
         if (this.train_start == "east") this.train_stop = "north";
         if (this.train_start == "north") this.train_stop = "west";
         if (this.train_start == "west") this.train_stop = "south";
-        console.log("STOP IS " + this.train_stop);
+        // console.log("STOP IS " + this.train_stop);
       }
     }
 
@@ -132,15 +132,6 @@ Game.prototype.disembarkTrain = function() {
   this.train_control["south"].visible = false;
   this.train_control["east"].visible = false;
   this.train_control["west"].visible = false;
-
-  // for (let i = 0; i < this.trains.length; i++) {
-  //   this.trains[i].status = "active";
-  //   if (i > 0) this.trains[i].track_position = this.trains[0].track_position - 256 * i;
-  //   this.trains[i].updatePosition();
-  // }
-
-  // this.soundEffect("train_whistle");
-  // this.stopSoundEffect("train_rolling");
 
   this.zoo_mode = "train_fade";
   this.fadeToBlack(1000);
