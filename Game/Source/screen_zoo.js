@@ -1119,7 +1119,7 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
       word_list = ["COLOR", "GO"];
     } else if (this.thing_to_display == "CAFE") {
       word_list = [];
-    } else if (this.thing_to_display == "GIFT SHOP") {
+    } else if (this.thing_to_display == "GIFT_SHOP") {
       word_list = [];
     } else if (this.thing_to_display == "FERRIS_WHEEL_OPTIONS") {
       if (this.ferris_wheel.balloons.length > 0) {
@@ -2177,7 +2177,7 @@ ent_count = 0;
 Game.prototype.updateEnts = function() {
   let x = this.player.x;
   let y = this.player.y;
-  if (this.zoo_mode == "train_ride") {
+  if (this.zoo_mode == "train_ride" || this.zoo_mode == "train_control" || this.zoo_mode == "train_fade") {
     x = this.trains[1].x;
     y = this.trains[1].y - 150;
   }
@@ -2281,7 +2281,7 @@ Game.prototype.doCulling = function() {
       y = this.ferris_wheel.y + this.ferris_wheel.player.y;
     }
 
-    if (this.zoo_mode == "train_ride") {
+    if (this.zoo_mode == "train_ride" || this.zoo_mode == "train_control" || this.zoo_mode == "train_fade") {
       x = this.trains[1].x;
       y = this.trains[1].y - 150;
     }
@@ -2343,14 +2343,14 @@ Game.prototype.updateZoo = function(diff) {
 
   
   if (this.ferris_wheel != null) {
-    if ((this.zoo_mode == "active" || this.zoo_mode == "fading") && this.player.y + 150 < this.ferris_wheel.y && this.map_visible == false) {
+    if ((this.zoo_mode == "active" || this.zoo_mode == "fading" || this.zoo_mode == "train_ride" || this.zoo_mode == "train_control" || this.zoo_mode == "train_fade") && this.player.y + 150 < this.ferris_wheel.y && this.map_visible == false) {
       this.ferris_wheel.alpha = Math.max(1 - (this.ferris_wheel.y - this.player.y - 150) / 800, 0.0);
     } else {
       this.ferris_wheel.alpha = 1;
     }
   }
 
-  if (this.zoo_mode == "train_ride") {
+  if (this.zoo_mode == "train_ride" || this.zoo_mode == "train_control" || this.zoo_mode == "train_fade") {
     // always moving, update ents
     this.updateEnts();
   }

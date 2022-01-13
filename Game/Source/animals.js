@@ -755,7 +755,13 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     }
 
     if (animals[animal.type].last_sound == null || self.timeSince(animals[animal.type].last_sound) > animals[animal.type].sound_delay) {
-      if (distance(self.player.x, self.player.y, animal.x, animal.y) < 1000) {
+      let px = self.player.x;
+      let py = self.player.y;
+      if (self.zoo_mode == "train_ride" || self.zoo_mode == "train_control" || self.zoo_mode == "train_fade") {
+        px = self.trains[1].x;
+        py = self.trains[1].y - 150;
+      }
+      if (distance(px, py, animal.x, animal.y) < 1000) {
         if (Math.random() > 0.65) {
           self.soundEffect(animals[animal.type].sound);
           animals[animal.type].sound_delay = 3000 + Math.random() * 11000;
