@@ -80,6 +80,7 @@ Game.prototype.rollTrains = function() {
       // }
     }
 
+    this.player.balloon_layer.visible = false;
     this.player.old_position = [this.player.position.x, this.player.position.y];
 
     new_decorations = [];
@@ -94,6 +95,11 @@ Game.prototype.rollTrains = function() {
 
     this.trains[1].passenger_layer.addChild(this.player);
     this.player.position.set(0, -100);
+
+    for (let i = 0; i < this.player.stuffies.length; i++) {
+      this.trains[1].passenger_layer.addChild(this.player.stuffies[i]);
+    }
+    this.player.lineUpStuffies();
 
     this.ghost.visible = false;
 
@@ -148,6 +154,12 @@ Game.prototype.disembarkTrain = function() {
     if (self.train_stop == "east") self.player.x -= 400;
     if (self.train_stop == "west") self.player.x += 400;
     self.decorations.push(self.player);
+
+    for (let i = 0; i < self.player.stuffies.length; i++) {
+      self.decorations.push(self.player.stuffies[i]);
+    }
+
+    self.player.balloon_layer.visible = true;
 
     self.ghost.visible = true;
     self.ghost.direction = self.player.direction;
@@ -431,6 +443,8 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       train.vertical_sprite.visible = false;
       train.vertical_backing.visible = false;
 
+      if (train.status == "rolling" && train.number == 1) game.player.lineUpStuffies();
+
     } else if (p >= track_edge_size && p < 2 * track_edge_size) {
       let p2 = p - track_edge_size;
       train.position.set((self.zoo_size + 0.5) * square_width - 200, (self.zoo_size + 0.5) * square_width + 36 - p2 - 200);
@@ -470,6 +484,7 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
         train.vertical_backing.position.set(0, -12);
       }
 
+      if (train.status == "rolling" && train.number == 1) game.player.lineUpStuffies(5);
 
     } else if (p >= track_edge_size * 2 && p < 3 * track_edge_size) {
       let p3 = p - 2 * track_edge_size;
@@ -501,6 +516,8 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
       train.horizontal_sprite.visible = true;
       train.vertical_sprite.visible = false;
       train.vertical_backing.visible = false;
+
+      if (train.status == "rolling" && train.number == 1) game.player.lineUpStuffies();
     } else if (p >= track_edge_size * 3) {
       let p4 = p - 3 * track_edge_size;
       train.position.set(-0.5 * square_width + 200, -0.5 * square_width + 36 + p4 + 200);
@@ -539,6 +556,8 @@ Game.prototype.makeTrainCar = function(parent, number, color, type, track_positi
         train.vertical_body = train.down_body;
         train.vertical_backing.position.set(0, -96);
       }
+
+      if (train.status == "rolling" && train.number == 1) game.player.lineUpStuffies(5);
     } 
   }
 

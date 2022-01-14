@@ -310,10 +310,10 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     character.stuffies = new_stuffies;
   }
 
-  character.lineUpStuffies = function() {
+  character.lineUpStuffies = function(dist = 20) {
     for (let i = 0; i < character.stuffies.length; i++) {
       dir = (i % 2 == 0) ? -1 : 1
-      character.stuffies[i].position.set(character.x + dir * (35 + Math.floor(i/2) * 20), character.y - 1);
+      character.stuffies[i].position.set(character.x + dir * ((dist+15) + Math.floor(i/2) * dist), character.y - 1);
     }
   }
 
