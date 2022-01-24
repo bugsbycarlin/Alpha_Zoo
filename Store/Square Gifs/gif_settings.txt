@@ -1,0 +1,9 @@
+ffmpeg -y -i ferris_wheel.mp4  -vf fps=24,scale=480:-1:flags=lanczos,palettegen palette.png
+ffmpeg -i ferris_wheel.mp4 -i palette.png -filter_complex "fps=24,scale=480:-1:flags=lanczos[x];[x][1:v]paletteuse" out.gif
+
+gifsicle --optimize=3 --delay=3 out.gif > out2.gif
+
+
+ffmpeg -y -i mia_demo_gif.mov  -vf fps=24,scale=512:-1:flags=lanczos,palettegen palette.png
+
+ffmpeg -i mia_demo_gif.mov -i palette.png -filter_complex "fps=24,scale=512:-1:flags=lanczos[x];[x][1:v]paletteuse" out.gif
