@@ -208,7 +208,7 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
         }
 
         if (game.timeSince(character.scooter_last_puff_sound) > 226) {
-          game.soundEffect("puff");
+          soundEffect("puff");
           character.scooter_last_puff_sound = game.markTime();
         }
 

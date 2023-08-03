@@ -191,7 +191,7 @@ Game.prototype.makeFerrisWheel = function(pen) {
     fw.moving = true;
     fw.hideSoMuchStuff();
     fw.clunk_time = self.markTime();
-    self.soundEffect("clunk");
+    soundEffect("clunk");
   }
 
   fw.stopMoving = function() {
@@ -386,23 +386,20 @@ Game.prototype.makeFerrisWheel = function(pen) {
       // fw.sky.x = fw.player.position.x;
 
       if ((fw.wheel_angle % 360 < 90 || fw.wheel_angle % 360 > 300) && self.timeSince(fw.clunk_time) > 1000) {
-        self.soundEffect("clunk");
+        soundEffect("clunk");
         fw.clunk_time = self.markTime();
       }
 
        if (fw.last_angle % 360 < 100 && fw.wheel_angle % 360 >= 100) {
-        if (self.music != null) {
-          self.music.old_volume = self.music.volume;
-          new TWEEN.Tween(self.music)
-            .to({volume: 0.6 * self.music.old_volume})
-            .duration(4000)
-            .start()
+        if (current_music != null) {
+          current_music.old_volume = current_music.volume();
+          current_music.fade(current_music.old_volume, current_music.old_volume * 0.6, 4000);
         }
       }
 
       if (fw.last_angle % 360 < 120 && fw.wheel_angle % 360 >= 120) {
         console.log("here");
-        self.soundEffect("breeze");
+        soundEffect("breeze");
       }
 
       // Messing with Ferris Wheel zoom. Needs to be paired with making things
@@ -416,13 +413,8 @@ Game.prototype.makeFerrisWheel = function(pen) {
       }
 
       if (fw.last_angle % 360 < 240 && fw.wheel_angle % 360 >= 240) {
-        // self.soundEffect("breeze");
-        // self.music.volume = self.music.old_volume;
-        if (self.music != null) {
-          new TWEEN.Tween(self.music)
-            .to({volume: self.music.old_volume})
-            .duration(4000)
-            .start()
+        if (current_music != null) {
+          current_music.fade(current_music.old_volume * 0.6, current_music.old_volume, 4000);
         }
       }
     

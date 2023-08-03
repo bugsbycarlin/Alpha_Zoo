@@ -675,7 +675,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         if (self.timeSince(animal.eating_time) > 500) {
           // take a bite!
           animal.eating_time = self.markTime();
-          if (distance(self.player.x, self.player.y, animal.x, animal.y) < 1000) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+          if (distance(self.player.x, self.player.y, animal.x, animal.y) < 1000) soundEffect("chomp_" + Math.ceil(Math.random() * 2));
           if (food.currentFrame < 2) {
             food.gotoAndStop(food.currentFrame + 1);
           } else if (food.currentFrame == 2) {
@@ -737,7 +737,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     if (animal.movement == "arboreal" && animal.arboreal_state == "in_tree" 
       && self.timeSince(animal.last_arboreal) > animal.arboreal_duration) {
       
-      if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("tree_shake");
+      if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) soundEffect("tree_shake");
       animal.tree.shake = self.markTime();
       animal.sprite.gotoAndStop(0);
       animal.arboreal_duration = 0;
@@ -763,7 +763,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       }
       if (distance(px, py, animal.x, animal.y) < 1000) {
         if (Math.random() > 0.65) {
-          self.soundEffect(animals[animal.type].sound);
+          soundEffect(animals[animal.type].sound);
           animals[animal.type].sound_delay = 3000 + Math.random() * 11000;
           animals[animal.type].last_sound = self.markTime();
         }
@@ -1014,7 +1014,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       if (contact_points.length > 0) {
         let contact_point = pick(contact_points);
         animal.arboreal_state = "in_tree";
-        if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("jump");
+        if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) soundEffect("jump");
         animal.last_arboreal = self.markTime();
         animal.arboreal_duration = 3000 + Math.random() * animals[animal.type].tree_time;
         animal.tree = contact_point[0];
@@ -1039,7 +1039,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           .easing(TWEEN.Easing.Quadratic.In)
           .start()
           .onComplete(function() {
-            if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) self.soundEffect("tree_shake");
+            if (distance(animal.x, animal.y, self.player.x, self.player.y) < 1000) soundEffect("tree_shake");
             contact_point[0].shake = self.markTime();
           });
       }

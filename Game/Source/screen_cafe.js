@@ -278,7 +278,7 @@ Game.prototype.deleteCafeType = function() {
   }
   if (deleting) {
     this.cafe_last_prefix = this.cafe_last_prefix.slice(0,-1);
-    this.soundEffect("swipe");
+    soundEffect("swipe");
   }
 }
 
@@ -306,7 +306,7 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
   screen.addChild(food_sprite);
 
   if (table_number == 0) {
-    this.soundEffect("pop");
+    soundEffect("pop");
     this.cafe_typing_allowed = false;
 
     delay(function() {
@@ -319,8 +319,8 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
 
   delay(function() {
     if (table_number == 0) {
-      if (!isLiquid(food_name)) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
-      if (isLiquid(food_name)) self.soundEffect("slurp"); 
+      if (!isLiquid(food_name)) soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+      if (isLiquid(food_name)) soundEffect("slurp"); 
       self.cafe_diners[table_number].shake = self.markTime();
     }
     food_sprite.gotoAndStop(1);
@@ -329,7 +329,7 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
 
   delay(function() {
     if (table_number == 0) {
-      if (!isLiquid(food_name)) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+      if (!isLiquid(food_name)) soundEffect("chomp_" + Math.ceil(Math.random() * 2));
       self.cafe_diners[table_number].shake = self.markTime();
     }
     food_sprite.gotoAndStop(2);
@@ -340,7 +340,7 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
     food_sprite.visible = false;
     screen.removeChild(food_sprite);
     if (table_number == 0) {
-      if (!isLiquid(food_name)) self.soundEffect("chomp_" + Math.ceil(Math.random() * 2));
+      if (!isLiquid(food_name)) soundEffect("chomp_" + Math.ceil(Math.random() * 2));
       self.cafe_typing_allowed = true;
       self.cafe_diners[table_number].shake = self.markTime();
     }

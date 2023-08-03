@@ -134,7 +134,7 @@ Game.prototype.resetZooScreen = function() {
   this.start_time = this.markTime();
   this.first_move = false;
 
-  this.setMusic("background_music");
+  setMusic("background_music");
 
   delay(function() {
     self.zoo_mode = "active";
@@ -637,7 +637,7 @@ Game.prototype.zooKeyDown = function(ev) {
         music_volume = Math.round(music_volume * 10) / 10;
         localStorage.setItem("music_volume", music_volume);
         if (this.music != null) this.music.volume = music_volume;
-        if (this.music == null && music_volume > 0) this.setMusic("background_music");
+        if (this.music == null && music_volume > 0) setMusic("background_music");
         this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume, 164);
       }
     }
@@ -649,7 +649,7 @@ Game.prototype.zooKeyDown = function(ev) {
         music_volume = Math.round(music_volume * 10) / 10;
         localStorage.setItem("music_volume", music_volume);
         if (this.music != null) this.music.volume = music_volume;
-        if (this.music == null && music_volume > 0) this.setMusic("background_music");
+        if (this.music == null && music_volume > 0) setMusic("background_music");
         this.music_slider_bar.position.set(this.music_slider_left + 150 * music_volume, 164);
       }
     }
@@ -660,7 +660,7 @@ Game.prototype.zooKeyDown = function(ev) {
         if (sound_volume < 0.001) sound_volume = 0;
         sound_volume = Math.round(sound_volume * 10) / 10;
         localStorage.setItem("sound_volume", sound_volume);
-        this.soundEffect("pop");
+        soundEffect("pop");
         this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 273);
       }
     }
@@ -671,7 +671,7 @@ Game.prototype.zooKeyDown = function(ev) {
         if (sound_volume > 0.999) sound_volume = 1;
         sound_volume = Math.round(sound_volume * 10) / 10;
         localStorage.setItem("sound_volume", sound_volume);
-        this.soundEffect("pop");
+        soundEffect("pop");
         this.sound_slider_bar.position.set(this.sound_slider_left + 150 * sound_volume, 273);
       }
     }
@@ -788,7 +788,7 @@ Game.prototype.addType = function(letter) {
   }
 
   if (this.typing_text.text == this.thing_to_type.replace("_", " ")) {
-    this.soundEffect("success");
+    soundEffect("success");
     flicker(this.typing_text, 300, 0x000000, 0xFFFFFF);
     this.typing_allowed = false;
 
@@ -809,7 +809,7 @@ Game.prototype.addType = function(letter) {
         }
       }
       
-      self.soundEffect("build");
+      soundEffect("build");
       if (pen_to_fix.animal_objects != null) {
         self.animals_obtained += 1;
         self.dollar_bucks += 2;
@@ -856,7 +856,7 @@ Game.prototype.deleteType = function() {
     this.freefalling.push(t);
 
     this.typing_text.text = this.typing_text.text.slice(0,-1);
-    this.soundEffect("swipe");
+    soundEffect("swipe");
   }
 }
 
@@ -918,7 +918,7 @@ Game.prototype.addDisplayType = function(letter) {
     } else if (text_box.text == "MAP") {
       this.activateMap();
     } else if (text_box.text == "LET GO") {
-      this.soundEffect("success");
+      soundEffect("success");
     
       this.display_typing_allowed = false;
 
@@ -936,7 +936,7 @@ Game.prototype.addDisplayType = function(letter) {
       this.throwHotDog();
     } else if (text_box.text == "COLOR") {
 
-      this.soundEffect("success");
+      soundEffect("success");
     
       this.display_typing_allowed = false;
 
@@ -997,7 +997,7 @@ Game.prototype.deleteDisplayType = function() {
   this.freefalling.push(t);
 
   text_box.text = text_box.text.slice(0,-1);
-  this.soundEffect("swipe");
+  soundEffect("swipe");
 }
 
 
@@ -1446,7 +1446,7 @@ Game.prototype.throwHotDog = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.soundEffect("throw");
+  soundEffect("throw");
     
   this.display_typing_allowed = false;
 
@@ -1478,7 +1478,7 @@ Game.prototype.rideTrain = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.soundEffect("success");
+  soundEffect("success");
     
   this.display_typing_allowed = false;
 
@@ -1510,7 +1510,7 @@ Game.prototype.rideFerrisWheel = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.soundEffect("success");
+  soundEffect("success");
     
   this.display_typing_allowed = false;
 
@@ -1607,7 +1607,7 @@ Game.prototype.feedAnimal = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.soundEffect("success");
+  soundEffect("success");
     
   this.display_typing_allowed = false;
 
@@ -1645,7 +1645,7 @@ Game.prototype.poopAnimal = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.soundEffect("success");
+  soundEffect("success");
     
   this.display_typing_allowed = false;
 
@@ -1657,7 +1657,7 @@ Game.prototype.poopAnimal = function() {
   flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);
 
   let current_animal = pick(this.pen_to_display.animal_objects);
-  self.soundEffect("poop_" + Math.ceil(Math.random() * 3));
+  soundEffect("poop_" + Math.ceil(Math.random() * 3));
   for(let i = 0; i <= 600; i+= 300) {
     delay(function() {
       let b = current_animal.global_butt_coords();
@@ -1701,7 +1701,7 @@ Game.prototype.activateMap = function() {
   var self = this;
   var screen = this.screens["zoo"];
 
-  this.soundEffect("success");
+  soundEffect("success");
     
   this.display_typing_allowed = false;
 

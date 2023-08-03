@@ -553,7 +553,7 @@ Game.prototype.giftShopAddType = function(letter) {
   console.log(this.gift_shop_typing_text.text.toLowerCase());
   console.log(this.gift_shop_typing_slot.name.replace("_", " "));
   if (this.gift_shop_typing_text.text.toLowerCase() == replaceAll(this.gift_shop_typing_slot.name, "_", " ")) {
-    this.soundEffect("success");
+    soundEffect("success");
     flicker(this.gift_shop_typing_text, 300, 0x000000, 0xFFFFFF);
     this.gift_shop_typing_allowed = false;
 
@@ -561,7 +561,7 @@ Game.prototype.giftShopAddType = function(letter) {
     slot.item.shake = self.markTime();
 
     delay(function() {
-      self.soundEffect("coin");
+      soundEffect("coin");
       self.dollar_bucks -= slot.price;
       self.gift_shop_dollar_bucks_text.text = self.dollar_bucks;
       flicker(self.gift_shop_dollar_bucks_text, 300, 0x000000, 0xFFFFFF);
@@ -709,7 +709,7 @@ Game.prototype.giftShopDeleteType = function() {
     this.freefalling.push(t);
 
     this.gift_shop_typing_text.text = this.gift_shop_typing_text.text.slice(0,-1);
-    this.soundEffect("swipe");
+    soundEffect("swipe");
   }
 }
 

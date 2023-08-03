@@ -10,8 +10,6 @@
 
 'use strict';
 
-var music_volume = 0.4;
-var sound_volume = 0.6;
 var use_scores = false;
 var log_performance = true;
 
@@ -408,85 +406,6 @@ class Game {
     }
   }
 
-
-  soundEffect(effect_name) {
-    if (sound_volume > 0) {
-      var sound_effect = document.getElementById(effect_name);
-      if (sound_effect != null) {
-        sound_effect.volume = sound_volume;
-        sound_effect.play();
-      }
-    }
-  }
-
-
-  stopSoundEffect(effect_name) {
-    if (sound_volume > 0) {
-      var sound_effect = document.getElementById(effect_name);
-      if (sound_effect != null) {
-        sound_effect.pause();
-      }
-    }
-  }
-
-
-  setMusic(music_name) {
-    if (music_volume > 0) {
-      if (this.music_name == music_name) {
-        return;
-      }
-      var self = this;
-      // let crossfade = false;
-      // if (this.music != null && this.music_name != music_name) {
-      //   crossfade = true;
-      //   this.fadeMusic();
-      // }
-      this.music = document.getElementById(music_name);
-      this.music.loop = true;
-      this.music.pause();
-      this.music.currentTime = 0;
-      // if (crossfade) {
-      //   for (let i = 0; i < 14; i++) {
-      //     delay(function() {
-      //       self.music.volume = i / 20;
-      //     }, 50 * i);
-      //   }
-      // } else {
-      //   this.music.volume = 0.4;
-      // }
-      this.music.volume = music_volume;
-      this.music_name = music_name;
-      this.music.play();
-    }
-  }
-
-
-  stopMusic() {
-    if (this.music != null) {
-      this.music.pause();
-      this.music.currentTime = 0;
-    }
-  }
-
-
-  fadeMusic(delay_time = 0) {
-    if (this.music != null) {
-      this.old_music = this.music;
-      this.music = null;
-      //this.old_music.done = true;
-      var self = this;
-      for (let i = 0; i < 14; i++) {
-        delay(function() {
-          self.old_music.volume = (13 - i) / 20;
-        }, delay_time + 50 * i);
-      }
-      setTimeout(function() {
-        // TO DO
-        // DELETE OLD MUSIC
-        this.old_music = null;
-      }, 1500);
-    }
-  }
 
   markTime() {
     return Date.now() - this.pause_time;

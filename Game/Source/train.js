@@ -103,8 +103,8 @@ Game.prototype.rollTrains = function() {
 
     this.ghost.visible = false;
 
-    this.soundEffect("train_whistle");
-    this.soundEffect("train_rolling");
+    soundEffect("train_whistle");
+    soundEffect("train_rolling");
   }
 }
 
@@ -118,8 +118,8 @@ Game.prototype.stopTrains = function() {
     this.trains[i].updatePosition();
   }
 
-  this.soundEffect("train_whistle");
-  this.stopSoundEffect("train_rolling");
+  soundEffect("train_whistle");
+  stopSoundEffect("train_rolling");
 
   this.zoo_mode = "train_control";
 
