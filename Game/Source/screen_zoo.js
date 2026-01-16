@@ -130,6 +130,7 @@ Game.prototype.resetZooScreen = function() {
 
   this.initializeScreen("gift_shop");
   this.initializeScreen("cafe");
+  this.initializeScreen("marimba");
 
   this.start_time = this.markTime();
   this.first_move = false;
@@ -237,6 +238,14 @@ Game.prototype.makeUI = function() {
   this.action_glyphs["THROW"].visible = false;
   this.display_ui.addChild(this.action_glyphs["THROW"]);
   this.action_glyphs["THROW"].visible = false;
+
+  this.action_glyphs["PLAY"] = new PIXI.Sprite(PIXI.Texture.from("Art/marimba_icon.png"));
+  this.action_glyphs["PLAY"].anchor.set(0.5,0.75);
+  this.action_glyphs["PLAY"].position.set(70, this.height - 50);
+  this.action_glyphs["PLAY"].scale.set(0.75, 0.75);
+  this.action_glyphs["PLAY"].visible = false;
+  this.display_ui.addChild(this.action_glyphs["PLAY"]);
+  this.action_glyphs["PLAY"].visible = false;
 
   this.action_glyphs["COLOR"] = new PIXI.Sprite(PIXI.Texture.from("Art/color_icon.png"));
   this.action_glyphs["COLOR"].anchor.set(0.5,0.75);
@@ -592,6 +601,27 @@ Game.prototype.zooKeyDown = function(ev) {
       this.zoo_mode = "active";
       this.menu_layer.visible = false;
     }
+  } else if (this.zoo_mode == "marimba") {
+    if (key === "Escape") {
+      this.zoo_mode = "active";
+      if (this.music == null && music_volume > 0) setMusic("background_music");
+    }
+
+    if (key === "1") {
+      soundEffect("c4");
+    } else if (key === "2") {
+      soundEffect("d4");
+    } else if (key === "3") {
+      soundEffect("e4");
+    } else if (key === "4") {
+      soundEffect("f4");
+    } else if (key === "5") {
+      soundEffect("g4");
+    } else if (key === "6") {
+      soundEffect("a4");
+    } else if (key === "7") {
+      soundEffect("b4");
+    }
   }
 
   if (this.zoo_mode == "train_control") {
@@ -917,6 +947,8 @@ Game.prototype.addDisplayType = function(letter) {
       this.poopAnimal();
     } else if (text_box.text == "MAP") {
       this.activateMap();
+    } else if (text_box.text == "PLAY") {
+      this.activateMarimba();
     } else if (text_box.text == "LET GO") {
       soundEffect("success");
     
@@ -1030,6 +1062,8 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Gift_Shop/icon.png"));
   } else if (this.thing_to_type == "TRAIN") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/icon.png"));
+  } else if (this.thing_to_type == "MARIMBA") {
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/marimba_icon.png"));
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     let thing = this.thing_to_type.toLowerCase();
     if (animals[this.thing_to_type].variations > 1) thing += "_1";
@@ -1121,6 +1155,8 @@ Game.prototype.changeDisplayText = function(thing_to_display, pen_to_display, wo
       word_list = [];
     } else if (this.thing_to_display == "GIFT_SHOP") {
       word_list = [];
+    } else if (this.thing_to_display == "MARIMBA") {
+      word_list = ["PLAY"];
     } else if (this.thing_to_display == "FERRIS_WHEEL_OPTIONS") {
       if (this.ferris_wheel.balloons.length > 0) {
         word_list = ["LET GO", "THROW"];
@@ -1220,7 +1256,7 @@ Game.prototype.grey = function(pen) {
       pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].grey_color;
     }
   }
-  if (pen.special == "CAFE" || pen.special == "GIFT_SHOP") {
+  if (pen.special == "CAFE" || pen.special == "GIFT_SHOP" || pen.special == "MARIMBA") {
     pen.special_object.grey();
   }
   if (pen.special != "RIVER" && pen.land_object != null) {
@@ -1259,7 +1295,7 @@ Game.prototype.ungrey = function(pen) {
       pen.special_object.all_objects[j].tint = pen.special_object.all_objects[j].true_color;
     }
   }
-  if (pen.special == "CAFE" || pen.special == "GIFT_SHOP") {
+  if (pen.special == "CAFE" || pen.special == "GIFT_SHOP" || pen.special == "MARIMBA") {
     pen.special_object.ungrey();
   }
   if (pen.special != "RIVER" && pen.land_object != null) {
@@ -1709,6 +1745,26 @@ Game.prototype.activateMap = function() {
     self.action_typing_text[self.action_default_slot].text = "";
     self.display_typing_allowed = true;
     self.displayMap();
+  }, 300);
+
+  flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);
+}
+
+
+Game.prototype.activateMarimba = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+
+  soundEffect("success");
+    
+  stopMusic();
+
+  this.display_typing_allowed = false;
+
+  delay(function() {
+    self.action_typing_text[self.action_default_slot].text = "";
+    self.display_typing_allowed = true;
+    self.zoo_mode = "marimba";
   }, 300);
 
   flicker(this.action_typing_text[this.action_default_slot], 300, 0x000000, 0xFFFFFF);

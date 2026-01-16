@@ -378,7 +378,7 @@ class Game {
       this.updateGiftShop(diff);
     } else if (this.current_screen == "animal_pop") {
       this.updateAnimalPop(diff);
-    } 
+    }
   }
 
 
@@ -403,7 +403,9 @@ class Game {
       this.cafeKeyDown(ev);
     } else if (this.current_screen == "gift_shop") {
       this.giftShopKeyDown(ev);
-    }
+    } else if (this.current_screen == "marimba") {
+      this.marimbaKeyDown(ev);
+    } 
   }
 
 

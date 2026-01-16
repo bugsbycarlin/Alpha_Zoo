@@ -329,6 +329,15 @@ Game.prototype.isGiftShopTile = function(i,j) {
 }
 
 
+Game.prototype.isMarimbaTile = function(i,j) {
+  if (this.special_marimba_tile == null) return false;
+
+  if (i == this.special_marimba_tile[0] && j == this.special_marimba_tile[1]) return true;
+
+  return false;
+}
+
+
 Game.prototype.isRiverTile = function(i,j) {
   for (let k = 0; k < this.river_tiles.length; k++) {
     if (this.river_tiles[k][0] == i && this.river_tiles[k][1] == j) return true;
@@ -432,11 +441,32 @@ Game.prototype.makeMapPens = function() {
   }
 
 
+  // now, a marimba tile, same deal.
+  this.special_marimba_tile = null;
+  if (this.zoo_size >= 6) {
+    let potential_marimba_tiles = [];
+    for (let i = 1; i < this.zoo_size - 1; i++) {
+      for (let j = 1; j < this.zoo_size - 1; j++) {
+        if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isCafeTile(i,j) && !this.isGiftShopTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)
+          && this.zoo_squares[i][j].s_edge == true) { // put the gift shop somewhere where there's a road below it.
+          potential_marimba_tiles.push([i,j]);
+        }
+      }
+    }
+
+    if (potential_marimba_tiles.length > 0) {
+      shuffleArray(potential_marimba_tiles);
+      this.special_marimba_tile = potential_marimba_tiles[0];
+    } else {
+      console.log("ALERT: NO SPACE TO PUT THE MARIMBA!");
+    }
+  }
+
   for (let i = 0; i < this.zoo_size; i++) {
     for (let j = 0; j < this.zoo_size; j++) {
 
       if (this.zoo_squares[i][j].reachable && !this.isRiverTile(i,j) && !this.isCafeTile(i,j)
-        && !this.isGiftShopTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
+        && !this.isGiftShopTile(i,j) && !this.isMarimbaTile(i,j) && !this.isFerrisTile(i,j) && !this.isFerrisTile(i-1,j)) {
 
         let polygon = [];
 
@@ -746,6 +776,36 @@ Game.prototype.makeMapPens = function() {
           location: this.zoo_squares[i][j],
         });
         this.zoo_squares[i][j].pen = this.zoo_pens[this.zoo_pens.length - 1];
+      } else if (this.zoo_squares[i][j].reachable && this.isMarimbaTile(i,j)) {
+        let polygon = [];
+        let center_x = square_width * i + square_width / 2;
+        let center_y = square_width * (j + 1) - 200; // 100 pixels of path, 100 pixels of space until the gift shop door.
+        polygon.push([center_x + 120, center_y - 200]); 
+        polygon.push([center_x - 120, center_y - 200]); // now we're back to the proper exterior
+        polygon.push([center_x - 120, center_y - 230]); // the top is 250 from the bottom, with a bit allowed for the player to walk partially out of view behind the marimba.
+        polygon.push([center_x + 120, center_y - 230]);
+        polygon.push([center_x + 120, center_y - 200]);
+
+        this.zoo_pens.push({
+          use: false,
+          outer: false,
+          polygon: polygon,
+          ungrey_polygon: polygon,
+          grey_polygon: polygon,
+          cx: center_x,
+          cy: center_y,
+          animal: null,
+          special: "MARIMBA",
+          land: "grass",
+          decoration_objects: [],
+          land_object: null,
+          animal_objects: null,
+          state: "ungrey",
+          inner_polygon: null,
+          square_numbers: [i,j],
+          location: this.zoo_squares[i][j],
+        });
+        this.zoo_squares[i][j].pen = this.zoo_pens[this.zoo_pens.length - 1];
       }
     }
   }
@@ -817,7 +877,7 @@ Game.prototype.makeMapPens = function() {
 
 
 // The map is only valid if there are road connections near each of the four compass edges,
-// and the gift shop, ferris wheel, and cafe exist.
+// and the gift shop, ferris wheel, cafe and marimba exist.
 Game.prototype.checkMapValidity = function() {
 
   if (this.special_cafe_tile == null) {
@@ -832,6 +892,11 @@ Game.prototype.checkMapValidity = function() {
 
   if (this.special_gift_shop_tile == null) {
     console.log("No gift shop!");
+    return false;
+  }
+
+  if (this.special_marimba_tile == null) {
+    console.log("No marimba!");
     return false;
   }
 
@@ -1467,6 +1532,13 @@ Game.prototype.addAnimalsAndDecorations = function() {
       this.gift_shop.position.set(pen.cx, pen.cy);
       this.decorations.push(this.gift_shop);
       pen.special_object = this.gift_shop;
+    }
+
+    if (pen.special == "MARIMBA") {
+      this.marimba = this.makeMarimba(pen);
+      this.marimba.position.set(pen.cx, pen.cy - 200);
+      this.decorations.push(this.marimba);
+      pen.special_object = this.marimba;
     }  
   }
 

@@ -83,6 +83,20 @@ let sound_files = [
   ["swan","Animals/swan.mp3"],
   ["goose","Animals/goose.mp3"],
   ["duck","Animals/duck.mp3"],
+  ["a4","Marimba/a4.wav"],
+  ["b4","Marimba/b4.wav"],
+  ["c4","Marimba/c4.wav"],
+  ["d4","Marimba/d4.wav"],
+  ["e4","Marimba/e4.wav"],
+  ["f4","Marimba/f4.wav"],
+  ["g4","Marimba/g4.wav"],
+  ["a5","Marimba/a5.wav"],
+  ["b5","Marimba/b5.wav"],
+  ["c5","Marimba/c5.wav"],
+  ["d5","Marimba/d5.wav"],
+  ["e5","Marimba/e5.wav"],
+  ["f5","Marimba/f5.wav"],
+  ["g5","Marimba/g5.wav"],
 ]
 
 
