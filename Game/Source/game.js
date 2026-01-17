@@ -403,9 +403,7 @@ class Game {
       this.cafeKeyDown(ev);
     } else if (this.current_screen == "gift_shop") {
       this.giftShopKeyDown(ev);
-    } else if (this.current_screen == "marimba") {
-      this.marimbaKeyDown(ev);
-    } 
+    }
   }
 
 

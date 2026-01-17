@@ -113,6 +113,7 @@ Game.prototype.resetZooScreen = function() {
   // Make the ui layer
   this.makeUI();
   this.makeMenu();
+  this.makeMarimbaScreen();
 
   // Populate the map with things. These methods are in land.js.
   this.designatePens();
@@ -239,7 +240,7 @@ Game.prototype.makeUI = function() {
   this.display_ui.addChild(this.action_glyphs["THROW"]);
   this.action_glyphs["THROW"].visible = false;
 
-  this.action_glyphs["PLAY"] = new PIXI.Sprite(PIXI.Texture.from("Art/marimba_icon.png"));
+  this.action_glyphs["PLAY"] = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_icon.png"));
   this.action_glyphs["PLAY"].anchor.set(0.5,0.75);
   this.action_glyphs["PLAY"].position.set(70, this.height - 50);
   this.action_glyphs["PLAY"].scale.set(0.75, 0.75);
@@ -399,6 +400,101 @@ Game.prototype.makeUI = function() {
   this.train_control["east"].visible = false;
 
   this.train_control_blink = this.markTime();
+}
+
+
+
+
+Game.prototype.makeMarimbaScreen = function() {
+  var self = this;
+  var screen = this.screens["zoo"];
+  
+  this.marimba_layer = new PIXI.Container();
+  screen.addChild(this.marimba_layer);
+  this.marimba_layer.visible = false;
+
+  this.marimba_background = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_background.png"));
+  this.marimba_background.anchor.set(0,0);
+  this.marimba_background.position.set(0, 0);
+  this.marimba_layer.addChild(this.marimba_background);
+
+  this.marimba_instrument = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_large.png"));
+  this.marimba_instrument.anchor.set(0,0);
+  this.marimba_instrument.position.set(0, 0);
+  this.marimba_layer.addChild(this.marimba_instrument);
+
+  this.marimba_letters_4 = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/cdefgab_4.png"));
+  this.marimba_letters_4.anchor.set(0,0);
+  this.marimba_letters_4.position.set(0, 0);
+  this.marimba_layer.addChild(this.marimba_letters_4);
+
+  this.marimba_letters_5 = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/cdefgab_5.png"));
+  this.marimba_letters_5.anchor.set(0,0);
+  this.marimba_letters_5.position.set(0, 0);
+  this.marimba_layer.addChild(this.marimba_letters_5);
+  this.marimba_letters_5.visible = false;
+
+  this.marimba_scale = 4;
+
+  this.marimba_left_arrow = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_left.png"));
+  this.marimba_left_arrow.anchor.set(0.5,0.5);
+  this.marimba_left_arrow.position.set(550, 190);
+  this.marimba_left_arrow.scale.set(2, 2)
+  this.marimba_layer.addChild(this.marimba_left_arrow);
+  this.marimba_left_arrow.visible = false;
+
+  this.marimba_right_arrow = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_right.png"));
+  this.marimba_right_arrow.anchor.set(0.5,0.5);
+  this.marimba_right_arrow.position.set(885, 190);
+  this.marimba_right_arrow.scale.set(2, 2)
+  this.marimba_layer.addChild(this.marimba_right_arrow);
+
+
+  this.left_mallet = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_mallet.png"));
+  this.left_mallet.anchor.set(0.5,0.166);
+  this.left_mallet.angle = 10;
+  this.left_mallet.position.set(550, 600);
+  this.left_mallet.scale.set(1, 1)
+  this.marimba_layer.addChild(this.left_mallet);
+
+  this.right_mallet = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_mallet.png"));
+  this.right_mallet.anchor.set(0.5,0.166);
+  this.right_mallet.angle = -10;
+  this.right_mallet.position.set(650, 600);
+  this.right_mallet.scale.set(1, 1)
+  this.marimba_layer.addChild(this.right_mallet);
+
+  this.marimba_positions = {
+    "c4":[390,425],
+    "d4":[436,419],
+    "e4":[490,411],
+    "f4":[542,405],
+    "g4":[594,399],
+    "a4":[645,394],
+    "b4":[698,388],
+    "c5":[748,381],
+    "d5":[800,377],
+    "e5":[852,368],
+    "f5":[904,363],
+    "g5":[957,354],
+    "a5":[1009,350],
+    "b5":[1060,344]
+  };
+
+
+  this.marimba_escape_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/close_button.png"));
+  this.marimba_escape_glyph.anchor.set(0,1);
+  this.marimba_escape_glyph.position.set(20, this.height - 20);
+  this.marimba_escape_glyph.scale.set(0.6, 0.6)
+  this.marimba_escape_glyph.tint = 0x000000;
+  this.marimba_escape_glyph.alpha = 0.6;
+  this.marimba_layer.addChild(this.marimba_escape_glyph);
+
+  this.marimba_escape_text = new PIXI.Text("Escape", {fontFamily: default_font, fontSize: 30, fill: 0x000000, letterSpacing: 6, align: "left"});
+  this.marimba_escape_text.anchor.set(0,1);
+  this.marimba_escape_text.position.set(100, this.height - 32);
+  this.marimba_escape_text.alpha = 0.6;
+  this.marimba_layer.addChild(this.marimba_escape_text);
 }
 
 
@@ -604,23 +700,40 @@ Game.prototype.zooKeyDown = function(ev) {
   } else if (this.zoo_mode == "marimba") {
     if (key === "Escape") {
       this.zoo_mode = "active";
+      this.marimba_layer.visible = false;
       if (this.music == null && music_volume > 0) setMusic("background_music");
     }
 
-    if (key === "1") {
-      soundEffect("c4");
-    } else if (key === "2") {
-      soundEffect("d4");
-    } else if (key === "3") {
-      soundEffect("e4");
-    } else if (key === "4") {
-      soundEffect("f4");
-    } else if (key === "5") {
-      soundEffect("g4");
-    } else if (key === "6") {
-      soundEffect("a4");
-    } else if (key === "7") {
-      soundEffect("b4");
+    if (key === "ArrowLeft" || key === "ArrowRight") {
+      if (this.marimba_scale === 4) {
+        this.marimba_scale = 5;
+        this.marimba_letters_4.visible = false;
+        this.marimba_letters_5.visible = true;
+        this.marimba_left_arrow.visible = true;
+        this.marimba_right_arrow.visible = false;
+      } else {
+        this.marimba_scale = 4;
+        this.marimba_letters_4.visible = true;
+        this.marimba_letters_5.visible = false;
+        this.marimba_left_arrow.visible = false;
+        this.marimba_right_arrow.visible = true;
+      }
+    }
+
+    if (key === "1" || key === "c" || key === "C") {
+      this.playMarimba("c");
+    } else if (key === "2" || key === "d" || key === "D") {
+      this.playMarimba("d");
+    } else if (key === "3" || key === "e" || key === "E") {
+      this.playMarimba("e");
+    } else if (key === "4" || key === "f" || key === "F") {
+      this.playMarimba("f");
+    } else if (key === "5" || key === "g" || key === "G") {
+      this.playMarimba("g");
+    } else if (key === "6" || key === "a" || key === "A") {
+      this.playMarimba("a");
+    } else if (key === "7" || key === "b" || key === "B") {
+      this.playMarimba("b");
     }
   }
 
@@ -802,6 +915,50 @@ Game.prototype.zooKeyDown = function(ev) {
         this.deleteDisplayType();
       }
     }
+  }
+}
+
+
+Game.prototype.playMarimba = function(letter) {
+
+  let code = letter + this.marimba_scale.toString();
+  let location = this.marimba_positions[code];
+
+  soundEffect(code);
+  if (letter === "c" || letter === "d" || letter == "e") {
+    this.left_mallet.position.set(location[0], location[1])
+    let old_y = this.left_mallet.y;
+    new TWEEN.Tween(this.left_mallet)
+      .to({y: old_y + 50})
+      .duration(50)
+      .start()
+      .easing(TWEEN.Easing.Quadratic.In)
+      .onComplete(function() {
+      });
+    new TWEEN.Tween(this.left_mallet)
+      .to({y: old_y - 100})
+      .duration(150)
+      .start()
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .onComplete(function() {
+      });
+  } else {
+    this.right_mallet.position.set(location[0], location[1])
+    let old_y = this.right_mallet.y;
+    new TWEEN.Tween(this.right_mallet)
+      .to({y: old_y + 50})
+      .duration(50)
+      .start()
+      .easing(TWEEN.Easing.Quadratic.In)
+      .onComplete(function() {
+      });
+    new TWEEN.Tween(this.right_mallet)
+      .to({y: old_y - 100})
+      .duration(150)
+      .start()
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .onComplete(function() {
+      });
   }
 }
 
@@ -1063,7 +1220,7 @@ Game.prototype.changeTypingText = function(new_word, found_pen) {
   } else if (this.thing_to_type == "TRAIN") {
     this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Trains/icon.png"));
   } else if (this.thing_to_type == "MARIMBA") {
-    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/marimba_icon.png"));
+    this.typing_picture = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_icon.png"));
   } else if (!(this.thing_to_type in animated_animals) && !(animals[this.thing_to_type].movement == "arboreal")) {
     let thing = this.thing_to_type.toLowerCase();
     if (animals[this.thing_to_type].variations > 1) thing += "_1";
@@ -1758,6 +1915,8 @@ Game.prototype.activateMarimba = function() {
   soundEffect("success");
     
   stopMusic();
+
+  this.marimba_layer.visible = true;
 
   this.display_typing_allowed = false;
 
