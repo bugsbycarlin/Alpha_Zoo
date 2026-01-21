@@ -134,6 +134,7 @@ animals = {
     sound: "bear",
     pond: "any",
     terrace: true,
+    movement: "walk",
     mouth: [314, 327],
     butt: [188, 338],
     land: "forest",
@@ -143,6 +144,7 @@ animals = {
     sound: "bear",
     pond: "small",
     terrace: true,
+    movement: "walk",
     mouth: [314, 327],
     butt: [188, 338],
     land: "forest",
@@ -354,6 +356,7 @@ animals = {
     food: "herbivore",
   },
   "ALPACA": {
+    movement: "walk",
     mouth: [306, 256],
     butt: [172, 319],
     food: "herbivore",
@@ -530,6 +533,9 @@ animated_animals = {
   "OWL":0,
   "PEACOCK":0,
   "COW":0,
+  "BROWN_BEAR":0,
+  "BLACK_BEAR":0,
+  "ALPACA":0,
 }
 
 

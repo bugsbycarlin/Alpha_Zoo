@@ -194,7 +194,11 @@ class Game {
       .add("Art/Animals/orangutan.json")
 
       // new MidJourney generated animations
+      .add("Art/Animals/alpaca.json")
+      .add("Art/Animals/brown_bear.json")
+      .add("Art/Animals/black_bear.json")
       .add("Art/Animals/cow.json")
+
 
       .add("Art/Food/fruit.json")
       .add("Art/Food/steak.json")

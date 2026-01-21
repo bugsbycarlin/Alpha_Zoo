@@ -301,7 +301,7 @@ Game.prototype.makeUI = function() {
   this.map_visible = false;
   screen.addChild(this.map_border);
 
-  this.animal_count_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/brown_bear.png"));
+  this.animal_count_glyph = new PIXI.Sprite(PIXI.Texture.from("Art/brown_bear_glyph.png"));
   this.animal_count_glyph.anchor.set(1,0.5);
   this.animal_count_glyph.position.set(this.width + 40, 33);
   this.animal_count_glyph.scale.set(0.4, 0.4)
