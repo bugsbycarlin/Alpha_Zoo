@@ -780,11 +780,11 @@ Game.prototype.makeMapPens = function() {
         let polygon = [];
         let center_x = square_width * i + square_width / 2;
         let center_y = square_width * (j + 1) - 200; // 100 pixels of path, 100 pixels of space until the gift shop door.
-        polygon.push([center_x + 120, center_y - 200]); 
-        polygon.push([center_x - 120, center_y - 200]); // now we're back to the proper exterior
-        polygon.push([center_x - 120, center_y - 230]); // the top is 250 from the bottom, with a bit allowed for the player to walk partially out of view behind the marimba.
-        polygon.push([center_x + 120, center_y - 230]);
-        polygon.push([center_x + 120, center_y - 200]);
+        polygon.push([center_x + 120, center_y - 210]); 
+        polygon.push([center_x - 120, center_y - 170]); // now we're back to the proper exterior
+        polygon.push([center_x - 120, center_y - 250]); // the top is 250 from the bottom, with a bit allowed for the player to walk partially out of view behind the marimba.
+        polygon.push([center_x + 120, center_y - 250]);
+        polygon.push([center_x + 120, center_y - 210]);
 
         this.zoo_pens.push({
           use: false,

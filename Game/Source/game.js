@@ -184,6 +184,7 @@ class Game {
       .add("Art/Terrain/light_grass.png")
       .add("Art/Terrain/light_round.png")
 
+      // old two frame animations
       .add("Art/Animals/parrot.json")
       .add("Art/Animals/owl.json")
       .add("Art/Animals/peacock.json")
@@ -191,6 +192,9 @@ class Game {
       .add("Art/Animals/sloth.json")
       .add("Art/Animals/lemur.json")
       .add("Art/Animals/orangutan.json")
+
+      // new MidJourney generated animations
+      .add("Art/Animals/cow.json")
 
       .add("Art/Food/fruit.json")
       .add("Art/Food/steak.json")

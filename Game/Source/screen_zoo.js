@@ -423,32 +423,10 @@ Game.prototype.makeMarimbaScreen = function() {
   this.marimba_instrument.position.set(0, 0);
   this.marimba_layer.addChild(this.marimba_instrument);
 
-  this.marimba_letters_4 = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/cdefgab_4.png"));
-  this.marimba_letters_4.anchor.set(0,0);
-  this.marimba_letters_4.position.set(0, 0);
-  this.marimba_layer.addChild(this.marimba_letters_4);
-
-  this.marimba_letters_5 = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/cdefgab_5.png"));
-  this.marimba_letters_5.anchor.set(0,0);
-  this.marimba_letters_5.position.set(0, 0);
-  this.marimba_layer.addChild(this.marimba_letters_5);
-  this.marimba_letters_5.visible = false;
-
-  this.marimba_scale = 4;
-
-  this.marimba_left_arrow = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_left.png"));
-  this.marimba_left_arrow.anchor.set(0.5,0.5);
-  this.marimba_left_arrow.position.set(550, 190);
-  this.marimba_left_arrow.scale.set(2, 2)
-  this.marimba_layer.addChild(this.marimba_left_arrow);
-  this.marimba_left_arrow.visible = false;
-
-  this.marimba_right_arrow = new PIXI.Sprite(PIXI.Texture.from("Art/arrow_right.png"));
-  this.marimba_right_arrow.anchor.set(0.5,0.5);
-  this.marimba_right_arrow.position.set(885, 190);
-  this.marimba_right_arrow.scale.set(2, 2)
-  this.marimba_layer.addChild(this.marimba_right_arrow);
-
+  this.marimba_notes = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_notes.png"));
+  this.marimba_notes.anchor.set(0,0);
+  this.marimba_notes.position.set(0, 0);
+  this.marimba_layer.addChild(this.marimba_notes);
 
   this.left_mallet = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_mallet.png"));
   this.left_mallet.anchor.set(0.5,0.166);
@@ -463,6 +441,9 @@ Game.prototype.makeMarimbaScreen = function() {
   this.right_mallet.position.set(650, 600);
   this.right_mallet.scale.set(1, 1)
   this.marimba_layer.addChild(this.right_mallet);
+
+  this.last_mallet = this.left_mallet;
+  this.last_marimba_note = "";
 
   this.marimba_positions = {
     "c4":[390,425],
@@ -704,36 +685,35 @@ Game.prototype.zooKeyDown = function(ev) {
       if (this.music == null && music_volume > 0) setMusic("background_music");
     }
 
-    if (key === "ArrowLeft" || key === "ArrowRight") {
-      if (this.marimba_scale === 4) {
-        this.marimba_scale = 5;
-        this.marimba_letters_4.visible = false;
-        this.marimba_letters_5.visible = true;
-        this.marimba_left_arrow.visible = true;
-        this.marimba_right_arrow.visible = false;
-      } else {
-        this.marimba_scale = 4;
-        this.marimba_letters_4.visible = true;
-        this.marimba_letters_5.visible = false;
-        this.marimba_left_arrow.visible = false;
-        this.marimba_right_arrow.visible = true;
-      }
-    }
 
-    if (key === "1" || key === "c" || key === "C") {
-      this.playMarimba("c");
-    } else if (key === "2" || key === "d" || key === "D") {
-      this.playMarimba("d");
-    } else if (key === "3" || key === "e" || key === "E") {
-      this.playMarimba("e");
-    } else if (key === "4" || key === "f" || key === "F") {
-      this.playMarimba("f");
-    } else if (key === "5" || key === "g" || key === "G") {
-      this.playMarimba("g");
-    } else if (key === "6" || key === "a" || key === "A") {
-      this.playMarimba("a");
-    } else if (key === "7" || key === "b" || key === "B") {
-      this.playMarimba("b");
+    if (key === "c" || key === "C") {
+      this.playMarimba("c4");
+    } else if (key === "d" || key === "D") {
+      this.playMarimba("d4");
+    } else if (key === "e" || key === "E") {
+      this.playMarimba("e4");
+    } else if (key === "f" || key === "F") {
+      this.playMarimba("f4");
+    } else if (key === "g" || key === "G") {
+      this.playMarimba("g4");
+    } else if (key === "a" || key === "A") {
+      this.playMarimba("a4");
+    } else if (key === "b" || key === "B") {
+      this.playMarimba("b4");
+    } else if (key === "1") {
+      this.playMarimba("c5");
+    } else if (key === "2") {
+      this.playMarimba("d5");
+    } else if (key === "3") {
+      this.playMarimba("e5");
+    } else if (key === "4") {
+      this.playMarimba("f5");
+    } else if (key === "5") {
+      this.playMarimba("g5");
+    } else if (key === "6") {
+      this.playMarimba("a5");
+    } else if (key === "7") {
+      this.playMarimba("b5");
     }
   }
 
@@ -919,47 +899,35 @@ Game.prototype.zooKeyDown = function(ev) {
 }
 
 
-Game.prototype.playMarimba = function(letter) {
+Game.prototype.playMarimba = function(note) {
+  let location = this.marimba_positions[note];
 
-  let code = letter + this.marimba_scale.toString();
-  let location = this.marimba_positions[code];
+  console.log("play");
 
-  soundEffect(code);
-  if (letter === "c" || letter === "d" || letter == "e") {
-    this.left_mallet.position.set(location[0], location[1])
-    let old_y = this.left_mallet.y;
-    new TWEEN.Tween(this.left_mallet)
-      .to({y: old_y + 50})
-      .duration(50)
-      .start()
-      .easing(TWEEN.Easing.Quadratic.In)
-      .onComplete(function() {
-      });
-    new TWEEN.Tween(this.left_mallet)
-      .to({y: old_y - 100})
-      .duration(150)
-      .start()
-      .easing(TWEEN.Easing.Quadratic.Out)
-      .onComplete(function() {
-      });
-  } else {
-    this.right_mallet.position.set(location[0], location[1])
-    let old_y = this.right_mallet.y;
-    new TWEEN.Tween(this.right_mallet)
-      .to({y: old_y + 50})
-      .duration(50)
-      .start()
-      .easing(TWEEN.Easing.Quadratic.In)
-      .onComplete(function() {
-      });
-    new TWEEN.Tween(this.right_mallet)
-      .to({y: old_y - 100})
-      .duration(150)
-      .start()
-      .easing(TWEEN.Easing.Quadratic.Out)
-      .onComplete(function() {
-      });
+  soundEffect(note);
+
+  if (this.last_marimba_note != note) {
+    this.last_mallet = this.last_mallet === this.right_mallet ? this.left_mallet : this.right_mallet;
   }
+
+  this.last_marimba_note = note;
+
+  this.last_mallet.position.set(location[0], location[1])
+  let old_y = this.last_mallet.y;
+  new TWEEN.Tween(this.last_mallet)
+    .to({y: old_y + 50})
+    .duration(50)
+    .start()
+    .easing(TWEEN.Easing.Quadratic.In)
+    .onComplete(function() {
+    });
+  new TWEEN.Tween(this.last_mallet)
+    .to({y: old_y - 100})
+    .duration(150)
+    .start()
+    .easing(TWEEN.Easing.Quadratic.Out)
+    .onComplete(function() {
+    });
 }
 
 
