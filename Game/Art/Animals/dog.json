@@ -1,0 +1,207 @@
+{"frames": {
+
+"dog_walk00.png":
+{
+	"frame": {"x":383,"y":1,"w":175,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":179,"y":250,"w":175,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk01.png":
+{
+	"frame": {"x":1,"y":155,"w":179,"h":165},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":175,"y":250,"w":179,"h":165},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk02.png":
+{
+	"frame": {"x":373,"y":166,"w":174,"h":165},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":179,"y":246,"w":174,"h":165},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk03.png":
+{
+	"frame": {"x":373,"y":166,"w":174,"h":165},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":179,"y":246,"w":174,"h":165},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk04.png":
+{
+	"frame": {"x":560,"y":1,"w":168,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":184,"y":246,"w":168,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk05.png":
+{
+	"frame": {"x":735,"y":166,"w":171,"h":167},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":183,"y":242,"w":171,"h":167},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk06.png":
+{
+	"frame": {"x":1,"y":492,"w":174,"h":172},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":179,"y":243,"w":174,"h":172},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk07.png":
+{
+	"frame": {"x":735,"y":506,"w":183,"h":173},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":171,"y":242,"w":183,"h":173},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk08.png":
+{
+	"frame": {"x":359,"y":503,"w":182,"h":171},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":244,"w":182,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk09.png":
+{
+	"frame": {"x":359,"y":503,"w":182,"h":171},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":244,"w":182,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk10.png":
+{
+	"frame": {"x":1,"y":322,"w":178,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":177,"y":246,"w":178,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk11.png":
+{
+	"frame": {"x":549,"y":166,"w":184,"h":166},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":248,"w":184,"h":166},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk12.png":
+{
+	"frame": {"x":543,"y":505,"w":190,"h":171},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":167,"y":247,"w":190,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk13.png":
+{
+	"frame": {"x":757,"y":335,"w":191,"h":169},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":167,"y":247,"w":191,"h":169},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk14.png":
+{
+	"frame": {"x":564,"y":335,"w":191,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":168,"y":247,"w":191,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk15.png":
+{
+	"frame": {"x":564,"y":335,"w":191,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":168,"y":247,"w":191,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk16.png":
+{
+	"frame": {"x":369,"y":334,"w":193,"h":167},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":165,"y":247,"w":193,"h":167},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk17.png":
+{
+	"frame": {"x":730,"y":1,"w":191,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":166,"y":249,"w":191,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk18.png":
+{
+	"frame": {"x":190,"y":1,"w":191,"h":159},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":165,"y":251,"w":191,"h":159},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk19.png":
+{
+	"frame": {"x":1,"y":1,"w":187,"h":152},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":167,"y":257,"w":187,"h":152},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk20.png":
+{
+	"frame": {"x":182,"y":162,"w":189,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":166,"y":249,"w":189,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk21.png":
+{
+	"frame": {"x":182,"y":162,"w":189,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":166,"y":249,"w":189,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk22.png":
+{
+	"frame": {"x":181,"y":327,"w":186,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":170,"y":244,"w":186,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"dog_walk23.png":
+{
+	"frame": {"x":177,"y":497,"w":180,"h":170},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":175,"y":241,"w":180,"h":170},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"dog": ["dog_walk00.png","dog_walk01.png","dog_walk02.png","dog_walk03.png","dog_walk04.png","dog_walk05.png","dog_walk06.png","dog_walk07.png","dog_walk08.png","dog_walk09.png","dog_walk10.png","dog_walk11.png","dog_walk12.png","dog_walk13.png","dog_walk14.png","dog_walk15.png","dog_walk16.png","dog_walk17.png","dog_walk18.png","dog_walk19.png","dog_walk20.png","dog_walk21.png","dog_walk22.png","dog_walk23.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "dog.png",
+	"format": "RGBA8888",
+	"size": {"w":949,"h":680},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:cbf9d84517eabc8a1ec171210e4c9f57:088d9ba3dd045992f9a74398eb1f29f7:ec6c3e0b9eb3cd3c555a7c426f3b0ee8$"
+}
+}

@@ -58,6 +58,7 @@ animals = {
   },
   "BABOON": {
     land: "sand",
+    movement: "walk",
     mouth: [288, 328],
     butt: [192, 350],
     food: "omnivore",
@@ -110,6 +111,7 @@ animals = {
     food: "carnivore",
   },
   "DOG": {
+    movement: "walk",
     mouth: [292, 328],
     butt: [204, 348],
     food: "omnivore",
@@ -536,6 +538,8 @@ animated_animals = {
   "BROWN_BEAR":0,
   "BLACK_BEAR":0,
   "ALPACA":0,
+  "DOG":0,
+  "BABOON":0,
 }
 
 
@@ -892,8 +896,11 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           animal.land_angle = (Math.random() * 360) * Math.PI / 180;          
         }
 
-        // animation test for bouncers
-        if (animal.animated) animal.sprite.play();
+        if (animal.animated && !animal.sprite.playing) {
+          // animal.sprite.currentFrame = dice(animal.sprite.totalFrames); 
+          animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
+          animal.sprite.play();
+        }
         // if (animal.animated) {
         //   if (self.timeSince(animal.last_animated) > walk_frame_time) {
         //     if (animal.sprite.currentFrame == 0) {
@@ -1192,5 +1199,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
     animal.computeVisibility();
   }
 
+  console.log(animal);
   return animal;
 }

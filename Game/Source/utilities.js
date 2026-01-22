@@ -37,6 +37,11 @@ function replaceAll(string, search, replace) {
 }
 
 
+function pick(some_list) {
+  return some_list[Math.floor(Math.random() * some_list.length)]
+}
+
+
 lloydRelaxation = function (points, width, height) {
   let vals = [];
   for(let i = 0; i < points.length; i++) {
@@ -306,8 +311,16 @@ function resumeAllDelays() {
   }
 }
 
+
+// This function picks something from a list
 function pick(some_list) {
   return some_list[Math.floor(Math.random() * some_list.length)]
+}
+
+
+// This function chooses a random number between 1 and N
+function dice(number) {
+  return Math.floor(Math.random() * number) + 1;
 }
 
 
