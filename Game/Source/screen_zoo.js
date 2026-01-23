@@ -418,16 +418,6 @@ Game.prototype.makeMarimbaScreen = function() {
   this.marimba_background.position.set(0, 0);
   this.marimba_layer.addChild(this.marimba_background);
 
-  this.marimba_instrument = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_large.png"));
-  this.marimba_instrument.anchor.set(0,0);
-  this.marimba_instrument.position.set(0, 0);
-  this.marimba_layer.addChild(this.marimba_instrument);
-
-  this.marimba_notes = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_notes.png"));
-  this.marimba_notes.anchor.set(0,0);
-  this.marimba_notes.position.set(0, 0);
-  this.marimba_layer.addChild(this.marimba_notes);
-
   this.left_mallet = new PIXI.Sprite(PIXI.Texture.from("Art/Marimba/marimba_mallet.png"));
   this.left_mallet.anchor.set(0.5,0.166);
   this.left_mallet.angle = 10;
@@ -446,20 +436,20 @@ Game.prototype.makeMarimbaScreen = function() {
   this.last_marimba_note = "";
 
   this.marimba_positions = {
-    "c4":[390,425],
-    "d4":[436,419],
-    "e4":[490,411],
-    "f4":[542,405],
-    "g4":[594,399],
-    "a4":[645,394],
-    "b4":[698,388],
-    "c5":[748,381],
-    "d5":[800,377],
-    "e5":[852,368],
-    "f5":[904,363],
-    "g5":[957,354],
-    "a5":[1009,350],
-    "b5":[1060,344]
+    "c4":[390,455],
+    "d4":[436,449],
+    "e4":[490,441],
+    "f4":[542,435],
+    "g4":[594,429],
+    "a4":[645,424],
+    "b4":[698,418],
+    "c5":[748,411],
+    "d5":[800,407],
+    "e5":[852,398],
+    "f5":[904,393],
+    "g5":[957,384],
+    "a5":[1009,380],
+    "b5":[1060,374]
   };
 
 

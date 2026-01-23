@@ -70,6 +70,7 @@ animals = {
     food: "herbivore",
   },
   "ZEBRA": {
+    movement: "walk",
     mouth: [317, 318],
     butt: [183, 342],
     pond: "small",
@@ -244,6 +245,7 @@ animals = {
   "PIG": {
     land: "sand",
     pond: "small",
+    movement: "walk",
     mouth: [313, 354],
     butt: [178, 319],
     food: "omnivore",
@@ -264,6 +266,7 @@ animals = {
     food: ["micro"],
   },
   "SHEEP": {
+    movement: "walk",
     mouth: [312, 349],
     butt: [181, 334],
     food: "herbivore",
@@ -276,6 +279,7 @@ animals = {
     land: "grass",
   },
   "DEER": {
+    movement: "walk",
     mouth: [317, 327],
     butt: [192, 332],
     land: "forest",
@@ -540,6 +544,10 @@ animated_animals = {
   "ALPACA":0,
   "DOG":0,
   "BABOON":0,
+  "ZEBRA":0,
+  "DEER":0,
+  "SHEEP":0,
+  "PIG":0,
 }
 
 

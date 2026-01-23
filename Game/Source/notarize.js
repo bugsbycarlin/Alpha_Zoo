@@ -18,16 +18,33 @@ exports.default = async function notarizing(context) {
 
   const appName = context.packager.appInfo.productFilename;
 
+  // console.log("HI THERE");
+  // console.log(process.env.APPLEID);
+  // // xcrun altool --list-providers -u $APPLEID -p $APPLEIDPASS
+  // console.log(process.env.APPLEPROVIDER);
+
+  // return await notarize({
+  //   appBundleId: 'com.alphazoo.coldwarkeyboards',
+  //   appPath: `${appOutDir}/${appName}.app`,
+  //   appleId: process.env.APPLEID,
+  //   appleIdPassword: process.env.APPLEIDPASS,
+  //   ascProvider: process.env.APPLEPROVIDER,
+  // });
+
   console.log("HI THERE");
   console.log(process.env.APPLEID);
   // xcrun altool --list-providers -u $APPLEID -p $APPLEIDPASS
   console.log(process.env.APPLEPROVIDER);
+  console.log(process.env.APPLETEAMID);
+
 
   return await notarize({
-    appBundleId: 'com.alphazoo.coldwarkeyboards',
+    appBundleId: 'com.alphazoo.sovietcomputerlab',
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLEID,
     appleIdPassword: process.env.APPLEIDPASS,
     ascProvider: process.env.APPLEPROVIDER,
+    teamId: process.env.APPLETEAMID,
+    tool:'notarytool',
   });
 };

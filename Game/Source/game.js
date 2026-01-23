@@ -199,7 +199,11 @@ class Game {
       .add("Art/Animals/brown_bear.json")
       .add("Art/Animals/black_bear.json")
       .add("Art/Animals/cow.json")
+      .add("Art/Animals/deer.json")
       .add("Art/Animals/dog.json")
+      .add("Art/Animals/pig.json")
+      .add("Art/Animals/sheep.json")
+      .add("Art/Animals/zebra.json")
 
 
       .add("Art/Food/fruit.json")
