@@ -16,12 +16,14 @@ animals = {
   "HIPPO": {
     land: "grass",
     pond: "large",
+    movement: "walk",
     mouth: [320, 344],
     butt: [166, 335],
     food: "herbivore",
   },
   "RHINO": {
     land: "sand",
+    movement: "walk",
     mouth: [307, 355],
     butt: [179, 337],
     food: "herbivore",
@@ -64,6 +66,7 @@ animals = {
     food: "omnivore",
   },
   "GIRAFFE": {
+    movement: "walk",
     mouth: [332, 198],
     pond: "small",
     butt: [168, 319],
@@ -85,6 +88,7 @@ animals = {
   "ELEPHANT": {
     land: "sand",
     pond: "small",
+    movement: "walk",
     mouth: [311, 307],
     butt: [167, 328],
     food: "herbivore",
@@ -230,6 +234,7 @@ animals = {
     pond: "small",
   },
   "YAK": {
+    movement: "walk",
     mouth: [316, 352],
     butt: [175, 344],
     terrace: "rock",
@@ -548,6 +553,11 @@ animated_animals = {
   "DEER":0,
   "SHEEP":0,
   "PIG":0,
+  "HIPPO":0,
+  "YAK":0,
+  "RHINO":0,
+  "GIRAFFE":1,
+  "ELEPHANT":0,
 }
 
 
@@ -907,6 +917,9 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         if (animal.animated && !animal.sprite.playing) {
           // animal.sprite.currentFrame = dice(animal.sprite.totalFrames); 
           animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
+          if (animated_animals[animal.type] === 1) {
+            animal.sprite.animationSpeed = 0.5;
+          }
           animal.sprite.play();
         }
         // if (animal.animated) {
