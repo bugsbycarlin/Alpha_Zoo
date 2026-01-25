@@ -1,0 +1,207 @@
+{"frames": {
+
+"tiger00.png":
+{
+	"frame": {"x":739,"y":826,"w":276,"h":171},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":102,"y":252,"w":276,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger01.png":
+{
+	"frame": {"x":0,"y":1022,"w":277,"h":173},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":101,"y":251,"w":277,"h":173},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger02.png":
+{
+	"frame": {"x":283,"y":790,"w":277,"h":175},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":100,"y":249,"w":277,"h":175},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger03.png":
+{
+	"frame": {"x":283,"y":512,"w":278,"h":175},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":99,"y":250,"w":278,"h":175},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger04.png":
+{
+	"frame": {"x":0,"y":0,"w":512,"h":512},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":512},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger05.png":
+{
+	"frame": {"x":0,"y":512,"w":283,"h":172},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":95,"y":252,"w":283,"h":172},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger06.png":
+{
+	"frame": {"x":512,"y":510,"w":285,"h":171},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":93,"y":253,"w":285,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger07.png":
+{
+	"frame": {"x":512,"y":171,"w":288,"h":171},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":90,"y":253,"w":288,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger08.png":
+{
+	"frame": {"x":512,"y":0,"w":289,"h":171},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":89,"y":252,"w":289,"h":171},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger09.png":
+{
+	"frame": {"x":512,"y":342,"w":287,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":91,"y":251,"w":287,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger10.png":
+{
+	"frame": {"x":0,"y":684,"w":283,"h":170},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":94,"y":250,"w":283,"h":170},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger11.png":
+{
+	"frame": {"x":458,"y":681,"w":281,"h":169},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":97,"y":251,"w":281,"h":169},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger12.png":
+{
+	"frame": {"x":0,"y":854,"w":278,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":100,"y":252,"w":278,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger13.png":
+{
+	"frame": {"x":797,"y":550,"w":276,"h":166},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":102,"y":253,"w":276,"h":166},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger14.png":
+{
+	"frame": {"x":277,"y":1067,"w":275,"h":165},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":254,"w":275,"h":165},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger15.png":
+{
+	"frame": {"x":446,"y":1185,"w":275,"h":164},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":255,"w":275,"h":164},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger16.png":
+{
+	"frame": {"x":800,"y":275,"w":275,"h":163},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":256,"w":275,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger17.png":
+{
+	"frame": {"x":610,"y":1185,"w":275,"h":163},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":256,"w":275,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger18.png":
+{
+	"frame": {"x":801,"y":0,"w":275,"h":162},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":256,"w":275,"h":162},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger19.png":
+{
+	"frame": {"x":773,"y":1102,"w":275,"h":163},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":255,"w":275,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger20.png":
+{
+	"frame": {"x":170,"y":1342,"w":276,"h":164},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":102,"y":254,"w":276,"h":164},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger21.png":
+{
+	"frame": {"x":458,"y":1018,"w":276,"h":167},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":102,"y":253,"w":276,"h":167},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger22.png":
+{
+	"frame": {"x":458,"y":850,"w":276,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":102,"y":253,"w":276,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"tiger23.png":
+{
+	"frame": {"x":0,"y":1195,"w":277,"h":170},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":101,"y":252,"w":277,"h":170},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"tiger": ["tiger00.png","tiger01.png","tiger02.png","tiger03.png","tiger04.png","tiger05.png","tiger06.png","tiger07.png","tiger08.png","tiger09.png","tiger10.png","tiger11.png","tiger12.png","tiger13.png","tiger14.png","tiger15.png","tiger16.png","tiger17.png","tiger18.png","tiger19.png","tiger20.png","tiger21.png","tiger22.png","tiger23.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "tiger.png",
+	"format": "RGBA8888",
+	"size": {"w":963,"h":1506},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8302625bf27324cfd44cb03f6731bbec:633fa03cf648604c89c1c1d8245621c9:0ee200e8b36fd3d4775c4457b0488680$"
+}
+}

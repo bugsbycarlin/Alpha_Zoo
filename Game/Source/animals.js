@@ -9,6 +9,7 @@
 
 animals = {
   "LION": {
+    movement: "walk",
     mouth: [304, 326],
     butt: [193, 350],
     food: "carnivore",
@@ -94,11 +95,13 @@ animals = {
     food: "herbivore",
   },
   "TIGER": {
+    movement: "walk",
     mouth: [316, 339],
     butt: [192, 354],
     food: "carnivore",
   },
   "CHEETAH": {
+    movement: "walk",
     mouth: [311, 342],
     butt: [194, 356],
     speed: 2,
@@ -106,11 +109,13 @@ animals = {
   },
   "LYNX": {
     sound: "zebra",
+    movement: "walk",
     mouth: [307, 345],
     butt: [200, 355],
     food: "carnivore",
   },
   "PANTHER": {
+    movement: "walk",
     mouth: [313, 339],
     butt: [194, 359],
     food: "carnivore",
@@ -291,6 +296,7 @@ animals = {
     food: "herbivore",
   },
   "GAZELLE": {
+    movement: "walk",
     mouth: [317, 327],
     butt: [192, 332],
     speed: 2,
@@ -543,21 +549,27 @@ animated_animals = {
   "PARROT":0,
   "OWL":0,
   "PEACOCK":0,
-  "COW":0,
-  "BROWN_BEAR":0,
-  "BLACK_BEAR":0,
-  "ALPACA":0,
-  "DOG":0,
-  "BABOON":0,
-  "ZEBRA":0,
-  "DEER":0,
-  "SHEEP":0,
-  "PIG":0,
-  "HIPPO":0,
-  "YAK":0,
-  "RHINO":0,
-  "GIRAFFE":1,
-  "ELEPHANT":0,
+  "COW":1,
+  "BROWN_BEAR":1,
+  "BLACK_BEAR":1,
+  "ALPACA":1,
+  "DOG":1,
+  "BABOON":1,
+  "ZEBRA":1,
+  "DEER":1,
+  "SHEEP":1,
+  "PIG":1,
+  "HIPPO":1,
+  "YAK":1,
+  "RHINO":1,
+  "GIRAFFE":0.5,
+  "ELEPHANT":1,
+  "GAZELLE":0.75,
+  "LYNX":1.15,
+  "PANTHER":1,
+  "TIGER":1,
+  "CHEETAH":1,
+  "LION":1,
 }
 
 
@@ -917,9 +929,9 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         if (animal.animated && !animal.sprite.playing) {
           // animal.sprite.currentFrame = dice(animal.sprite.totalFrames); 
           animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
-          if (animated_animals[animal.type] === 1) {
-            animal.sprite.animationSpeed = 0.5;
-          }
+          //if (animated_animals[animal.type] === 1) {
+          animal.sprite.animationSpeed = animated_animals[animal.type];
+          //}
           animal.sprite.play();
         }
         // if (animal.animated) {

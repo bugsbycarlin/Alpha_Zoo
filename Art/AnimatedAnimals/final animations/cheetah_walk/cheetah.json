@@ -1,0 +1,175 @@
+{"frames": {
+
+"cheetah00.png":
+{
+	"frame": {"x":0,"y":1501,"w":258,"h":154},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":116,"y":261,"w":258,"h":154},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah01.png":
+{
+	"frame": {"x":0,"y":1655,"w":256,"h":159},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":114,"y":256,"w":256,"h":159},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah02.png":
+{
+	"frame": {"x":256,"y":1670,"w":254,"h":164},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":112,"y":251,"w":254,"h":164},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah03.png":
+{
+	"frame": {"x":261,"y":1500,"w":251,"h":170},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":110,"y":245,"w":251,"h":170},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah04.png":
+{
+	"frame": {"x":264,"y":1250,"w":250,"h":173},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":105,"y":238,"w":250,"h":173},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah05.png":
+{
+	"frame": {"x":274,"y":744,"w":252,"h":179},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":104,"y":233,"w":252,"h":179},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah06.png":
+{
+	"frame": {"x":278,"y":493,"w":251,"h":182},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":101,"y":227,"w":251,"h":182},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah07.png":
+{
+	"frame": {"x":283,"y":245,"w":248,"h":185},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":100,"y":223,"w":248,"h":185},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah08.png":
+{
+	"frame": {"x":284,"y":0,"w":245,"h":187},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":109,"y":218,"w":245,"h":187},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah09.png":
+{
+	"frame": {"x":272,"y":996,"w":254,"h":177},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":118,"y":226,"w":254,"h":177},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah10.png":
+{
+	"frame": {"x":0,"y":1333,"w":261,"h":168},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":110,"y":232,"w":261,"h":168},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah11.png":
+{
+	"frame": {"x":0,"y":1173,"w":264,"h":160},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":110,"y":237,"w":264,"h":160},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah12.png":
+{
+	"frame": {"x":0,"y":1016,"w":270,"h":157},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":106,"y":239,"w":270,"h":157},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah13.png":
+{
+	"frame": {"x":0,"y":864,"w":272,"h":152},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":104,"y":241,"w":272,"h":152},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah14.png":
+{
+	"frame": {"x":0,"y":432,"w":278,"h":147},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":98,"y":243,"w":278,"h":147},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah15.png":
+{
+	"frame": {"x":0,"y":0,"w":284,"h":142},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":94,"y":245,"w":284,"h":142},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah16.png":
+{
+	"frame": {"x":0,"y":142,"w":283,"h":136},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":94,"y":248,"w":283,"h":136},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah17.png":
+{
+	"frame": {"x":0,"y":579,"w":275,"h":139},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":101,"y":244,"w":275,"h":139},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah18.png":
+{
+	"frame": {"x":0,"y":718,"w":274,"h":146},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":102,"y":237,"w":274,"h":146},
+	"sourceSize": {"w":512,"h":512}
+},
+"cheetah19.png":
+{
+	"frame": {"x":0,"y":278,"w":279,"h":154},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":97,"y":256,"w":279,"h":154},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"cheetah": ["cheetah00.png","cheetah01.png","cheetah02.png","cheetah03.png","cheetah04.png","cheetah05.png","cheetah06.png","cheetah07.png","cheetah08.png","cheetah09.png","cheetah10.png","cheetah11.png","cheetah12.png","cheetah13.png","cheetah14.png","cheetah15.png","cheetah16.png","cheetah17.png","cheetah18.png","cheetah19.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "cheetah.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":1834},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:76cd4a1eb2542b1949ebe6cf75935819:5dea96ee839817f922a87fe1f18552e3:28db3e85c21a54394d1b612cabfa4689$"
+}
+}

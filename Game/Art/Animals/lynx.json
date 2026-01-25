@@ -1,0 +1,183 @@
+{"frames": {
+
+"lynx00.png":
+{
+	"frame": {"x":986,"y":159,"w":186,"h":164},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":171,"y":256,"w":186,"h":164},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx01.png":
+{
+	"frame": {"x":606,"y":157,"w":178,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":256,"w":178,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx02.png":
+{
+	"frame": {"x":606,"y":157,"w":178,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":256,"w":178,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx03.png":
+{
+	"frame": {"x":606,"y":157,"w":178,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":256,"w":178,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx05.png":
+{
+	"frame": {"x":599,"y":324,"w":189,"h":170},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":167,"y":246,"w":189,"h":170},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx06.png":
+{
+	"frame": {"x":599,"y":324,"w":189,"h":170},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":167,"y":246,"w":189,"h":170},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx10.png":
+{
+	"frame": {"x":790,"y":325,"w":198,"h":180},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":160,"y":235,"w":198,"h":180},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx11.png":
+{
+	"frame": {"x":402,"y":319,"w":195,"h":167},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":162,"y":238,"w":195,"h":167},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx12.png":
+{
+	"frame": {"x":1,"y":305,"w":197,"h":165},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":160,"y":239,"w":197,"h":165},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx13.png":
+{
+	"frame": {"x":203,"y":145,"w":201,"h":160},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":155,"y":243,"w":201,"h":160},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx14.png":
+{
+	"frame": {"x":1,"y":144,"w":200,"h":159},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":155,"y":243,"w":200,"h":159},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx16.png":
+{
+	"frame": {"x":200,"y":307,"w":200,"h":165},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":155,"y":253,"w":200,"h":165},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx17.png":
+{
+	"frame": {"x":406,"y":155,"w":198,"h":162},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":157,"y":254,"w":198,"h":162},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx18.png":
+{
+	"frame": {"x":786,"y":159,"w":198,"h":163},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":157,"y":252,"w":198,"h":163},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx19.png":
+{
+	"frame": {"x":695,"y":1,"w":176,"h":154},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":178,"y":262,"w":176,"h":154},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx20.png":
+{
+	"frame": {"x":517,"y":1,"w":176,"h":152},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":179,"y":261,"w":176,"h":152},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx22.png":
+{
+	"frame": {"x":346,"y":1,"w":169,"h":142},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":185,"y":269,"w":169,"h":142},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx24.png":
+{
+	"frame": {"x":174,"y":1,"w":170,"h":141},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":185,"y":270,"w":170,"h":141},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx26.png":
+{
+	"frame": {"x":1,"y":1,"w":171,"h":138},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":183,"y":272,"w":171,"h":138},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx27.png":
+{
+	"frame": {"x":1,"y":1,"w":171,"h":138},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":183,"y":272,"w":171,"h":138},
+	"sourceSize": {"w":512,"h":512}
+},
+"lynx28.png":
+{
+	"frame": {"x":873,"y":1,"w":181,"h":156},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":173,"y":258,"w":181,"h":156},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"lynx": ["lynx00.png","lynx01.png","lynx02.png","lynx03.png","lynx05.png","lynx06.png","lynx10.png","lynx11.png","lynx12.png","lynx13.png","lynx14.png","lynx16.png","lynx17.png","lynx18.png","lynx19.png","lynx20.png","lynx22.png","lynx24.png","lynx26.png","lynx27.png","lynx28.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "lynx.png",
+	"format": "RGBA8888",
+	"size": {"w":1173,"h":506},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:c190651d87b8e3853fa0f35a60f480c4:bd88b3ae9b918895651efcc8e8978cc6:62e8ad5a654f2dee2cd69ae0d523b101$"
+}
+}
