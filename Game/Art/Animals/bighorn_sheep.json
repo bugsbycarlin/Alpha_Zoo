@@ -1,0 +1,575 @@
+{"frames": {
+
+"bighorn sheep00.png":
+{
+	"frame": {"x":275,"y":1973,"w":273,"h":222},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":148,"y":196,"w":273,"h":222},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep01.png":
+{
+	"frame": {"x":1,"y":1971,"w":272,"h":222},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":148,"y":196,"w":272,"h":222},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep02.png":
+{
+	"frame": {"x":1372,"y":1975,"w":272,"h":223},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":195,"w":272,"h":223},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep03.png":
+{
+	"frame": {"x":1646,"y":1975,"w":272,"h":223},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":195,"w":272,"h":223},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep04.png":
+{
+	"frame": {"x":550,"y":1973,"w":272,"h":222},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":196,"w":272,"h":222},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep05.png":
+{
+	"frame": {"x":1,"y":1748,"w":272,"h":221},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":197,"w":272,"h":221},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep06.png":
+{
+	"frame": {"x":1373,"y":1089,"w":272,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":198,"w":272,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep07.png":
+{
+	"frame": {"x":1647,"y":1089,"w":272,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":199,"w":272,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep08.png":
+{
+	"frame": {"x":1,"y":1305,"w":272,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":199,"w":272,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep09.png":
+{
+	"frame": {"x":1,"y":865,"w":271,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":199,"w":271,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep10.png":
+{
+	"frame": {"x":823,"y":869,"w":271,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":199,"w":271,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep11.png":
+{
+	"frame": {"x":550,"y":1088,"w":271,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":198,"w":271,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep12.png":
+{
+	"frame": {"x":275,"y":1308,"w":272,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":146,"y":198,"w":272,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep13.png":
+{
+	"frame": {"x":549,"y":1309,"w":272,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":146,"y":198,"w":272,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep14.png":
+{
+	"frame": {"x":823,"y":1309,"w":271,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":146,"y":198,"w":271,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep15.png":
+{
+	"frame": {"x":1,"y":1526,"w":272,"h":220},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":145,"y":197,"w":272,"h":220},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep16.png":
+{
+	"frame": {"x":1096,"y":1309,"w":273,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":198,"w":273,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep17.png":
+{
+	"frame": {"x":548,"y":650,"w":272,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":200,"w":272,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep18.png":
+{
+	"frame": {"x":274,"y":430,"w":272,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":200,"w":272,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep19.png":
+{
+	"frame": {"x":548,"y":431,"w":270,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":146,"y":201,"w":270,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep20.png":
+{
+	"frame": {"x":813,"y":215,"w":268,"h":214},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":203,"w":268,"h":214},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep21.png":
+{
+	"frame": {"x":1,"y":1,"w":267,"h":212},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":148,"y":205,"w":267,"h":212},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep22.png":
+{
+	"frame": {"x":270,"y":1,"w":266,"h":212},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":148,"y":205,"w":266,"h":212},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep23.png":
+{
+	"frame": {"x":538,"y":1,"w":267,"h":212},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":147,"y":205,"w":267,"h":212},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep24.png":
+{
+	"frame": {"x":807,"y":1,"w":268,"h":212},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":146,"y":204,"w":268,"h":212},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep25.png":
+{
+	"frame": {"x":1077,"y":1,"w":270,"h":212},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":145,"y":202,"w":270,"h":212},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep26.png":
+{
+	"frame": {"x":1349,"y":1,"w":271,"h":213},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":201,"w":271,"h":213},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep27.png":
+{
+	"frame": {"x":1083,"y":216,"w":272,"h":214},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":200,"w":272,"h":214},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep28.png":
+{
+	"frame": {"x":1357,"y":216,"w":272,"h":214},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":200,"w":272,"h":214},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep29.png":
+{
+	"frame": {"x":820,"y":432,"w":272,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":198,"w":272,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep30.png":
+{
+	"frame": {"x":822,"y":650,"w":273,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":197,"w":273,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep31.png":
+{
+	"frame": {"x":1097,"y":650,"w":273,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":197,"w":273,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep32.png":
+{
+	"frame": {"x":1096,"y":869,"w":272,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":196,"w":272,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep33.png":
+{
+	"frame": {"x":1370,"y":869,"w":272,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":196,"w":272,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep34.png":
+{
+	"frame": {"x":1371,"y":1310,"w":273,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":195,"w":273,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep35.png":
+{
+	"frame": {"x":1646,"y":1310,"w":273,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":196,"w":273,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep36.png":
+{
+	"frame": {"x":275,"y":1530,"w":274,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":197,"w":274,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep37.png":
+{
+	"frame": {"x":1644,"y":869,"w":273,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":197,"w":273,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep38.png":
+{
+	"frame": {"x":1372,"y":650,"w":273,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":198,"w":273,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep39.png":
+{
+	"frame": {"x":1647,"y":650,"w":273,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":198,"w":273,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep40.png":
+{
+	"frame": {"x":1094,"y":432,"w":273,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":199,"w":273,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep41.png":
+{
+	"frame": {"x":1369,"y":432,"w":272,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":199,"w":272,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep42.png":
+{
+	"frame": {"x":548,"y":869,"w":273,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":199,"w":273,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep43.png":
+{
+	"frame": {"x":1,"y":1085,"w":273,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":198,"w":273,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep44.png":
+{
+	"frame": {"x":276,"y":1088,"w":272,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":198,"w":272,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep45.png":
+{
+	"frame": {"x":823,"y":1089,"w":272,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":198,"w":272,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep46.png":
+{
+	"frame": {"x":274,"y":866,"w":272,"h":217},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":141,"y":199,"w":272,"h":217},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep47.png":
+{
+	"frame": {"x":1643,"y":432,"w":271,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":200,"w":271,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep48.png":
+{
+	"frame": {"x":1,"y":647,"w":271,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":200,"w":271,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep49.png":
+{
+	"frame": {"x":1,"y":430,"w":271,"h":215},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":201,"w":271,"h":215},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep50.png":
+{
+	"frame": {"x":1622,"y":1,"w":270,"h":213},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":203,"w":270,"h":213},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep51.png":
+{
+	"frame": {"x":1,"y":215,"w":269,"h":213},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":203,"w":269,"h":213},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep52.png":
+{
+	"frame": {"x":272,"y":215,"w":267,"h":213},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":146,"y":203,"w":267,"h":213},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep53.png":
+{
+	"frame": {"x":1631,"y":216,"w":269,"h":214},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":145,"y":202,"w":269,"h":214},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep54.png":
+{
+	"frame": {"x":541,"y":215,"w":270,"h":213},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":202,"w":270,"h":213},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep55.png":
+{
+	"frame": {"x":274,"y":648,"w":272,"h":216},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":200,"w":272,"h":216},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep56.png":
+{
+	"frame": {"x":1097,"y":1089,"w":274,"h":218},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":199,"w":274,"h":218},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep57.png":
+{
+	"frame": {"x":551,"y":1530,"w":276,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":198,"w":276,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep58.png":
+{
+	"frame": {"x":829,"y":1530,"w":276,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":198,"w":276,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep59.png":
+{
+	"frame": {"x":275,"y":1751,"w":276,"h":220},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":197,"w":276,"h":220},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep60.png":
+{
+	"frame": {"x":553,"y":1751,"w":275,"h":220},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":197,"w":275,"h":220},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep61.png":
+{
+	"frame": {"x":1381,"y":1752,"w":273,"h":221},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":196,"w":273,"h":221},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep62.png":
+{
+	"frame": {"x":824,"y":1973,"w":272,"h":222},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":196,"w":272,"h":222},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep63.png":
+{
+	"frame": {"x":1656,"y":1752,"w":272,"h":221},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":196,"w":272,"h":221},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep64.png":
+{
+	"frame": {"x":1098,"y":1974,"w":272,"h":222},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":196,"w":272,"h":222},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep65.png":
+{
+	"frame": {"x":830,"y":1751,"w":273,"h":220},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":197,"w":273,"h":220},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep66.png":
+{
+	"frame": {"x":1105,"y":1752,"w":274,"h":220},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":142,"y":198,"w":274,"h":220},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep67.png":
+{
+	"frame": {"x":1107,"y":1531,"w":273,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":199,"w":273,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep68.png":
+{
+	"frame": {"x":1382,"y":1531,"w":273,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":143,"y":199,"w":273,"h":219},
+	"sourceSize": {"w":512,"h":512}
+},
+"bighorn sheep69.png":
+{
+	"frame": {"x":1657,"y":1531,"w":273,"h":219},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":144,"y":199,"w":273,"h":219},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"bighorn_sheep": ["bighorn sheep00.png","bighorn sheep01.png","bighorn sheep02.png","bighorn sheep03.png","bighorn sheep04.png","bighorn sheep05.png","bighorn sheep06.png","bighorn sheep07.png","bighorn sheep08.png","bighorn sheep09.png","bighorn sheep10.png","bighorn sheep11.png","bighorn sheep12.png","bighorn sheep13.png","bighorn sheep14.png","bighorn sheep15.png","bighorn sheep16.png","bighorn sheep17.png","bighorn sheep18.png","bighorn sheep19.png","bighorn sheep20.png","bighorn sheep21.png","bighorn sheep22.png","bighorn sheep23.png","bighorn sheep24.png","bighorn sheep25.png","bighorn sheep26.png","bighorn sheep27.png","bighorn sheep28.png","bighorn sheep29.png","bighorn sheep30.png","bighorn sheep31.png","bighorn sheep32.png","bighorn sheep33.png","bighorn sheep34.png","bighorn sheep35.png","bighorn sheep36.png","bighorn sheep37.png","bighorn sheep38.png","bighorn sheep39.png","bighorn sheep40.png","bighorn sheep41.png","bighorn sheep42.png","bighorn sheep43.png","bighorn sheep44.png","bighorn sheep45.png","bighorn sheep46.png","bighorn sheep47.png","bighorn sheep48.png","bighorn sheep49.png","bighorn sheep50.png","bighorn sheep51.png","bighorn sheep52.png","bighorn sheep53.png","bighorn sheep54.png","bighorn sheep55.png","bighorn sheep56.png","bighorn sheep57.png","bighorn sheep58.png","bighorn sheep59.png","bighorn sheep60.png","bighorn sheep61.png","bighorn sheep62.png","bighorn sheep63.png","bighorn sheep64.png","bighorn sheep65.png","bighorn sheep66.png","bighorn sheep67.png","bighorn sheep68.png","bighorn sheep69.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "bighorn_sheep.png",
+	"format": "RGBA8888",
+	"size": {"w":1931,"h":2199},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:dfea03d4fc61316512dc09d537511597:f4f852f35a08024d6ad11002e90db82a:74004742b39b2e3e54c34ee01d14157a$"
+}
+}

@@ -81,6 +81,8 @@ animals = {
     food: "herbivore",
   },
   "HORSE": {
+    speed: 1.5,
+    movement: "walk",
     mouth: [316, 347],
     butt: [179, 334],
     pond: "small",
@@ -265,6 +267,8 @@ animals = {
   "WARTHOG": {
     land: "sand",
     pond: "small",
+    speed:0.5,
+    movement: "walk",
     mouth: [313, 354],
     butt: [178, 319],
     food: "herbivore",
@@ -284,6 +288,8 @@ animals = {
     food: "herbivore",
   },
   "BIGHORN_SHEEP": {
+    movement: "walk",
+    speed:0.6,
     mouth: [327, 333],
     butt: [177, 317],
     food: "herbivore",
@@ -313,6 +319,8 @@ animals = {
     food: "herbivore",
   },
   "MOOSE": {
+    speed:0.7,
+    movement: "walk",
     mouth: [325, 332],
     butt: [158, 312],
     land: "forest",
@@ -581,6 +589,10 @@ animated_animals = {
   "WOLF":1,
   "CAT":0.75,
   "GOAT":0.75,
+  "HORSE":0.6,
+  "MOOSE":0.4,
+  "WARTHOG":0.4,
+  "BIGHORN_SHEEP":1,
 }
 
 
