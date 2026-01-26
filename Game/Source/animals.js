@@ -127,12 +127,14 @@ animals = {
     food: "omnivore",
   },
   "WOLF": {
+    movement: "walk",
     mouth: [297, 320],
     butt: [200, 351],
     land: "forest",
     food: "carnivore",
   },
   "CAT": {
+    movement: "walk",
     mouth: [292, 321],
     butt: [204, 342],
     food: "carnivore",
@@ -304,6 +306,7 @@ animals = {
   },
   "ELK": {
     sound: "deer",
+    movement: "walk",
     mouth: [314, 324],
     butt: [174, 333],
     land: "forest",
@@ -344,6 +347,8 @@ animals = {
     food: "omnivore",
   },
   "CAMEL": {
+    speed: 0.4,
+    movement: "walk",
     mouth: [343, 291],
     butt: [183, 363],
     land: "sand",
@@ -351,6 +356,7 @@ animals = {
     food: "herbivore",
   },
   "GOAT": {
+    movement: "walk",
     mouth: [314, 329],
     butt: [187, 331],
     terrace: "rock",
@@ -570,6 +576,11 @@ animated_animals = {
   "TIGER":1,
   "CHEETAH":1,
   "LION":1,
+  "CAMEL":0.5,
+  "ELK":0.6,
+  "WOLF":1,
+  "CAT":0.75,
+  "GOAT":0.75,
 }
 
 
