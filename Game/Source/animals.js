@@ -32,9 +32,10 @@ animals = {
   "TURTLE": {
     land: "grass",
     pond: "large",
+    movement: "walk",
     mouth: [314, 351],
     butt: [196, 372],
-    speed: 0.6,
+    speed: 0.4,
     food: "omnivore",
   },
   "OTTER": {
@@ -171,6 +172,8 @@ animals = {
     terrace: true,
     sound: "bear",
     pond: "large",
+    movement: "walk",
+    speed:0.9,
     mouth: [314, 327],
     butt: [188, 338],
     food: ["steak", "fish"],
@@ -193,6 +196,8 @@ animals = {
     food: ["fish"],
   },
   "PANDA_BEAR": {
+    movement: "walk",
+    speed: 0.7,
     mouth: [314, 327],
     butt: [188, 338],
     food: ["bamboo"],
@@ -216,6 +221,7 @@ animals = {
     mouth: [264, 324],
     butt: [235, 386],
     food: "omnivore",
+    variations: 5,
   },
   "OWL": {
     movement: "fly",
@@ -393,6 +399,8 @@ animals = {
     food: "herbivore",
   },
   "LLAMA": {
+    movement: "walk",
+    speed:0.6,
     mouth: [308, 240],
     butt: [177, 336],
     terrace: "rock",
@@ -461,7 +469,7 @@ animals = {
     butt: [218, 382],
     land: "water",
     food: "herbivore",
-    speed: 0.8,
+    speed: 0.5,
     movement: "undulate",
   },
   "DUCK": {
@@ -560,8 +568,8 @@ makeSections = function() {
 }
 
 animated_animals = {
-  "PARROT":0,
-  "OWL":0,
+  "PARROT":1,
+  "OWL":1,
   "PEACOCK":0,
   "COW":1,
   "BROWN_BEAR":1,
@@ -593,6 +601,11 @@ animated_animals = {
   "MOOSE":0.4,
   "WARTHOG":0.4,
   "BIGHORN_SHEEP":1,
+  "LLAMA":0.6,
+  "POLAR_BEAR":0.7,
+  "TURTLE":0.5,
+  "PANDA_BEAR":0.6,
+  "SWAN":0.4,
 }
 
 
@@ -662,6 +675,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.sprite = null;
   let filename = animal.type.toLowerCase();
   if (animals[animal_type].variations > 1) filename += "_" + Math.ceil(Math.random() * animals[animal_type].variations);
+  console.log("ANIMAL FILENAME " + filename);
   if (!animal.animated && animals[animal.type].movement != "arboreal") {
     animal.sprite = new PIXI.Sprite(PIXI.Texture.from("Art/Animals/" + filename + ".png"));
   } else {
@@ -1026,9 +1040,18 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           animal.sprite.scale.set(animal_scale, animal_scale);
         }
 
+        if (animal.animated && !animal.sprite.playing) {
+          // animal.sprite.currentFrame = dice(animal.sprite.totalFrames); 
+          animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
+          //if (animated_animals[animal.type] === 1) {
+          animal.sprite.animationSpeed = animated_animals[animal.type];
+          //}
+          animal.sprite.play();
+        }
+
         let outside = false;
         for (let a = 0; a < 360; a += 45) {
-          let p = [animal.x + 42 * Math.cos(a * Math.PI / 180), animal.y + 42 * Math.sin(a * Math.PI / 180)];
+          let p = [animal.x + 42 * Math.cos(a * Math.PI / 180), animal.y + 21 * Math.sin(a * Math.PI / 180)];
           if(!pointInsidePolygon(p, pen.polygon)) {
             outside = true;
           }
@@ -1077,15 +1100,20 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           }
         } else {
           // fliers are always animated
-          if (self.timeSince(animal.last_animated) > walk_frame_time) {
-            if (animal.sprite.currentFrame == 0) {
-              animal.sprite.gotoAndStop(1);
-              // animal.vy -= (0.5 + 0.55 * Math.random())
-            } else if (animal.sprite.currentFrame == 1) {
-              animal.sprite.gotoAndStop(0);
-              // animal.vy -= (0.2 + 0.3 * Math.random())
-            }
-            animal.last_animated = self.markTime();
+          // if (self.timeSince(animal.last_animated) > walk_frame_time) {
+          //   // if (animal.sprite.currentFrame == 0) {
+          //   //   animal.sprite.gotoAndStop(1);
+          //   //   // animal.vy -= (0.5 + 0.55 * Math.random())
+          //   // } else if (animal.sprite.currentFrame == 1) {
+          //   //   animal.sprite.gotoAndStop(0);
+          //   //   // animal.vy -= (0.2 + 0.3 * Math.random())
+          //   // }
+          //   // animal.last_animated = self.markTime();
+          // }
+          if (animal.animated && !animal.sprite.playing) {
+            animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
+            animal.sprite.animationSpeed = animated_animals[animal.type];
+            animal.sprite.play();
           }
 
           animal.vy += -0.6 + Math.random() * 1.2;
