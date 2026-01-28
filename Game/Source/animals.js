@@ -182,6 +182,8 @@ animals = {
     land: "ice",
     terrace: true,
     pond: "large",
+    movement: "walk",
+    speed:0.5,
     mouth: [258, 341],
     butt: [257, 392],
     min: 3,
@@ -204,6 +206,8 @@ animals = {
     land: "forest",
   },
   "FOX": {
+    movement: "walk",
+    speed:0.7,
     mouth: [279, 329],
     butt: [226, 395],
     food: "omnivore",
@@ -473,6 +477,7 @@ animals = {
     movement: "undulate",
   },
   "DUCK": {
+    movement: "walk",
     mouth: [314, 307],
     butt: [229, 382],
     land: "grass",
@@ -482,6 +487,7 @@ animals = {
     max: 5,
   },
   "CHICKEN": {
+    movement: "walk",
     mouth: [286, 311],
     butt: [219, 369],
     land: "grass",
@@ -491,6 +497,7 @@ animals = {
     variations: 2,
   },
   "GOOSE": {
+    movement: "walk",
     mouth: [334, 267],
     butt: [219, 373],
     land: "grass",
@@ -606,6 +613,11 @@ animated_animals = {
   "TURTLE":0.5,
   "PANDA_BEAR":0.6,
   "SWAN":0.4,
+  "FOX":0.7,
+  "GOOSE":0.6,
+  "CHICKEN":0.3,
+  "DUCK":0.4,
+  "PENGUIN":0.6,
 }
 
 
