@@ -48,6 +48,7 @@ animals = {
     food: "carnivore",
   },
   "GORILLA": {
+    movement: "walk",
     mouth: [284, 307],
     butt: [191, 345],
     land: "forest",
@@ -217,7 +218,8 @@ animals = {
     pond: "large",
     mouth: [354, 364],
     butt: [165, 392],
-    speed: 0.6,
+    speed: 0.4,
+    movement: "walk",
     food: "carnivore",
   },
   "PARROT": {
@@ -234,6 +236,8 @@ animals = {
     food: "carnivore",
   },
   "PEACOCK": {
+    movement: "walk",
+    speed:0.4,
     mouth: [252, 308],
     butt: [253, 402],
     food: "omnivore",
@@ -287,6 +291,7 @@ animals = {
   "ANTEATER": {
     land: "grass",
     terrace: "sand",
+    movement: "walk",
     mouth: [372, 325],
     butt: [203, 351],
     food: ["micro"],
@@ -349,12 +354,13 @@ animals = {
     food: "herbivore",
   },
   "MEERKAT": {
+    movement: "walk_and_stand",
     mouth: [266, 330],
     butt: [240, 398],
     land: "sand",
     terrace: true,
-    min: 3,
-    max: 5,
+    min: 7,
+    max: 14,
     food: "omnivore",
   },
   "RACCOON": {
@@ -452,13 +458,15 @@ animals = {
     tree_time: 9000,
   },
   "OSTRICH": {
+    movement: "walk",
     mouth: [308, 211],
     butt: [228, 344],
     land: "sand",
     food: "herbivore",
-    speed: 1.6,
+    speed: 1.2,
   },
   "FLAMINGO": {
+    movement: "walk",
     mouth: [320, 234],
     butt: [220, 326],
     land: "grass",
@@ -577,7 +585,7 @@ makeSections = function() {
 animated_animals = {
   "PARROT":1,
   "OWL":1,
-  "PEACOCK":0,
+  "PEACOCK":0.3,
   "COW":1,
   "BROWN_BEAR":1,
   "BLACK_BEAR":1,
@@ -618,6 +626,12 @@ animated_animals = {
   "CHICKEN":0.3,
   "DUCK":0.4,
   "PENGUIN":0.6,
+  "OSTRICH":0.6,
+  "FLAMINGO":0.4,
+  "GORILLA":0.6,
+  "ALLIGATOR":0.6,
+  "MEERKAT":0.6,
+  "ANTEATER":0.5,
 }
 
 
@@ -699,6 +713,17 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
   animal.height_container.addChild(animal.sprite);
 
+  if (animals[animal.type].movement === "walk_and_stand") {
+    animal.walk_sprite = animal.sprite;
+
+    animal.stand_sprite = new PIXI.AnimatedSprite(sheet.animations["stand"]);
+    animal.stand_sprite.scale.set(animal_scale, animal_scale);
+    animal.stand_sprite.anchor.set(0.5,0.75);
+
+    animal.height_container.addChild(animal.stand_sprite);
+    animal.stand_sprite.visible = false;
+  }
+
   animal.movement = animals[animal.type].movement;
 
   if (animal.movement == "arboreal") {
@@ -744,6 +769,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
   animal.eating_time = this.markTime();
   animal.eating_target = null;
 
+  animal.prepping_walk = 0;
+
   animal.update = function() {
 
     animal.eating_target = null;
@@ -758,10 +785,8 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       let food = self.foods[j];
       if (food.status == "ground" && (animal.movement != "fly" || animal.sprite.y == 0) &&
         distance(animal.x, animal.y + animal.sprite.y, food.x, food.y) < 70) {
-        animal.delay = 500 + 2000 * Math.random();
-        animal.delay_time = self.markTime();
-        // animal.food_target = food;
-        if (animal.animated) animal.sprite.gotoAndStop(0);
+
+        if (animal.animated) animal.stopMoving(false);
 
         if (self.timeSince(animal.eating_time) > 500) {
           // take a bite!
@@ -861,21 +886,26 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       }
     }
 
-    if (animal.delay == 0 && animal.eating == false) {
+    if (animal.delay == 0 && animal.prepping_walk == 2 && animal.eating == false && animal.movement == "walk_and_stand") {
+      animal.stand_sprite.visible = true;
+      animal.sprite.visible = false;
+      animal.stand_sprite.gotoAndStop(0);
+      animal.stand_sprite.animationSpeed = animated_animals[animal.type];
+      animal.stand_sprite.loop = false;
+      animal.stand_sprite.play();
+      animal.prepping_walk = 1;
+      animal.stand_sprite.onComplete = function() {
+        animal.prepping_walk = 0;
+        animal.stand_sprite.gotoAndStop(0);
+      }
+    }
+
+    if (animal.delay == 0 && animal.eating == false && animal.prepping_walk == 0) {
       
       if (animal.movement == "bounce" || (animal.movement == "arboreal" && animal.arboreal_state == "on_ground")) {
         //animal.sprite.x += animal.vx;
         animal.sprite.y += animal.vy;
-        animal.y += animal.land_speed * Math.sin(animal.land_angle);
-        animal.x += animal.land_speed * Math.cos(animal.land_angle);
-
-        if (Math.cos(animal.land_angle) < 0) {
-          animal.direction = -1;
-          animal.sprite.scale.set(-animal_scale, animal_scale);
-        } else {
-          animal.direction = 1;
-          animal.sprite.scale.set(animal_scale, animal_scale);
-        }
+        animal.move();
 
         let outside = false;
         for (let a = 0; a < 360; a += 45) {
@@ -912,10 +942,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           animal.sprite.y = 0;
 
           if(Math.random() < 0.05) {
-            animal.delay = 500 + 2000 * Math.random();
-            animal.delay_time = self.markTime();
-
-            if (animal.animated) animal.sprite.gotoAndStop(0);
+            if (animal.animated) animal.stopMoving(false);
 
             if (Math.random() < 0.75) animal.maybeJumpIntoATree();
 
@@ -925,22 +952,6 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
           }
 
           if (Math.random() < 0.1) animal.maybeJumpIntoATree();
-
-          if (Math.random() > 0.5) {
-            if (pen.land == "water" ||
-              (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true)) {
-              let droplet = new PIXI.Sprite(PIXI.Texture.from("Art/water_droplet.png"));
-              droplet.scale.set(animal_scale * 0.75);
-              droplet.anchor.set(0.5,0.5);
-              droplet.position.set(animal.sprite.x, animal.sprite.y - 1);
-              droplet.vx = -2 + 4 * Math.random();
-              droplet.vy = -3 + -2 * Math.random();
-              droplet.gravity = 1;
-              droplet.floor = 10;
-              animal.height_container.addChild(droplet);
-              self.freefalling.push(droplet);
-            }
-          }
         } else {
           animal.vy += 0.6;
           if (animal.type == "SLOTH") animal.vy -= 0.3;
@@ -948,18 +959,9 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       }
 
 
-      if (animal.movement == "walk") {
-        // animal.sprite.y += animal.vy;
-        animal.y += animal.land_speed * Math.sin(animal.land_angle);
-        animal.x += animal.land_speed * Math.cos(animal.land_angle);
-
-        if (Math.cos(animal.land_angle) < 0) {
-          animal.direction = -1;
-          animal.sprite.scale.set(-animal_scale, animal_scale);
-        } else {
-          animal.direction = 1;
-          animal.sprite.scale.set(animal_scale, animal_scale);
-        }
+      if (animal.movement == "walk" || animal.movement == "walk_and_stand") {
+        animal.sprite.y += animal.vy;
+        animal.move();
 
         let outside = false;
         for (let a = 0; a < 360; a += 45) {
@@ -976,81 +978,71 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         }
 
         if (animal.animated && !animal.sprite.playing) {
-          // animal.sprite.currentFrame = dice(animal.sprite.totalFrames); 
+          if (animal.movement == "walk_and_stand") {
+            animal.sprite.visible = true;
+            animal.stand_sprite.visible = false;
+          }
+
           animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
-          //if (animated_animals[animal.type] === 1) {
           animal.sprite.animationSpeed = animated_animals[animal.type];
-          //}
           animal.sprite.play();
         }
-        // if (animal.animated) {
-        //   if (self.timeSince(animal.last_animated) > walk_frame_time) {
-        //     if (animal.sprite.currentFrame == 0) {
-        //       animal.sprite.gotoAndStop(1);
-        //       // animal.vy -= (0.5 + 0.55 * Math.random())
-        //     } else if (animal.sprite.currentFrame == 1) {
-        //       animal.sprite.gotoAndStop(0);
-        //       // animal.vy -= (0.2 + 0.3 * Math.random())
-        //     }
-        //     animal.last_animated = self.markTime();
-        //   }
-        // }
 
-        // if (animal.sprite.y >= 0) {
-        //   animal.vy = -3.6;
-        //   if (animal.type == "KANGAROO" || animal.type == "FROG") animal.vy = -5;
-        //   if (animal.type == "SLOTH") animal.vy = -2.4;
-        //   animal.sprite.y = 0;
+        let stop_chance = 0.005;
+        if (animal.type === "MEERKAT") stop_chance = 0.0005;
+        if(Math.random() < stop_chance) {
+          if (animal.animated) animal.stopMoving(true);
 
-        //   if(Math.random() < 0.05) {
-        //     animal.delay = 500 + 2000 * Math.random();
-        //     animal.delay_time = self.markTime();
+          animal.maybeChangeDirection();
+        }
 
-        //     if (animal.animated) animal.sprite.gotoAndStop(0);
-
-        //     if (Math.random() < 0.75) animal.maybeJumpIntoATree();
-
-        //     if (animal.movement != "arboreal" || animal.arboreal_state == "on_ground") {
-        //       animal.maybeChangeDirection();
-        //     }
-        //   }
-
-        //   if (Math.random() < 0.1) animal.maybeJumpIntoATree();
-
-        //   if (Math.random() > 0.5) {
-        //     if (pen.land == "water" ||
-        //       (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true)) {
-        //       let droplet = new PIXI.Sprite(PIXI.Texture.from("Art/water_droplet.png"));
-        //       droplet.scale.set(animal_scale * 0.75);
-        //       droplet.anchor.set(0.5,0.5);
-        //       droplet.position.set(animal.sprite.x, animal.sprite.y - 1);
-        //       droplet.vx = -2 + 4 * Math.random();
-        //       droplet.vy = -3 + -2 * Math.random();
-        //       droplet.gravity = 1;
-        //       droplet.floor = 10;
-        //       animal.height_container.addChild(droplet);
-        //       self.freefalling.push(droplet);
-        //     }
-        //   }
-        // } else {
-        //   animal.vy += 0.6;
-        //   if (animal.type == "SLOTH") animal.vy -= 0.3;
-        // }
+        if (Math.random() > 0.5) {
+          if (pen.land == "water" ||
+            (pen.pond != null && pointInsidePolygon([animal.x, animal.y], pen.pond) == true)) {
+            let droplet = new PIXI.Sprite(PIXI.Texture.from("Art/water_droplet.png"));
+            droplet.scale.set(animal_scale * 0.75);
+            droplet.anchor.set(0.5,0.5);
+            droplet.position.set(animal.sprite.x, animal.sprite.y - 1);
+            droplet.vx = -2 + 4 * Math.random();
+            droplet.vy = -3 + -2 * Math.random();
+            droplet.gravity = 1;
+            droplet.floor = 10;
+            animal.height_container.addChild(droplet);
+            self.freefalling.push(droplet);
+          }
+        }
       }
+
+
+      // if (animal.movement == "walk_and_stand") {
+      //   // animal.sprite.y += animal.vy;
+      //   animal.move();
+
+      //   let outside = false;
+      //   for (let a = 0; a < 360; a += 45) {
+      //     let p = [animal.x + 42 * Math.cos(a * Math.PI / 180), animal.y + 42 * Math.sin(a * Math.PI / 180)];
+      //     if(!pointInsidePolygon(p, pen.polygon)) {
+      //       outside = true;
+      //     }
+      //   }
+      //   if (outside) {
+      //     animal.y -= animal.land_speed * Math.sin(animal.land_angle);
+      //     animal.x -= animal.land_speed * Math.cos(animal.land_angle);
+
+      //     animal.land_angle = (Math.random() * 360) * Math.PI / 180;          
+      //   }
+
+      //   if (animal.animated && !animal.sprite.playing) {
+      //     animal.sprite.gotoAndStop(dice(animal.sprite.totalFrames));
+      //     animal.sprite.animationSpeed = animated_animals[animal.type];
+      //     animal.sprite.play();
+      //   }
+      // }
 
 
       if (animal.movement == "undulate") {
         //animal.sprite.x += animal.vx;
-        animal.y += animal.land_speed * Math.sin(animal.land_angle);
-        animal.x += animal.land_speed * Math.cos(animal.land_angle);
-
-        if (Math.cos(animal.land_angle) < 0) {
-          animal.direction = -1;
-          animal.sprite.scale.set(-animal_scale, animal_scale);
-        } else {
-          animal.direction = 1;
-          animal.sprite.scale.set(animal_scale, animal_scale);
-        }
+        animal.move();
 
         if (animal.animated && !animal.sprite.playing) {
           // animal.sprite.currentFrame = dice(animal.sprite.totalFrames); 
@@ -1081,10 +1073,7 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
 
         if (Math.abs(animal.sprite.y) < 0.0005) {
           if(Math.random() < 0.1) {
-            animal.delay = 700 + 3000 * Math.random();
-            animal.delay_time = self.markTime();
-
-            if (animal.animated) animal.sprite.gotoAndStop(0);
+            if (animal.animated) animal.stopMoving(false);
 
             animal.maybeChangeDirection();
           }
@@ -1099,13 +1088,10 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
         if (animal.sprite.y >= 0) {
           
           if(Math.random() < 0.5) {
-            animal.delay = 500 + 2000 * Math.random();
-            animal.delay_time = self.markTime();
-
             animal.sprite.y = 0;
             animal.vy = 0;
 
-            if (animal.animated) animal.sprite.gotoAndStop(0);
+            if (animal.animated) animal.stopMoving(false);
           } else {
             animal.sprite.y -= 18;
             animal.vy = -1.8;
@@ -1176,6 +1162,49 @@ Game.prototype.makeAnimal = function(animal_type, pen) {
       }
     }
   }
+
+
+  animal.stopMoving = function(alert_others=false) {
+    // HACKS HACKS I SAY
+    if (alert_others && animal.type === "MEERKAT") {
+      for (let i = 0; i < animal.pen.animal_objects.length; i++) {
+        let other_animal = animal.pen.animal_objects[i];
+        if (other_animal.type === "MEERKAT") other_animal.stopMoving(false);
+      } 
+      return;
+    }
+
+    animal.delay = 500 + 2000 * Math.random();
+    if (animal.type === "MEERKAT") animal.delay += 500 * Math.random() + 2000;
+    animal.delay_time = self.markTime();
+
+    animal.sprite.gotoAndStop(0);
+
+    if (animal.movement === "walk_and_stand") {
+      animal.stand_sprite.gotoAndStop(0);
+      animal.stand_sprite.x = animal.sprite.x;
+      animal.stand_sprite.y = animal.sprite.y;
+      animal.sprite.visible = false;
+      animal.stand_sprite.visible = true;
+      animal.stand_sprite.gotoAndStop(0);
+      animal.prepping_walk = 2;
+    }
+  }
+
+
+  animal.move = function() {
+    animal.y += animal.land_speed * Math.sin(animal.land_angle);
+    animal.x += animal.land_speed * Math.cos(animal.land_angle);
+
+    if (Math.cos(animal.land_angle) < 0) {
+      animal.direction = -1;
+      animal.sprite.scale.set(-animal_scale, animal_scale);
+    } else {
+      animal.direction = 1;
+      animal.sprite.scale.set(animal_scale, animal_scale);
+    }
+  }
+
 
   animal.maybeChangeDirection = function() {
     let dice = Math.random();

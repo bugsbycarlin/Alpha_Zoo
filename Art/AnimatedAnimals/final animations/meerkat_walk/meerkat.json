@@ -1,0 +1,304 @@
+{"frames": {
+
+"meerkat_stand00.png":
+{
+	"frame": {"x":485,"y":532,"w":90,"h":122},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":286,"w":90,"h":122},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand01.png":
+{
+	"frame": {"x":386,"y":533,"w":97,"h":120},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":288,"w":97,"h":120},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand02.png":
+{
+	"frame": {"x":888,"y":301,"w":97,"h":120},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":288,"w":97,"h":120},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand03.png":
+{
+	"frame": {"x":1,"y":535,"w":103,"h":116},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":292,"w":103,"h":116},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand04.png":
+{
+	"frame": {"x":106,"y":535,"w":103,"h":116},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":292,"w":103,"h":116},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand05.png":
+{
+	"frame": {"x":577,"y":531,"w":123,"h":105},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":303,"w":123,"h":105},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand06.png":
+{
+	"frame": {"x":780,"y":1,"w":123,"h":105},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":303,"w":123,"h":105},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand07.png":
+{
+	"frame": {"x":684,"y":527,"w":126,"h":96},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":199,"y":312,"w":126,"h":96},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand08.png":
+{
+	"frame": {"x":888,"y":423,"w":126,"h":96},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":199,"y":312,"w":126,"h":96},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand09.png":
+{
+	"frame": {"x":888,"y":1,"w":148,"h":97},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":202,"y":311,"w":148,"h":97},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand10.png":
+{
+	"frame": {"x":888,"y":151,"w":148,"h":97},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":202,"y":311,"w":148,"h":97},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand11.png":
+{
+	"frame": {"x":782,"y":551,"w":167,"h":99},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":308,"w":167,"h":99},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand12.png":
+{
+	"frame": {"x":777,"y":174,"w":167,"h":99},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":198,"y":308,"w":167,"h":99},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_stand13.png":
+{
+	"frame": {"x":553,"y":355,"w":174,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":194,"y":299,"w":174,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk00.png":
+{
+	"frame": {"x":445,"y":1,"w":174,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":194,"y":299,"w":174,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk01.png":
+{
+	"frame": {"x":554,"y":177,"w":174,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":194,"y":299,"w":174,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk02.png":
+{
+	"frame": {"x":1,"y":1,"w":176,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":189,"y":297,"w":176,"h":110},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk03.png":
+{
+	"frame": {"x":1,"y":179,"w":176,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":189,"y":297,"w":176,"h":110},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk04.png":
+{
+	"frame": {"x":222,"y":179,"w":175,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":189,"y":297,"w":175,"h":110},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk05.png":
+{
+	"frame": {"x":1,"y":357,"w":176,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":188,"y":297,"w":176,"h":110},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk06.png":
+{
+	"frame": {"x":333,"y":356,"w":175,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":187,"y":297,"w":175,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk07.png":
+{
+	"frame": {"x":334,"y":178,"w":175,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":187,"y":297,"w":175,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk08.png":
+{
+	"frame": {"x":335,"y":1,"w":175,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":192,"y":297,"w":175,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk09.png":
+{
+	"frame": {"x":443,"y":355,"w":175,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":192,"y":297,"w":175,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk10.png":
+{
+	"frame": {"x":444,"y":178,"w":175,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":195,"y":297,"w":175,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk11.png":
+{
+	"frame": {"x":113,"y":1,"w":176,"h":108},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":194,"y":297,"w":176,"h":108},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk12.png":
+{
+	"frame": {"x":113,"y":179,"w":176,"h":107},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":195,"y":298,"w":176,"h":107},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk13.png":
+{
+	"frame": {"x":113,"y":357,"w":176,"h":107},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":195,"y":298,"w":176,"h":107},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk14.png":
+{
+	"frame": {"x":222,"y":356,"w":175,"h":109},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":197,"y":297,"w":175,"h":109},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk15.png":
+{
+	"frame": {"x":223,"y":1,"w":175,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":197,"y":297,"w":175,"h":110},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk16.png":
+{
+	"frame": {"x":211,"y":535,"w":173,"h":111},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":200,"y":296,"w":173,"h":111},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk17.png":
+{
+	"frame": {"x":555,"y":1,"w":173,"h":111},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":200,"y":296,"w":173,"h":111},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk18.png":
+{
+	"frame": {"x":663,"y":353,"w":172,"h":111},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":200,"y":296,"w":172,"h":111},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk19.png":
+{
+	"frame": {"x":664,"y":176,"w":172,"h":111},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":200,"y":296,"w":172,"h":111},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk20.png":
+{
+	"frame": {"x":668,"y":1,"w":171,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":199,"y":297,"w":171,"h":110},
+	"sourceSize": {"w":512,"h":512}
+},
+"meerkat_walk21.png":
+{
+	"frame": {"x":776,"y":350,"w":171,"h":110},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":199,"y":297,"w":171,"h":110},
+	"sourceSize": {"w":512,"h":512}
+}},
+"animations": {
+	"stand": ["meerkat_stand00.png","meerkat_stand01.png","meerkat_stand02.png","meerkat_stand03.png","meerkat_stand04.png","meerkat_stand05.png","meerkat_stand06.png","meerkat_stand07.png","meerkat_stand08.png","meerkat_stand09.png","meerkat_stand10.png","meerkat_stand11.png","meerkat_stand12.png","meerkat_stand13.png"],
+	"meerkat": ["meerkat_walk00.png","meerkat_walk01.png","meerkat_walk02.png","meerkat_walk03.png","meerkat_walk04.png","meerkat_walk05.png","meerkat_walk06.png","meerkat_walk07.png","meerkat_walk08.png","meerkat_walk09.png","meerkat_walk10.png","meerkat_walk11.png","meerkat_walk12.png","meerkat_walk13.png","meerkat_walk14.png","meerkat_walk15.png","meerkat_walk16.png","meerkat_walk17.png","meerkat_walk18.png","meerkat_walk19.png","meerkat_walk20.png","meerkat_walk21.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "meerkat.png",
+	"format": "RGBA8888",
+	"size": {"w":986,"h":655},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:df7e177b944b03e1fc62e98b6a041bca:80dacf597c16bca5265b4ec1038dd9a3:815d4f88dd2162cc834cdfa8fd99edc8$"
+}
+}
