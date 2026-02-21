@@ -86,7 +86,7 @@ Game.prototype.initializeCafe = function() {
   this.cafe_meals = [null, null, null, null];
   
   for (let i = 0; i < 5; i++) {
-    let name = "brown_bear";
+    let name = localStorage.getItem("selected_character") || "brown_bear"
     if (i > 0) name = pick(npc_list);
     let diner = this.makeCharacter(name);
     diner.scale.set(1,1); // reset to larger scale
@@ -101,7 +101,27 @@ Game.prototype.initializeCafe = function() {
     screen.addChild(diner);
     this.shakers.push(diner);
     this.cafe_diners.push(diner);
-    if (i == 0) this.cafe_player = diner;
+    if (i == 0) {
+      this.cafe_player = diner;
+
+      // Clear any old balloons from cafe player (in case of re-entry)
+      if (this.cafe_player.balloons && this.cafe_player.balloons.length > 0) {
+        while (this.cafe_player.balloons.length > 0) {
+          let oldBalloon = this.cafe_player.balloons.pop();
+          if (oldBalloon.parent) {
+            oldBalloon.parent.removeChild(oldBalloon);
+          }
+          oldBalloon.destroy();
+        }
+      }
+
+      // Sync balloons from zoo player - this is the single source of truth
+      if (this.player && this.player.balloons) {
+        for (let i = 0; i < this.player.balloons.length; i++) {
+          this.cafe_player.addBalloon(this.player.balloons[i].color);
+        }
+      }
+    }
   }
 
   // make four tables.
@@ -159,7 +179,8 @@ Game.prototype.cafeKeyDown = function(ev) {
   if (key === "Escape" && !this.cafe_exit_sequence) {
     this.cafe_exit_sequence = true;
     this.player.visible = true;
-    this.ghost.visible = true;
+    // Only show ghost if we didn't enter from map mode
+    this.ghost.visible = !this.entered_from_map;
     this.player.y += 150;
     this.map.position.set(this.width/2 - this.player.x * this.map.scale.x, (this.height / 2) - this.player.y * this.map.scale.y);
     this.ghost.position.set(this.width/2, this.height/2);
@@ -321,15 +342,18 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
     flicker(typing_choice, 300, 0x000000, 0xFFFFFF);
   }
 
+  // Add extra delay for player (table 0) so they don't miss the eating animation
+  let eating_delay = (table_number == 0) ? 1200 : 0;
+
   delay(function() {
     if (table_number == 0) {
       if (!isLiquid(food_name)) soundEffect("chomp_" + Math.ceil(Math.random() * 2));
-      if (isLiquid(food_name)) soundEffect("slurp"); 
+      if (isLiquid(food_name)) soundEffect("slurp");
       self.cafe_diners[table_number].shake = self.markTime();
     }
     food_sprite.gotoAndStop(1);
-    
-  }, 500 * (table_number/2 + 1));
+
+  }, eating_delay + 500 * (table_number/2 + 1));
 
   delay(function() {
     if (table_number == 0) {
@@ -337,8 +361,8 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
       self.cafe_diners[table_number].shake = self.markTime();
     }
     food_sprite.gotoAndStop(2);
-    
-  }, 1000 * (table_number/2 + 1));
+
+  }, eating_delay + 1000 * (table_number/2 + 1));
 
   delay(function() {
     food_sprite.visible = false;
@@ -348,7 +372,7 @@ Game.prototype.makeFood = function(food, table_number, typing_choice = null) {
       self.cafe_typing_allowed = true;
       self.cafe_diners[table_number].shake = self.markTime();
     }
-  }, 1500 * (table_number/2 + 1));
+  }, eating_delay + 1500 * (table_number/2 + 1));
 }
 
 
@@ -358,7 +382,9 @@ Game.prototype.updateCafe = function(diff) {
 
   let fractional = diff / (1000/30.0);
 
-  this.cafe_player.updateBalloons();
+  if (this.cafe_player) {
+    this.cafe_player.updateBalloons();
+  }
 
   if (this.cafe_diners != null) {
     for (let i = 1; i < this.cafe_diners.length; i++) {

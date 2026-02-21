@@ -85,7 +85,7 @@ Game.prototype.rollTrains = function() {
 
     new_decorations = [];
     for (let i = 0; i < this.decorations.length; i++) {
-      if (this.decorations[i].character_name != "brown_bear"
+      if (this.decorations[i].character_name != this.player.character_name
         && (this.decorations[i].character_name == null || !this.decorations[i].character_name.includes("stuffed"))) {
         new_decorations.push(this.decorations[i]);
       }

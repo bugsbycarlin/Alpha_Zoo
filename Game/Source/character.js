@@ -325,7 +325,8 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
       }
     }
 
-    let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_shirt.json"].spritesheet;
+    // let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_shirt.json"].spritesheet;
+    let sheet = PIXI.Loader.shared.resources["Art/Characters/brown_bear_shirt.json"].spritesheet;
     character.shirt = {};
     character.shirt_color = shirt_color;
     for(let i = 0; i < 8; i++) {
@@ -355,7 +356,8 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     if (glasses_type == "no_glasses") {
       character.glasses = null;
     } else {
-      let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + glasses_type + ".json"].spritesheet;
+      // let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + glasses_type + ".json"].spritesheet;
+      let sheet = PIXI.Loader.shared.resources["Art/Characters/brown_bear_" + glasses_type + ".json"].spritesheet;
       character.glasses = {};
       character.glasses_type = glasses_type;
       for(let i = 0; i < 8; i++) {
@@ -385,7 +387,8 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     if (hat_type == "no_hat") {
       character.hat = null;
     } else {
-      let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + hat_type + ".json"].spritesheet;
+      // let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_" + hat_type + ".json"].spritesheet;
+      let sheet = PIXI.Loader.shared.resources["Art/Characters/brown_bear_" + hat_type + ".json"].spritesheet;
       character.hat = {};
       character.hat_type = hat_type;
       for(let i = 0; i < 8; i++) {
@@ -422,7 +425,8 @@ Game.prototype.makeCharacter = function(character_name, subtype = "normal") {
     } else {
       character.scooter_boost = 1.3;
 
-      let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_scooter.json"].spritesheet;
+      // let sheet = PIXI.Loader.shared.resources["Art/Characters/" + character_name + "_scooter.json"].spritesheet;
+      let sheet = PIXI.Loader.shared.resources["Art/Characters/brown_bear_scooter.json"].spritesheet;
       character.scooter = {};
       character.scooter_type = scooter_type;
       for(let i = 0; i < 8; i++) {

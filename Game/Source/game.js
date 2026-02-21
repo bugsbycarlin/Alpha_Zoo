@@ -16,7 +16,7 @@ var log_performance = true;
 // open -a Google\ Chrome\ Canary --args --disable-web-security --autoplay-policy=no-user-gesture-required --user-data-dir=/Users/bugsbycarlin/Projects/Messy
 // 
 
-var first_screen = "zoo";
+var first_screen = "character_select";
 
 var performance_result = null;
 
@@ -91,9 +91,7 @@ class Game {
 
     PIXI.Loader.shared
       .add("Art/Characters/brown_bear.json")
-
       .add("Art/Characters/brown_bear_ghost.json")
-
       .add("Art/Characters/brown_bear_shirt.json")
 
       .add("Art/Characters/brown_bear_sun_glasses.json")
@@ -106,15 +104,29 @@ class Game {
       .add("Art/Characters/brown_bear_top_hat.json")
       .add("Art/Characters/brown_bear_ball_cap.json")
       .add("Art/Characters/brown_bear_beanie.json")
-      
 
+      .add("Art/Characters/polar_bear_ghost.json")
       .add("Art/Characters/polar_bear.json")
+
+      .add("Art/Characters/black_bear_ghost.json")
       .add("Art/Characters/black_bear.json")
+  
+      .add("Art/Characters/rabbit_greenshirt_ghost.json")
       .add("Art/Characters/rabbit_greenshirt.json")
+
+      .add("Art/Characters/rabbit_redshirt_ghost.json")
       .add("Art/Characters/rabbit_redshirt.json")
+
+      .add("Art/Characters/rabbit_blueshirt_ghost.json")
       .add("Art/Characters/rabbit_blueshirt.json")
+
+      .add("Art/Characters/orange_cat_ghost.json")
       .add("Art/Characters/orange_cat.json")
+
+      .add("Art/Characters/yellow_cat_ghost.json")
       .add("Art/Characters/yellow_cat.json")
+
+      .add("Art/Characters/light_cat_ghost.json")
       .add("Art/Characters/light_cat.json")
 
       .add("Art/Decorations/trees.json")
@@ -432,7 +444,9 @@ class Game {
 
   initializeScreen(screen_name, reset = false) {
     console.log(screen_name);
-    if (screen_name == "zoo") {
+    if (screen_name == "character_select") {
+      this.initializeCharacterSelect();
+    } else if (screen_name == "zoo") {
       this.initializeZoo();
     } else if (screen_name == "cafe") {
       this.initializeCafe();
@@ -444,7 +458,9 @@ class Game {
   }
 
   update(diff) {
-    if (this.current_screen == "zoo") {
+    if (this.current_screen == "character_select") {
+      this.updateCharacterSelect(diff);
+    } else if (this.current_screen == "zoo") {
       this.updateZoo(diff);
     } else if (this.current_screen == "cafe") {
       this.updateCafe(diff);
@@ -471,7 +487,9 @@ class Game {
 
     this.keymap[ev.key] = true;
 
-    if(this.current_screen === "zoo") {
+    if(this.current_screen === "character_select") {
+      this.characterSelectKeyDown(ev);
+    } else if(this.current_screen === "zoo") {
       this.zooKeyDown(ev);
     } else if (this.current_screen == "cafe") {
       this.cafeKeyDown(ev);

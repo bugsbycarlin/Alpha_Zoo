@@ -391,6 +391,7 @@ Game.prototype.initializeScreens = function() {
   var self = this;
   this.screens = [];
 
+  this.makeScreen("character_select");
   this.makeScreen("zoo");
   this.makeScreen("cafe");
   this.makeScreen("gift_shop");

@@ -283,11 +283,30 @@ Game.prototype.initializeGiftShopObjects = function() {
 
   this.gift_shop_objects = [];
 
-  this.gift_shop_player = this.makeCharacter("brown_bear"); //brown_bear
+  let character_name = localStorage.getItem("selected_character") || "brown_bear"
+  this.gift_shop_player = this.makeCharacter(character_name);
   this.gift_shop_player.position.set(this.width / 2, this.height / 2);
   this.gift_shop_player.scale.set(1,1);
   this.gift_shop_object_layer.addChild(this.gift_shop_player);
   this.gift_shop_objects.push(this.gift_shop_player);
+
+  // Clear any old balloons from gift shop player (in case of re-entry)
+  if (this.gift_shop_player.balloons && this.gift_shop_player.balloons.length > 0) {
+    while (this.gift_shop_player.balloons.length > 0) {
+      let oldBalloon = this.gift_shop_player.balloons.pop();
+      if (oldBalloon.parent) {
+        oldBalloon.parent.removeChild(oldBalloon);
+      }
+      oldBalloon.destroy();
+    }
+  }
+
+  // Sync balloons from zoo player - this is the single source of truth
+  if (this.player && this.player.balloons) {
+    for (let i = 0; i < this.player.balloons.length; i++) {
+      this.gift_shop_player.addBalloon(this.player.balloons[i].color);
+    }
+  }
 
   for (let i = 0; i < gift_shop_table_locations.length; i++) {
     let p = gift_shop_table_locations[i];
@@ -502,7 +521,8 @@ Game.prototype.giftShopKeyDown = function(ev) {
   if (key === "Escape" && this.gift_shop_mode != "exit") {
     this.gift_shop_mode = "exit";
     this.player.visible = true;
-    this.ghost.visible = true;
+    // Only show ghost if we didn't enter from map mode
+    this.ghost.visible = !this.entered_from_map;
     this.player.y += 150;
     for (let i = 0; i < this.player.stuffies.length; i++) {
       this.player.stuffies[i].position.set(this.player.x + (i+1) * 50, this.player.y);
@@ -569,7 +589,7 @@ Game.prototype.giftShopAddType = function(letter) {
       self.dollar_bucks -= slot.price;
       self.gift_shop_dollar_bucks_text.text = self.dollar_bucks;
       flicker(self.gift_shop_dollar_bucks_text, 300, 0x000000, 0xFFFFFF);
-      
+
 
       if (slot.type == "stuffie") {
         if (slot.name.includes("no_")) {
@@ -647,6 +667,7 @@ Game.prototype.giftShopAddType = function(letter) {
         }
         slot.price = 0;
       } else if (slot.type == "balloon") {
+        // Add to both gift shop player (for immediate visibility) and zoo player (source of truth)
         self.gift_shop_player.addBalloon(slot.color);
         if (self.player != null) self.player.addBalloon(slot.color);
         if (self.cafe_player != null) self.cafe_player.addBalloon(slot.color);
@@ -682,6 +703,9 @@ Game.prototype.giftShopAddType = function(letter) {
       self.updatePriceTags();
 
       self.makeSmoke(screen, slot.x, slot.y - 50, 1.8, 1.8);
+
+      // Save zoo state after all purchases are processed
+      self.saveZooState();
 
       self.giftShopHideTypingText();
     }, 200);
